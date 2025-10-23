@@ -24,7 +24,6 @@ def download_audio(youtube_url, output_path="audio"):
 def transcribe_audio_with_diarization(audio_file, model_size="base", device="cuda", compute_type="float16", hf_token=None):
     """Transcribe audio using WhisperX with speaker diarization"""
     
-    # Check if GPU is available
     if device == "cuda" and not torch.cuda.is_available():
         print("CUDA not available, falling back to CPU")
         device = "cpu"
@@ -135,10 +134,10 @@ def save_transcript(result, output_file="transcript.txt", json_file="transcript.
 
 
 def main():
-    # YouTube video URL
+    # YouTube video URL (HARDCODED AT THE MOMENT)
     youtube_url = "https://www.youtube.com/watch?v=83jt-xOJok4"
     
-    # Create output directory
+    # Create output dir
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)
     
@@ -147,18 +146,15 @@ def main():
     print(f"\nVideo title: {video_info['title']}")
     print(f"Duration: {video_info['duration']} seconds")
     
-    # Transcribe using WhisperX with diarization
+    # Transcribe using WhisperX w/ diarization
     # Model sizes: tiny, base, small, medium, large-v2, large-v3
-    # Larger models are more accurate but slower
     model_size = "base"
     
     # Set device and compute type
     device = "cuda" if torch.cuda.is_available() else "cpu"
     compute_type = "float16" if device == "cuda" else "int8"
     
-    # Get HuggingFace token from environment (optional, for speaker diarization)
-    # You can get a token from https://huggingface.co/settings/tokens
-    # Accept pyannote/speaker-diarization conditions: https://huggingface.co/pyannote/speaker-diarization
+    # Get HuggingFace token from env
     hf_token = os.environ.get("HF_TOKEN", None)
     
     print(f"\nUsing device: {device}")
