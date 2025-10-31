@@ -22,18 +22,13 @@ model = LlavaNextVideoForConditionalGeneration.from_pretrained(
     quantization_config=quantization_config,
     torch_dtype=torch.float16,
     low_cpu_mem_usage=True,
-    device_map="auto",
+    device_map="cuda:0",
     trust_remote_code=True,
 )
 
 # Load & sample video frames
 video_path = r"C:\Users\karis\WorcesterPolytechnicInstitute\MQP\VLM\videos\edited-storm-body-cam.mp4"
-
-vr = VideoReader(video_path, ctx=cpu())
-num_frames = min(len(vr), 32)
-indices = np.linspace(0, len(vr) - 1, num_frames, dtype=int)
-frames = [vr[i].asnumpy() for i in indices]
-print(f"Loaded {len(frames)} frames:", frames[0].shape)
+num_frames = [8, 16, 32, 64, 128, 256]
 
 # Proper chat template
 conversation = [
@@ -47,22 +42,32 @@ conversation = [
 ]
 prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
 
-# Preprocess multimodal input
-inputs = processor(
-    text=[prompt],
-    videos=[frames],
-    padding=True,
-    return_tensors="pt"
-).to(model.device)
+# Run inference on various framerates
+for n in num_frames:
+    
+    # Initialize frames
+    vr = VideoReader(video_path, ctx=cpu())
+    num_frames = min(len(vr), n)
+    indices = np.linspace(0, len(vr) - 1, num_frames, dtype=int)
+    frames = [vr[i].asnumpy() for i in indices]
+    print(f"Loaded {len(frames)} frames:", frames[0].shape)
 
-# Generate
-output = model.generate(
-    **inputs,
-    max_new_tokens=250,
-    temperature=0.2,
-    do_sample=False
-)
+    # Preprocess multimodal input
+    inputs = processor(
+        text=[prompt],
+        videos=[frames],
+        padding=True,
+        return_tensors="pt"
+    ).to(model.device)
 
-# Decode
-response = processor.batch_decode(output, skip_special_tokens=True)[0]
-print("\nModel output:\n", response)
+    # Generate
+    output = model.generate(
+        **inputs,
+        max_new_tokens=250,
+        temperature=0.5,
+        do_sample=False
+    )
+
+    # Decode
+    response = processor.batch_decode(output, skip_special_tokens=True)[0]
+    print("\nModel output:\n", response)
