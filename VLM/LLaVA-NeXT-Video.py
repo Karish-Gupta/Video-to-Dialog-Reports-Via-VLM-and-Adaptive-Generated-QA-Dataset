@@ -14,7 +14,9 @@ model_id = "llava-hf/LLaVA-NeXT-Video-7B-hf"
 
 processor = LlavaNextVideoProcessor.from_pretrained(
     model_id, 
-    trust_remote_code=True
+    trust_remote_code=True,
+    use_fast=True
+
 )
 
 model = LlavaNextVideoForConditionalGeneration.from_pretrained(
@@ -74,7 +76,6 @@ for video_path in videos:
         output = model.generate(
             **inputs,
             max_new_tokens=250,
-            temperature=0.5,
             do_sample=False
         )
 
