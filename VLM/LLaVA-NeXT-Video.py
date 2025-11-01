@@ -33,7 +33,7 @@ video_3_path = "VLM/videos/highway_bodycam.mp4"
 videos = [video_1_path, video_2_path, video_3_path]
 
 
-num_frames = [8, 16, 32, 64, 128, 256]
+frames_list = [8, 16, 32, 64, 128, 256]
 
 # Proper chat template
 conversation = [
@@ -54,7 +54,7 @@ for video_path in videos:
     print(70 * "=")
     print(f"Video: {video_path}")
 
-    for n in num_frames:
+    for n in frames_list:
         
         # Initialize frames
         vr = VideoReader(video_path, ctx=cpu())
@@ -83,3 +83,4 @@ for video_path in videos:
         print(f"Loaded {len(frames)} frames:", frames[0].shape)
         print("\nModel output:\n", response)
         print(70 * "=")
+        torch.cuda.empty_cache()
