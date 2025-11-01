@@ -7,7 +7,7 @@
 #SBATCH -e vlm_inference_%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 5:00:00                   # time limit of 12 hours
-#SBATCH --gres=gpu:H100:1             # request 1 H200 GPU
+#SBATCH --gres=gpu:A100:1             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR/..
 
@@ -17,9 +17,10 @@ module load cuda/12.4.0/3mdaov5
 python -m venv env
 source env/bin/activate
 
+pip install --upgrade pip
 pip install --upgrade -q accelerate bitsandbytes
 pip install git+https://github.com/huggingface/transformers.git
-pip install huggingface-hub==0.26.0
+pip install huggingface-hub
 pip install -q av
 pip install pillow
 pip install torchvision
@@ -28,4 +29,4 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 
-python -m VLM/LLaVA-NeXT-Video.py
+python VLM/LLaVA-NeXT-Video.py

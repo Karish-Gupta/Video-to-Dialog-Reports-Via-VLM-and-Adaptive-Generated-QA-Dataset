@@ -27,7 +27,12 @@ model = LlavaNextVideoForConditionalGeneration.from_pretrained(
 )
 
 # Load & sample video frames
-video_path = r"C:\Users\karis\WorcesterPolytechnicInstitute\MQP\VLM\videos\edited-storm-body-cam.mp4"
+video_1_path = "VLM/videos/high_way_bodycam_30_sec.mp4"
+video_2_path = "VLM/videos/highway_bodycam_one_min.mp4"
+video_3_path = "VLM/videos/highway_bodycam.mp4"
+videos = [video_1_path, video_2_path, video_3_path]
+
+
 num_frames = [8, 16, 32, 64, 128, 256]
 
 # Proper chat template
@@ -35,7 +40,7 @@ conversation = [
     {
         "role": "user",
         "content": [
-            {"type": "text", "text": "Describe what happens in this video in detail."},
+            {"type": "text", "text": "This is a police bodycam video. Describe what happens in this video in detail."},
             {"type": "video"},
         ],
     },
@@ -43,31 +48,38 @@ conversation = [
 prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
 
 # Run inference on various framerates
-for n in num_frames:
+
+for video_path in videos:
     
-    # Initialize frames
-    vr = VideoReader(video_path, ctx=cpu())
-    num_frames = min(len(vr), n)
-    indices = np.linspace(0, len(vr) - 1, num_frames, dtype=int)
-    frames = [vr[i].asnumpy() for i in indices]
-    print(f"Loaded {len(frames)} frames:", frames[0].shape)
+    print(70 * "=")
+    print(f"Video: {video_path}")
 
-    # Preprocess multimodal input
-    inputs = processor(
-        text=[prompt],
-        videos=[frames],
-        padding=True,
-        return_tensors="pt"
-    ).to(model.device)
+    for n in num_frames:
+        
+        # Initialize frames
+        vr = VideoReader(video_path, ctx=cpu())
+        num_frames = min(len(vr), n)
+        indices = np.linspace(0, len(vr) - 1, num_frames, dtype=int)
+        frames = [vr[i].asnumpy() for i in indices]
 
-    # Generate
-    output = model.generate(
-        **inputs,
-        max_new_tokens=250,
-        temperature=0.5,
-        do_sample=False
-    )
+        # Preprocess multimodal input
+        inputs = processor(
+            text=[prompt],
+            videos=[frames],
+            padding=True,
+            return_tensors="pt"
+        ).to(model.device)
 
-    # Decode
-    response = processor.batch_decode(output, skip_special_tokens=True)[0]
-    print("\nModel output:\n", response)
+        # Generate
+        output = model.generate(
+            **inputs,
+            max_new_tokens=250,
+            temperature=0.5,
+            do_sample=False
+        )
+
+        # Decode
+        response = processor.batch_decode(output, skip_special_tokens=True)[0]
+        print(f"Loaded {len(frames)} frames:", frames[0].shape)
+        print("\nModel output:\n", response)
+        print(70 * "=")
