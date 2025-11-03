@@ -9,15 +9,15 @@ if "HF_TOKEN" in os.environ:
    login(token=os.environ["HF_TOKEN"])
    
 class llm:
-   def __init__(self, model_name):
+   def __init__(self, model):
       # Configs
-      self.model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
-      self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+      self.model = AutoModelForCausalLM.from_pretrained(model, torch_dtype=torch.float16)
+      self.tokenizer = AutoTokenizer.from_pretrained(model)
       self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-   def first_run(self, text):
+   def report_prompt(self, text):
       prompt_template = f"""
-         You are generating training data for a vision-language model. 
+         You are generating training data for a vision-language model.
          Given the structured scene summary below format the text into this structured format:
 
          Structured summary:
@@ -35,9 +35,22 @@ class llm:
       """
 
       return prompt_template
+   
+   def build_transcript_context(self, transcript):
+      prompt_template = f"""
+      You are summarizing a police bodycam video transcript. 
+      Ensure that the summary is detailed and includes all pieces of information that could be helpful to law enforcement when making a report.
+
+      Transcript: 
+      {transcript}
+      """
+
+      return prompt_template
 
    
    def invoke(self, prompt):
       inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
       outputs = self.model.generate(**inputs, max_new_tokens=256, temperature=1)
-      print(self.tokenizer.decode(outputs[0], skip_special_tokens=True))
+      decoded_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+      return decoded_output
+

@@ -4,6 +4,7 @@ from decord import VideoReader, cpu
 import numpy as np
 
 from transcript_context import transcript_up_2_40, full_transcript
+from qa_generation import *
 
 # Quantization setup
 quantization_config = BitsAndBytesConfig(
@@ -39,12 +40,22 @@ videos = [video_1_path, video_2_path, video_3_path]
 
 frames_list = [8, 16, 32, 64, 128, 256]
 
+# Use LLM for chat summary
+model = "meta-llama/Meta-Llama-3-70B"
+llm_ = llm(model)
+
+llm_prompt_transcript_2_40 = llm_.build_transcript_context(transcript_up_2_40)
+llm_prompt_full = llm_.build_transcript_context(full_transcript)
+
+summarized_transcript_2_40 = llm_.invoke(llm_prompt_transcript_2_40)
+summarized_transcript_full = llm_.invoke(llm_prompt_full)
+
 # Proper chat template
 conversation_up_to_2_40 = [
     {
         "role": "user",
         "content": [
-            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail. Transcript up to this point: {transcript_up_2_40}"},
+            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail. Transcript up to this point: {summarized_transcript_2_40}"},
             {"type": "video"},
         ],
     },
@@ -54,7 +65,7 @@ conversation_full = [
     {
         "role": "user",
         "content": [
-            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail. Transcript up to this point: {full_transcript}"},
+            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail. Transcript up to this point: {summarized_transcript_full}"},
             {"type": "video"},
         ],
     },

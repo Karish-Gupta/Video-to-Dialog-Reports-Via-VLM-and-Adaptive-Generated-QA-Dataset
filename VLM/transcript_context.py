@@ -1,3 +1,4 @@
+# Transcript up to 2 min and 40 sec
 transcript_up_2_40 = """
 [00:00:00.233 --> 00:00:07.088] [Unknown]
 Take 5-6.
@@ -94,7 +95,7 @@ Thank you.
 
 """
 
-
+# Full transcript from start to end 4 min 16 sec
 full_transcript = """
 
 [00:00:00.233 --> 00:00:07.088] [Unknown]
