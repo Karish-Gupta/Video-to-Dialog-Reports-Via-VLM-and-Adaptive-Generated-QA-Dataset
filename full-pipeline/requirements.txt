@@ -2,6 +2,7 @@ whisperx
 yt-dlp
 ffmpeg-python
 torch
+torchvision
 pyannote.audio
 decord
 

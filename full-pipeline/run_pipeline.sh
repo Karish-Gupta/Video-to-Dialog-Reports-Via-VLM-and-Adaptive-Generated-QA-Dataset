@@ -27,6 +27,8 @@ source ./whisper_env/bin/activate
 # Install/upgrade dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
+pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+
 
 # Verify GPU is available
 echo "Checking GPU availability..."
