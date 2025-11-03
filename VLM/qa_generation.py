@@ -11,7 +11,7 @@ if "HF_TOKEN" in os.environ:
 class llm:
    def __init__(self, model):
       # Configs
-      self.model = AutoModelForCausalLM.from_pretrained(model, torch_dtype=torch.float16)
+      self.model = AutoModelForCausalLM.from_pretrained(model, dtype=torch.float16)
       self.tokenizer = AutoTokenizer.from_pretrained(model)
       self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
