@@ -1,6 +1,8 @@
 import os
 import torch
+from datetime import datetime
 from functions.downloader import download_video
+from functions.audio_transcriber import transcribe_audio_with_diarization, save_transcript
 from functions.embedding_extractor import process_video_with_embeddings, save_video_embeddings
 from functions.vlm_processor import load_llava_model, process_chunk_with_vlm, save_vlm_descriptions
 from functions.video_processor import extract_video_chunk_with_decord
@@ -24,22 +26,53 @@ def main():
     print(f"Using device: {device}")
 
     # =========================================================================
-    # STEP 1: Process video with CLIP embeddings (30-second chunks)
+    # STEP 1: Transcribe audio with WhisperX
+    # =========================================================================
+    print_section("STEP 1: TRANSCRIBING AUDIO WITH WHISPERX")
+    
+    # Generate timestamp for output files
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Transcribe audio (set hf_token to your HuggingFace token for speaker diarization)
+    transcript_result = transcribe_audio_with_diarization(
+        audio_file=video_file,
+        model_size="base",
+        device=device,
+        compute_type="float16" if device == "cuda" else "int8",
+        hf_token=None  # Set to your HuggingFace token if you want speaker diarization
+    )
+    
+    # Save transcript files
+    transcript_file = os.path.join(output_dir, f"transcript_{timestamp}.txt")
+    transcript_json = os.path.join(output_dir, f"transcript_{timestamp}.json")
+    transcript_timestamped = os.path.join(output_dir, f"transcript_{timestamp}_timestamped.txt")
+    
+    save_transcript(
+        transcript_result,
+        output_file=transcript_file,
+        json_file=transcript_json,
+        timestamped_file=transcript_timestamped
+    )
+    
+    print(f"\nTranscript JSON path (for context extraction): {transcript_json}")
+
+    # =========================================================================
+    # STEP 2: Process video with CLIP embeddings (30-second chunks)
     # =========================================================================
     chunk_duration = 30.0  
     frames_per_chunk = 64
     clip_model = "openai/clip-vit-base-patch32"
 
-    print_section("STEP 1: EXTRACTING CLIP EMBEDDINGS")
+    print_section("STEP 2: EXTRACTING CLIP EMBEDDINGS")
     print(f"Video processing parameters:")
     print(f"  Chunk duration: {chunk_duration}s")
     print(f"  Frames per chunk (for CLIP): {frames_per_chunk}")
     print(f"  CLIP model: {clip_model}")
 
-    # Pass empty transcript (no WhisperX transcription in this simplified flow)
+    # Process video with transcript
     video_result = process_video_with_embeddings(
         video_path=video_file,
-        transcript={},
+        transcript=transcript_result,
         output_dir=output_dir,
         chunk_duration=chunk_duration,
         frames_per_chunk=frames_per_chunk,
@@ -51,9 +84,9 @@ def main():
     save_video_embeddings(video_result, output_dir=output_dir, prefix="video_embeddings")
 
     # =========================================================================
-    # STEP 2: Process each 30-second chunk with LLaVA-NeXT-Video
+    # STEP 3: Process each 30-second chunk with LLaVA-NeXT-Video
     # =========================================================================
-    print_section("STEP 2: PROCESSING CHUNKS WITH LLaVA-NeXT-VIDEO")
+    print_section("STEP 3: PROCESSING CHUNKS WITH LLaVA-NeXT-VIDEO")
     
     # Load LLaVA model
     vlm_model, vlm_processor = load_llava_model(device=device)
@@ -110,6 +143,9 @@ def main():
     # =========================================================================
     print_section("ALL PROCESSING COMPLETE!")
     print(f"Generated files in: {output_dir}/")
+    print(f"- Transcript (plain text): {transcript_file}")
+    print(f"- Transcript (JSON with timestamps): {transcript_json}")
+    print(f"- Transcript (human-readable): {transcript_timestamped}")
     print("- Video metadata and chunk info (JSON)")
     print("- CLIP embeddings (.npy) and complete pickle (.pkl)")
     print(f"- VLM descriptions: {vlm_output_path}")
