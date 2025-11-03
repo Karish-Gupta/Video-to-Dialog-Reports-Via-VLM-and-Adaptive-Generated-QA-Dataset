@@ -3,6 +3,7 @@ yt-dlp
 ffmpeg-python
 torch
 pyannote.audio
+decord
 
 # Video processing and CLIP embeddings
 opencv-python
