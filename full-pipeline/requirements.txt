@@ -1,0 +1,12 @@
+whisperx
+yt-dlp
+ffmpeg-python
+torch
+pyannote.audio
+
+# Video processing and CLIP embeddings
+opencv-python
+Pillow
+transformers
+numpy
+scipy
