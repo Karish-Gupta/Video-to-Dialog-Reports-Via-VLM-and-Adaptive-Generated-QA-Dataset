@@ -513,7 +513,7 @@ def save_video_embeddings(result: Dict, output_dir: str = "output", prefix: str 
 
 def main():
     # YouTube video URL (HARDCODED AT THE MOMENT)
-    youtube_url = "https://www.youtube.com/watch?v=83jt-xOJok4"
+    youtube_url = "https://www.youtube.com/watch?v=aNXf82gWb5A"
     
     # Create output dir
     output_dir = "output"

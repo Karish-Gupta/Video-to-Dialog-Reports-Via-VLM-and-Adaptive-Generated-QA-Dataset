@@ -3,6 +3,8 @@ from transformers import BitsAndBytesConfig, LlavaNextVideoForConditionalGenerat
 from decord import VideoReader, cpu
 import numpy as np
 
+from transcript_context import transcript_up_2_40, full_transcript
+
 # Quantization setup
 quantization_config = BitsAndBytesConfig(
     load_in_4bit=True,
@@ -38,18 +40,30 @@ videos = [video_1_path, video_2_path, video_3_path]
 frames_list = [8, 16, 32, 64, 128, 256]
 
 # Proper chat template
-conversation = [
+conversation_up_to_2_40 = [
     {
         "role": "user",
         "content": [
-            {"type": "text", "text": "This is a police bodycam video. Describe what happens in this video in detail."},
+            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail. Transcript up to this point: {transcript_up_2_40}"},
             {"type": "video"},
         ],
     },
 ]
-prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
+
+conversation_full = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail. Transcript up to this point: {full_transcript}"},
+            {"type": "video"},
+        ],
+    },
+]
+prompt_up_to_2_40 = processor.apply_chat_template(conversation_up_to_2_40, add_generation_prompt=True)
+prompt_full = processor.apply_chat_template(conversation_full, add_generation_prompt=True)
 
 # Run inference on various framerates
+i = 0
 
 for video_path in videos:
     
@@ -64,13 +78,23 @@ for video_path in videos:
         indices = np.linspace(0, len(vr) - 1, num_frames, dtype=int)
         frames = [vr[i].asnumpy() for i in indices]
 
-        # Preprocess multimodal input
-        inputs = processor(
-            text=[prompt],
-            videos=[frames],
-            padding=True,
-            return_tensors="pt"
-        ).to(model.device)
+        if i == 2:
+            # Preprocess multimodal input
+            inputs = processor(
+                text=[prompt_full],
+                videos=[frames],
+                padding=True,
+                return_tensors="pt"
+            ).to(model.device)
+
+        else: 
+            # Preprocess multimodal input
+            inputs = processor(
+                text=[prompt_up_to_2_40],
+                videos=[frames],
+                padding=True,
+                return_tensors="pt"
+            ).to(model.device)
 
         # Generate
         output = model.generate(
@@ -85,3 +109,6 @@ for video_path in videos:
         print("\nModel output:\n", response)
         print(70 * "=")
         torch.cuda.empty_cache()
+    
+    i += 1
+
