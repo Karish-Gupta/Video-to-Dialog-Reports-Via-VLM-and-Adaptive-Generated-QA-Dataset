@@ -53,7 +53,12 @@ class llm:
                               truncation=True, 
                               max_length=8192
                               ).to(self.model.device)
-      outputs = self.model.generate(**inputs, max_new_tokens=256, temperature=1.0)
+      outputs = self.model.generate(**inputs, 
+                                    max_new_tokens=256, 
+                                    do_sample=True,
+                                    temperature=1.0
+                                    )
+      
       gen_tokens = outputs[0][inputs["input_ids"].shape[1]:]
       decoded_output = self.tokenizer.decode(gen_tokens, skip_special_tokens=True)
       return decoded_output
