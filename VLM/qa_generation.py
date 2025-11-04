@@ -48,7 +48,7 @@ class llm:
 
    
    def invoke(self, prompt):
-      inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
+      inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True).to(self.model.device)
       outputs = self.model.generate(**inputs, max_new_tokens=256, temperature=1)
       decoded_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
       return decoded_output

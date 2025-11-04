@@ -74,9 +74,7 @@ prompt_up_to_2_40 = processor.apply_chat_template(conversation_up_to_2_40, add_g
 prompt_full = processor.apply_chat_template(conversation_full, add_generation_prompt=True)
 
 # Run inference on various framerates
-i = 0
-
-for video_path in videos:
+for i, video_path in enumerate(videos):
     
     print(70 * "=")
     print(f"Video: {video_path}")
@@ -121,5 +119,4 @@ for video_path in videos:
         print(70 * "=")
         torch.cuda.empty_cache()
     
-    i += 1
 
