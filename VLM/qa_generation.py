@@ -11,9 +11,8 @@ if "HF_TOKEN" in os.environ:
 class llm:
    def __init__(self, model):
       # Configs
-      self.model = AutoModelForCausalLM.from_pretrained(model, dtype=torch.float16)
+      self.model = AutoModelForCausalLM.from_pretrained(model, dtype=torch.float16, device_map="cuda:0")
       self.tokenizer = AutoTokenizer.from_pretrained(model)
-      self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
    def report_prompt(self, text):
       prompt_template = f"""
@@ -49,7 +48,7 @@ class llm:
 
    
    def invoke(self, prompt):
-      inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
+      inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
       outputs = self.model.generate(**inputs, max_new_tokens=256, temperature=1)
       decoded_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
       return decoded_output
