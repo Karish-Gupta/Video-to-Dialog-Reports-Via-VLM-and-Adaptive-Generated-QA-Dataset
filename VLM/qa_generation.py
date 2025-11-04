@@ -11,8 +11,9 @@ if "HF_TOKEN" in os.environ:
 class llm:
    def __init__(self, model):
       # Configs
-      self.model = AutoModelForCausalLM.from_pretrained(model, dtype=torch.float16, device_map="cuda:0")
+      self.model = AutoModelForCausalLM.from_pretrained(model, dtype=torch.float16, device_map="auto")
       self.tokenizer = AutoTokenizer.from_pretrained(model)
+      self.tokenizer.pad_token = self.tokenizer.eos_token # Set padding token for Llama
 
    def report_prompt(self, text):
       prompt_template = f"""
@@ -48,18 +49,29 @@ class llm:
 
    
    def invoke(self, prompt):
-      inputs = self.tokenizer(prompt, 
-                              return_tensors="pt", 
-                              truncation=True, 
-                              max_length=8192 - 256 # token length for llama is 8192 for input and output
-                              ).to(self.model.device)
-      outputs = self.model.generate(**inputs, 
-                                    max_new_tokens=256, 
-                                    do_sample=True,
-                                    temperature=1.0
-                                    )
+      inputs = self.tokenizer(
+         prompt, 
+         return_tensors="pt", 
+         truncation=True, 
+         max_length=7000 # Token length for llama is 8192 for input and output
+      ).to(self.model.device)
       
+      outputs = self.model.generate(
+         **inputs, 
+         max_new_tokens=256, 
+         do_sample=True,
+         temperature=0.5,
+         pad_token_id=self.tokenizer.pad_token_id,  # Explicit pad token
+         eos_token_id=self.tokenizer.eos_token_id
+      )
+      
+      # Decode only generated tokens
       gen_tokens = outputs[0][inputs["input_ids"].shape[1]:]
       decoded_output = self.tokenizer.decode(gen_tokens, skip_special_tokens=True)
-      return decoded_output
+
+      print(f"Generated {len(gen_tokens)} tokens") # Debug
+
+      return decoded_output.strip()
+   
+
 
