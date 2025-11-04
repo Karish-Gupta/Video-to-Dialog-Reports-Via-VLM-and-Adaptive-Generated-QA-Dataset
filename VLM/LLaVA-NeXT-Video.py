@@ -95,8 +95,6 @@ for i, video_path in enumerate(videos):
                 text=[prompt_full],
                 videos=[frames],
                 padding=True,
-                truncation=True,
-                max_length=4096 - 256,
                 return_tensors="pt"
             ).to(model.device)
 
@@ -106,8 +104,6 @@ for i, video_path in enumerate(videos):
                 text=[prompt_up_to_2_40],
                 videos=[frames],
                 padding=True,
-                truncation=True,
-                max_length=4096 - 256,
                 return_tensors="pt"
             ).to(model.device)
 
