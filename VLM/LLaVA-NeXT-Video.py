@@ -19,7 +19,6 @@ processor = LlavaNextVideoProcessor.from_pretrained(
     model_name, 
     trust_remote_code=True,
     use_fast=True
-
 )
 
 model = LlavaNextVideoForConditionalGeneration.from_pretrained(
@@ -49,6 +48,9 @@ llm_prompt_full = llm_.build_transcript_context(full_transcript)
 
 summarized_transcript_2_40 = llm_.invoke(llm_prompt_transcript_2_40)
 summarized_transcript_full = llm_.invoke(llm_prompt_full)
+
+print(f"Sumarized transcript 2_40: {summarized_transcript_2_40}")
+print(f"Summarized transcript full: {summarized_transcript_full}")
 
 # Proper chat template
 conversation_up_to_2_40 = [
@@ -93,6 +95,8 @@ for i, video_path in enumerate(videos):
                 text=[prompt_full],
                 videos=[frames],
                 padding=True,
+                truncation=True,
+                max_length=4096 - 256,
                 return_tensors="pt"
             ).to(model.device)
 
@@ -102,13 +106,15 @@ for i, video_path in enumerate(videos):
                 text=[prompt_up_to_2_40],
                 videos=[frames],
                 padding=True,
+                truncation=True,
+                max_length=4096 - 256,
                 return_tensors="pt"
             ).to(model.device)
 
         # Generate
         output = model.generate(
             **inputs,
-            max_new_tokens=250,
+            max_new_tokens=256,
             do_sample=False
         )
 

@@ -51,7 +51,7 @@ class llm:
       inputs = self.tokenizer(prompt, 
                               return_tensors="pt", 
                               truncation=True, 
-                              max_length=8192
+                              max_length=8192 - 256 # token length for llama is 8192 for input and output
                               ).to(self.model.device)
       outputs = self.model.generate(**inputs, 
                                     max_new_tokens=256, 
