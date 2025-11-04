@@ -13,17 +13,17 @@ quantization_config = BitsAndBytesConfig(
 )
 
 # Load processor and model
-model_id = "llava-hf/LLaVA-NeXT-Video-7B-hf"
+model_name = "llava-hf/LLaVA-NeXT-Video-7B-hf"
 
 processor = LlavaNextVideoProcessor.from_pretrained(
-    model_id, 
+    model_name, 
     trust_remote_code=True,
     use_fast=True
 
 )
 
 model = LlavaNextVideoForConditionalGeneration.from_pretrained(
-    model_id,
+    model_name,
     quantization_config=quantization_config,
     torch_dtype=torch.float16,
     low_cpu_mem_usage=True,
@@ -41,8 +41,8 @@ videos = [video_1_path, video_2_path, video_3_path]
 frames_list = [8, 16, 32, 64, 128, 256]
 
 # Use LLM for chat summary
-model = "meta-llama/Meta-Llama-3-8B"
-llm_ = llm(model)
+llm_model = "meta-llama/Meta-Llama-3-8B"
+llm_ = llm(llm_model)
 
 llm_prompt_transcript_2_40 = llm_.build_transcript_context(transcript_up_2_40)
 llm_prompt_full = llm_.build_transcript_context(full_transcript)
