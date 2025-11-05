@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from huggingface_hub import login
 import os
 
@@ -11,7 +11,20 @@ if "HF_TOKEN" in os.environ:
 class llm:
    def __init__(self, model):
       # Configs
-      self.model = AutoModelForCausalLM.from_pretrained(model, dtype=torch.float16, device_map="auto")
+
+      # Quantization config: load in 4-bit to save VRAM
+      quant_config = BitsAndBytesConfig(
+         load_in_4bit=True,
+         bnb_4bit_compute_dtype=torch.float16,
+         bnb_4bit_use_double_quant=True,
+         bnb_4bit_quant_type="nf4"
+      )
+      
+      self.model = AutoModelForCausalLM.from_pretrained(
+         model, 
+         quantization_config=quant_config,
+         device_map="cuda:0"
+      )
       self.tokenizer = AutoTokenizer.from_pretrained(model)
       self.tokenizer.pad_token = self.tokenizer.eos_token # Set padding token for Llama
 
