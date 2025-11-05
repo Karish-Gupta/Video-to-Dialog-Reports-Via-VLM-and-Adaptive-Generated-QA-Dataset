@@ -57,7 +57,7 @@ conversation_up_to_2_40 = [
     {
         "role": "user",
         "content": [
-            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail. Transcript up to this point: {summarized_transcript_2_40}"},
+            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific. Context up to this point: {summarized_transcript_2_40}"},
             {"type": "video"},
         ],
     },
@@ -67,7 +67,7 @@ conversation_full = [
     {
         "role": "user",
         "content": [
-            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail. Transcript up to this point: {summarized_transcript_full}"},
+            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific. Context up to this point: {summarized_transcript_full}"},
             {"type": "video"},
         ],
     },
