@@ -40,7 +40,7 @@ videos = [video_1_path, video_2_path, video_3_path]
 frames_list = [8, 16, 32, 64, 128, 256]
 
 # Use LLM for chat summary
-llm_model = "meta-llama/Meta-Llama-3-8B"
+llm_model = "meta-llama/Meta-Llama-3-70B"
 llm_ = llm(llm_model)
 
 llm_prompt_transcript_2_40 = llm_.build_transcript_context(transcript_up_2_40)
