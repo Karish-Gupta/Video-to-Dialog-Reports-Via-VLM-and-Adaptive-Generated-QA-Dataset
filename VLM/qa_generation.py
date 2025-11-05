@@ -23,7 +23,7 @@ class llm:
       self.model = AutoModelForCausalLM.from_pretrained(
          model, 
          quantization_config=quant_config,
-         device_map="cuda:0"
+         device_map="cuda:1"
       )
       self.tokenizer = AutoTokenizer.from_pretrained(model)
       self.tokenizer.pad_token = self.tokenizer.eos_token # Set padding token for Llama
