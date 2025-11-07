@@ -26,7 +26,7 @@ llm_model = "meta-llama/Meta-Llama-3-70B"
 llm_ = llm(llm_model)
 
 structured_output = llm_.invoke(step_1_prompt)
-print(f"Generated Structured Elements: {step_1_prompt}")
+print(f"Generated Structured Elements: {structured_output}")
 
 
 # Step 2 prompt
