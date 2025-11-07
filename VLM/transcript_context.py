@@ -1,3 +1,23 @@
+transcript_60_sec = """
+[00:00:00.233 --> 00:00:07.088] [Unknown]
+Take 5-6.
+
+[00:00:26.255 --> 00:00:29.321] [Unknown]
+Hello, how you doing?
+
+[00:00:29.341 --> 00:00:37.718] [Unknown]
+I need to see your license registration please.
+
+[00:00:37.738 --> 00:00:42.508] [Unknown]
+You gotta killer in your lap there.
+
+[00:00:52.023 --> 00:00:56.834] [Unknown]
+We're guys coming from today.
+
+[00:00:56.854 --> 00:00:57.055] [Unknown]
+I got you.
+"""
+
 # Transcript up to 2 min and 40 sec
 transcript_up_2_40 = """
 [00:00:00.233 --> 00:00:07.088] [Unknown]
@@ -10,7 +30,7 @@ Hello, how you doing?
 I need to see your license registration please.
 
 [00:00:37.738 --> 00:00:42.508] [Unknown]
-You gotta kill her in your lap there.
+You gotta killer in your lap there.
 
 [00:00:52.023 --> 00:00:56.834] [Unknown]
 We're guys coming from today.

@@ -8,7 +8,7 @@ You are given a police bodycam transcript inside <transcript> tags.
 Extract key details and return ONLY valid JSON.
 
 <transcript>
-{json.dumps(transcript_up_2_40)}
+{json.dumps(transcript_60_sec)}
 </transcript>
 
 Output JSON structure:
