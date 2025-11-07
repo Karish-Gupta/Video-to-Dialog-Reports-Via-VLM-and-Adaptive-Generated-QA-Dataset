@@ -1,12 +1,13 @@
 from llm import *
 from transcript_context import *
+import json
 
 # Step 1 prompt
 step_1_prompt = f"""
 Given a police bodycam video transcript, extract key information into the following structured format.
 
 Transcript:
-{transcript_up_2_40}
+{json.dumps(transcript_up_2_40)}
 
 Output Format:
 {{
