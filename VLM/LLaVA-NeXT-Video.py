@@ -4,7 +4,7 @@ from decord import VideoReader, cpu
 import numpy as np
 
 from transcript_context import transcript_up_2_40, full_transcript
-from qa_generation import *
+from VLM.llm import *
 
 # Quantization setup
 quantization_config = BitsAndBytesConfig(
