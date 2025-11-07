@@ -4,22 +4,22 @@ import json
 
 # Step 1 prompt
 step_1_prompt = f"""
-Given a police bodycam video transcript, extract key information into the following structured format.
+You are given a police bodycam transcript inside <transcript> tags.
+Extract key details and return ONLY valid JSON.
 
-Transcript:
+<transcript>
 {json.dumps(transcript_up_2_40)}
+</transcript>
 
-Output Format:
+Output JSON structure:
 {{
-   "Scene Observations": "Describe the environment, setting, and notable scene details.",
-   "Action": "Summarize the actions conducted by all individuals involved.",
-   "Intents/Reason": "Explain the possible reasons or motivations behind these actions.",
-   "Response": "Describe how individuals react to the situation.",
-   "Inference": "Provide a brief assessment or interpretation of the situation.",
-   "Individuals Involved": "List all identifiable individuals, including names or roles (e.g., 'Officer', 'Suspect', 'Witness')."
+  "Scene Observations": "",
+  "Action": "",
+  "Intents/Reason": "",
+  "Response": "",
+  "Inference": "",
+  "Individuals Involved": ""
 }}
-
-Respond ONLY with valid structured elements in the exact format shown above.
 """
 
 # Initialize LLM

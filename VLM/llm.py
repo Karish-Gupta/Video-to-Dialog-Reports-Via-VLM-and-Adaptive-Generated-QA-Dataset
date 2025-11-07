@@ -16,7 +16,7 @@ class llm:
       quant_config = BitsAndBytesConfig(
          load_in_4bit=True,
          bnb_4bit_compute_dtype=torch.float16,
-         bnb_4bit_use_double_quant=True,
+         bnb_4bit_use_double_quant=False,
          bnb_4bit_quant_type="nf4"
       )
       
@@ -51,9 +51,9 @@ class llm:
       
       outputs = self.model.generate(
          **inputs, 
-         max_new_tokens=256, 
+         max_new_tokens=512, 
          do_sample=True,
-         temperature=0.5,
+         temperature=0.2,
          pad_token_id=self.tokenizer.pad_token_id,  # Explicit pad token
          eos_token_id=self.tokenizer.eos_token_id
       )
