@@ -19,7 +19,7 @@ source env/bin/activate
 
 pip install --upgrade pip
 pip install --upgrade -q accelerate bitsandbytes
-pip install git+https://github.com/huggingface/transformers.git
+pip install transformers
 pip install huggingface-hub
 pip install -q av
 pip install pillow
