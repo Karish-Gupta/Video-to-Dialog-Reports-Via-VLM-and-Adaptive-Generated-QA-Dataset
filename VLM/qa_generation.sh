@@ -2,9 +2,9 @@
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
 #SBATCH --mem=128g                     # allocate 128 GB of memory
-#SBATCH -J "vlm_inference"              # name of the job
-#SBATCH -o vlm_inference_%j.out         # name of the output file
-#SBATCH -e vlm_inference_%j.err         # name of the error file
+#SBATCH -J "qa_generation"              # name of the job
+#SBATCH -o qa_generation%j.out         # name of the output file
+#SBATCH -e qa_generation%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 5:00:00                   # time limit of 12 hours
 #SBATCH --gres=gpu:H100:1             # request 1 H200 GPU
