@@ -27,27 +27,7 @@ class llm:
       )
       self.tokenizer = AutoTokenizer.from_pretrained(model)
       self.tokenizer.pad_token = self.tokenizer.eos_token # Set padding token for Llama
-
-   def report_prompt(self, text):
-      prompt_template = f"""
-         You are generating training data for a vision-language model.
-         Given the structured scene summary below format the text into this structured format:
-
-         Structured summary:
-         {{
-            "Observation": "...",
-            "Action": "...",
-            "Intent/Reason": "...",
-            "Response": "...",
-            "Inference": "...",
-            "Individuals Involved": "...",
-            "Context Summary": "..."
-         }}
-
-         Text: {text}
-      """
-
-      return prompt_template
+      
    
    def build_transcript_context(self, transcript):
       prompt_template = f"""
