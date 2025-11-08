@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
@@ -10,7 +11,6 @@ if "HF_TOKEN" in os.environ:
    
 class llm:
    def __init__(self, model):
-      # Configs
 
       # Quantization config: load in 4-bit to save VRAM
       quant_config = BitsAndBytesConfig(
@@ -29,17 +29,66 @@ class llm:
       self.tokenizer.pad_token = self.tokenizer.eos_token # Set padding token for Llama
       
    
-   def build_transcript_context(self, transcript):
-      prompt_template = f"""
-      You are summarizing a police bodycam video transcript. 
-      Ensure that the summary is detailed and includes all pieces of information that could be helpful to law enforcement when making a report.
+   def step_1_chat_template(self, transcript):
+      # Use chat template for step 1 prompt
+      system_prompt = "You are a helpful assistant working with bodycam video transcript information. You are given a police bodycam transcript inside <transcript> tags. Extract key details and return ONLY key details in valid JSON."
+      
+      user_prompt = f"""
+         <transcript>
+         {json.dumps(transcript)}
+         </transcript>
 
-      Transcript: 
-      {transcript}
+         Output JSON structure:
+         {{
+         "Scene Observations": "",
+         "Action": "",
+         "Intents/Reason": "",
+         "Response": "",
+         "Inference": "",
+         "Individuals Involved": ""
+         }}
       """
+      
+      messages = [
+         {"role": "system", "content": system_prompt},
+         {"role": "user", "content": user_prompt}
+      ]
 
-      return prompt_template
+      prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+      return prompt
+   
+   
+   def step_2_chat_template(self, structured_output):
+      system_prompt = """
+         Based on the given structured information about a police bodycam video, generate thoughtful and specific questions based on pair combinations of each key detail element
+      
+         Questions to generate:
+         1. Scene Observation + Action
+         2. Scene Observation + Intent/Reason
+         3. Scene Observation + Response
+         4. Scene Observation + Inference
+         5. Scene Observation + Individuals Involved
+         6. Action + Intent/Reason
+         7. Action + Response
+         8. Action + Inference
+         9. Action + Individuals Involved
+         10. Intent/Reason + Response
+         11. Intent/Reason + Inference
+         12. Intent/Reason + Individuals Involved
+         13. Response + Inference
+         14. Response + Individuals Involved
+         15. Inference + Individuals Involved
+      """
+      
+      user_prompt = f"Structured information:\n {structured_output}"
 
+      messages = [
+         {"role": "system", "content": system_prompt},
+         {"role": "user", "content": user_prompt}
+      ]
+
+      prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+      return prompt
    
    def invoke(self, prompt):
       inputs = self.tokenizer(
