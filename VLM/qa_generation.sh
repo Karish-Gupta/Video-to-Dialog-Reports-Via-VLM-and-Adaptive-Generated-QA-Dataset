@@ -29,4 +29,4 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 
-python VLM/qa_generation.py
+python VLM/qa_generation_text_only.py
