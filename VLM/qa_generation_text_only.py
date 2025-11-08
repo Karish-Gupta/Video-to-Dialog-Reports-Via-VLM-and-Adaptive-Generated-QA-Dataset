@@ -2,7 +2,7 @@ from llm import *
 from transcript_context import *
 
 # Initialize LLM
-llm_model = "meta-llama/Meta-Llama-3-70B"
+llm_model = "meta-llama/Llama-3.3-70B-Instruct"
 llm_ = llm(llm_model)
 
 # Step 1 prompt
