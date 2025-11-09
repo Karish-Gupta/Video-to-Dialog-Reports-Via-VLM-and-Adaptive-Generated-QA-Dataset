@@ -100,7 +100,7 @@ class llm:
       
       outputs = self.model.generate(
          **inputs, 
-         max_new_tokens=512, 
+         max_new_tokens=1024, 
          do_sample=True,
          temperature=0.2,
          pad_token_id=self.tokenizer.pad_token_id,  # Explicit pad token
