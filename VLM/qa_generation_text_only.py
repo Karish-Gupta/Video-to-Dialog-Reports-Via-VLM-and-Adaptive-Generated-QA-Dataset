@@ -7,7 +7,7 @@ llm_model = "meta-llama/Llama-3.3-70B-Instruct"
 llm_ = llm(llm_model)
 
 vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
-vlm_ = vlm()
+vlm_ = vlm(vlm_model_name)
 
 # Step 1 prompt
 step_1_prompt = llm_.step_1_chat_template(transcript_60_sec)
