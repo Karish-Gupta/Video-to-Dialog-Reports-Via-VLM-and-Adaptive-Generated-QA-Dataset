@@ -47,6 +47,19 @@ class vlm:
         ]
         return conversation
     
+    def build_qa_conversation(self, questions):
+        # Proper chat template
+        conversation = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": f" This is a police bodycam video. You are given a set of questions, based on the video, answer these questions:\n {questions}"},
+                    {"type": "video"},
+                ],
+            },
+        ]
+        return conversation
+    
     def invoke(self, video_path, conversation):
         # Process text conversation
         processed_text = self.processor.apply_chat_template(conversation, add_generation_prompt=True)
