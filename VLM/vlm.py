@@ -88,5 +88,5 @@ class vlm:
         # Decode
         response = self.processor.batch_decode(output, skip_special_tokens=True)[0]
         print(f"Loaded {len(frames)} frames:", frames[0].shape)
-        print("\nModel output:\n", response)
         torch.cuda.empty_cache()
+        return response
