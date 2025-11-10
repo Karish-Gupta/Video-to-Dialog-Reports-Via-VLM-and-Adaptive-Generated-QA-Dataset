@@ -34,18 +34,19 @@ class llm:
       system_prompt = "You are a helpful assistant working with bodycam video transcript information. You are given a police bodycam transcript inside <transcript> tags. Extract key details and return ONLY key details in valid JSON."
       
       user_prompt = f"""
+         <visual summary>
+
+         <visual summary>
          <transcript>
          {json.dumps(transcript)}
          </transcript>
 
          Output JSON structure:
          {{
-         "Scene Observations": "",
-         "Action": "",
-         "Intents/Reason": "",
-         "Response": "",
-         "Inference": "",
-         "Individuals Involved": ""
+         "Scene Observations": [""],
+         "Actions": [""],
+         "Items in Frame": [""],
+         "Descriptions of Idividuals in Frame": [""],
          }}
       """
       
@@ -63,12 +64,17 @@ class llm:
          Based on the given structured information about a police bodycam video, generate thoughtful and specific questions based on pair combinations of key detail elements:
       
          Questions to generate:
-         1. Scene Observation + Intent/Reason
-         2. Scene Observation + Individuals Involved
-         3. Action + Intent/Reason
-         4. Action + Response
-         5. Intent/Reason + Inference
-         6. Intent/Reason + Individuals Involved         
+         1. Scene Observations  
+         2. Items in Frame  
+         3. Descriptions of Idividuals in Frame
+         4. Actions 
+
+         Output only the questions in format:
+
+         1. 
+         2.
+         3.
+         4.
       """
       
       user_prompt = f"Structured information:\n {structured_output}"
