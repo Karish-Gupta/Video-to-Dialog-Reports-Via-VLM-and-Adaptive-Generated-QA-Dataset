@@ -60,24 +60,15 @@ class llm:
    
    def step_2_chat_template(self, structured_output):
       system_prompt = """
-         Based on the given structured information about a police bodycam video, generate thoughtful and specific questions based on pair combinations of each key detail element
+         Based on the given structured information about a police bodycam video, generate thoughtful and specific questions based on pair combinations of key detail elements:
       
          Questions to generate:
-         1. Scene Observation + Action
-         2. Scene Observation + Intent/Reason
-         3. Scene Observation + Response
-         4. Scene Observation + Inference
-         5. Scene Observation + Individuals Involved
-         6. Action + Intent/Reason
-         7. Action + Response
-         8. Action + Inference
-         9. Action + Individuals Involved
-         10. Intent/Reason + Response
-         11. Intent/Reason + Inference
-         12. Intent/Reason + Individuals Involved
-         13. Response + Inference
-         14. Response + Individuals Involved
-         15. Inference + Individuals Involved
+         1. Scene Observation + Intent/Reason
+         2. Scene Observation + Individuals Involved
+         3. Action + Intent/Reason
+         4. Action + Response
+         5. Intent/Reason + Inference
+         6. Intent/Reason + Individuals Involved         
       """
       
       user_prompt = f"Structured information:\n {structured_output}"
