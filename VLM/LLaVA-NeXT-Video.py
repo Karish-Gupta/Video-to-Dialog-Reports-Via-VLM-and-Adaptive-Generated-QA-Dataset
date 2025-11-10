@@ -4,7 +4,7 @@ from decord import VideoReader, cpu
 import numpy as np
 
 from transcript_context import transcript_up_2_40, full_transcript
-from VLM.llm import *
+from llm import *
 
 # Quantization setup
 quantization_config = BitsAndBytesConfig(
@@ -13,7 +13,8 @@ quantization_config = BitsAndBytesConfig(
 )
 
 # Load processor and model
-model_name = "llava-hf/LLaVA-NeXT-Video-7B-hf"
+# Switched to the 34B Hugging Face repo as requested
+model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
 
 processor = LlavaNextVideoProcessor.from_pretrained(
     model_name, 
@@ -26,7 +27,10 @@ model = LlavaNextVideoForConditionalGeneration.from_pretrained(
     quantization_config=quantization_config,
     torch_dtype=torch.float16,
     low_cpu_mem_usage=True,
-    device_map="cuda:0",
+    # For a larger model (34B) allow the HF utilities to pick an appropriate
+    # device map (and offloading) automatically. This helps when the model
+    # needs to be sharded across devices or use CPU/GPU offload.
+    device_map="auto",
     trust_remote_code=True,
 )
 
@@ -121,4 +125,3 @@ for i, video_path in enumerate(videos):
         print(70 * "=")
         torch.cuda.empty_cache()
     
-
