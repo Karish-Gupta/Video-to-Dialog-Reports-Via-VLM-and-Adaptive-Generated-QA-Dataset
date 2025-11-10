@@ -1,21 +1,58 @@
 transcript_60_sec = """
-[00:00:00.233 --> 00:00:07.088] [Unknown]
-Take 5-6.
+[00:02:42.976 --> 00:02:44.785] [Unknown]
+and give it this license back.
 
-[00:00:26.255 --> 00:00:29.321] [Unknown]
-Hello, how you doing?
+[00:02:44.917 --> 00:02:46.659] [Unknown]
+Sure, this is an citation I was talking about.
 
-[00:00:29.341 --> 00:00:37.718] [Unknown]
-I need to see your license registration please.
+[00:02:46.679 --> 00:02:48.440] [Unknown]
+On the top, there's a court date listed.
 
-[00:00:37.738 --> 00:00:42.508] [Unknown]
-You gotta killer in your lap there.
+[00:02:48.460 --> 00:02:50.102] [Unknown]
+You do not have to show up unless you want to.
 
-[00:00:52.023 --> 00:00:56.834] [Unknown]
-We're guys coming from today.
+[00:02:50.482 --> 00:02:52.444] [Unknown]
+Okay, it's going to be the 28th of this month.
 
-[00:00:56.854 --> 00:00:57.055] [Unknown]
-I got you.
+[00:02:52.464 --> 00:02:57.149] [Unknown]
+Okay, if you don't show up at the date and time listed up top here, that is the date and time that you have to take care of as well.
+
+[00:02:57.189 --> 00:02:57.409] [Unknown]
+Okay.
+
+[00:02:57.809 --> 00:03:01.272] [Unknown]
+All the information to do that is on the back, their website, the mailing address as well as their file number.
+
+[00:03:01.713 --> 00:03:03.715] [Unknown]
+You can go online to the website here and pay the citation.
+
+[00:03:03.775 --> 00:03:06.157] [Unknown]
+It'll also tell you how much it is when you go on their website.
+
+[00:03:06.177 --> 00:03:07.899] [Unknown]
+Okay, it's not listed on your citation.
+
+[00:03:07.919 --> 00:03:14.485] [Unknown]
+If you have any trouble doing that, feel free to give them a call at the number listed here during normal business hours and they can point you in the right direction.
+
+[00:03:15.443 --> 00:03:21.093] [Unknown]
+So you can't do it today because I was probably going to be at least first of the week maybe Monday afternoon.
+
+[00:03:21.493 --> 00:03:29.808] [Unknown]
+I'll upload it before the end of my shift today and ask to go to the court, but I'm pretty sure that they have to show up, download it from the server, and then it will be online.
+
+[00:03:29.828 --> 00:03:34.195] [Unknown]
+So give it at least until Monday afternoon and it should be able to pay it then.
+
+[00:03:34.315 --> 00:03:35.117] [Unknown]
+Any other questions?
+
+[00:03:36.078 --> 00:03:37.140] [Unknown]
+Please be careful pulling out for me.
+
+[00:03:37.160 --> 00:03:40.506] [Unknown]
+Definitely drive safe and you guys have a safe trip.
+
 """
 
 # Transcript up to 2 min and 40 sec
