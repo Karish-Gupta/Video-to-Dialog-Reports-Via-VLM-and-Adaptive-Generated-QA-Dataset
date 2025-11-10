@@ -29,14 +29,15 @@ class llm:
       self.tokenizer.pad_token = self.tokenizer.eos_token # Set padding token for Llama
       
    
-   def step_1_chat_template(self, transcript):
+   def step_1_chat_template(self, transcript, summary):
       # Use chat template for step 1 prompt
-      system_prompt = "You are a helpful assistant working with bodycam video transcript information. You are given a police bodycam transcript inside <transcript> tags. Extract key details and return ONLY key details in valid JSON."
+      system_prompt = "You are a helpful assistant working with bodycam video transcript information. You are given a police bodycam transcript inside <transcript> tags and a visual summary in <summary> tags. Extract key details and return ONLY key details in valid JSON."
       
       user_prompt = f"""
-         <visual summary>
-
-         <visual summary>
+         <summary>
+         {json.dumps(summary)}
+         <summary>
+         
          <transcript>
          {json.dumps(transcript)}
          </transcript>

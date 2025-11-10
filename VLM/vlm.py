@@ -34,13 +34,13 @@ class vlm:
             trust_remote_code=True,
         )
     
-    def build_conversation(self, transcript):
+    def build_conversation(self):
         # Proper chat template
         conversation = [
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific. Context up to this point: {transcript}"},
+                    {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific."},
                     {"type": "video"},
                 ],
             },
