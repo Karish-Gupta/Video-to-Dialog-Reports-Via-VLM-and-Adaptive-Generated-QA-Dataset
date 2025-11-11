@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import torch
+import re
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from huggingface_hub import login
 import os
@@ -112,6 +113,19 @@ class llm:
       print(f"Generated {len(gen_tokens)} tokens") # Debug
 
       return decoded_output.strip()
+   
+   def parse_questions(self, generated_text):
+      """
+      Extract questions from numbered list using regex.
+      Returns a list of questions.
+      """
+      pattern = r'\d+\.\s*(.+?)(?=\n\d+\.|$)'
+      matches = re.findall(pattern, generated_text, re.DOTALL)
+      
+      # Clean up each question
+      questions = [q.strip() for q in matches if q.strip()]
+      
+      return questions
    
 
 
