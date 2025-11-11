@@ -18,7 +18,7 @@ python -m venv env
 source env/bin/activate
 
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r newPipeline/requirements.txt
 
 pip install --upgrade -q accelerate bitsandbytes
 pip install transformers
