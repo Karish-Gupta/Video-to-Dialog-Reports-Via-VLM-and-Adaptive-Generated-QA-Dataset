@@ -28,5 +28,6 @@ pip install protobuf
 pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
+pip install -r requirements.txt
 
 python newPipeline/run_pipeline.py "https://www.youtube.com/watch?v=aNXf82gWb5A"
