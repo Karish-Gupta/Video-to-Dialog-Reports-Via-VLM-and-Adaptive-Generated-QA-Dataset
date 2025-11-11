@@ -18,6 +18,8 @@ python -m venv env
 source env/bin/activate
 
 pip install --upgrade pip
+pip install -r requirements.txt
+
 pip install --upgrade -q accelerate bitsandbytes
 pip install transformers
 pip install huggingface-hub
@@ -28,6 +30,6 @@ pip install protobuf
 pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
-pip install -r requirements.txt
+
 
 python newPipeline/run_pipeline.py "https://www.youtube.com/watch?v=aNXf82gWb5A"
