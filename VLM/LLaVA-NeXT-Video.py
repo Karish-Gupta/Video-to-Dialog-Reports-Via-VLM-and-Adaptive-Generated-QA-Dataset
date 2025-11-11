@@ -3,6 +3,9 @@ from transformers import BitsAndBytesConfig, LlavaNextVideoForConditionalGenerat
 from decord import VideoReader, cpu
 import numpy as np
 
+from transcript_context import transcript_up_2_40, full_transcript
+from llm import *
+
 # Quantization setup
 quantization_config = BitsAndBytesConfig(
     load_in_4bit=True,
@@ -10,21 +13,24 @@ quantization_config = BitsAndBytesConfig(
 )
 
 # Load processor and model
-model_id = "llava-hf/LLaVA-NeXT-Video-7B-hf"
+# Switched to the 34B Hugging Face repo as requested
+model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
 
 processor = LlavaNextVideoProcessor.from_pretrained(
-    model_id, 
+    model_name, 
     trust_remote_code=True,
     use_fast=True
-
 )
 
 model = LlavaNextVideoForConditionalGeneration.from_pretrained(
-    model_id,
+    model_name,
     quantization_config=quantization_config,
     torch_dtype=torch.float16,
     low_cpu_mem_usage=True,
-    device_map="cuda:0",
+    # For a larger model (34B) allow the HF utilities to pick an appropriate
+    # device map (and offloading) automatically. This helps when the model
+    # needs to be sharded across devices or use CPU/GPU offload.
+    device_map="auto",
     trust_remote_code=True,
 )
 
@@ -37,21 +43,44 @@ videos = [video_1_path, video_2_path, video_3_path]
 
 frames_list = [8, 16, 32, 64, 128, 256]
 
+# Use LLM for chat summary
+llm_model = "meta-llama/Meta-Llama-3-70B"
+llm_ = llm(llm_model)
+
+llm_prompt_transcript_2_40 = llm_.build_transcript_context(transcript_up_2_40)
+llm_prompt_full = llm_.build_transcript_context(full_transcript)
+
+summarized_transcript_2_40 = llm_.invoke(llm_prompt_transcript_2_40)
+summarized_transcript_full = llm_.invoke(llm_prompt_full)
+
+print(f"Sumarized transcript 2_40: {summarized_transcript_2_40}")
+print(f"Summarized transcript full: {summarized_transcript_full}")
+
 # Proper chat template
-conversation = [
+conversation_up_to_2_40 = [
     {
         "role": "user",
         "content": [
-            {"type": "text", "text": "This is a police bodycam video. Describe what happens in this video in detail."},
+            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific. Context up to this point: {summarized_transcript_2_40}"},
             {"type": "video"},
         ],
     },
 ]
-prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
+
+conversation_full = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": f"This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific. Context up to this point: {summarized_transcript_full}"},
+            {"type": "video"},
+        ],
+    },
+]
+prompt_up_to_2_40 = processor.apply_chat_template(conversation_up_to_2_40, add_generation_prompt=True)
+prompt_full = processor.apply_chat_template(conversation_full, add_generation_prompt=True)
 
 # Run inference on various framerates
-
-for video_path in videos:
+for i, video_path in enumerate(videos):
     
     print(70 * "=")
     print(f"Video: {video_path}")
@@ -64,18 +93,28 @@ for video_path in videos:
         indices = np.linspace(0, len(vr) - 1, num_frames, dtype=int)
         frames = [vr[i].asnumpy() for i in indices]
 
-        # Preprocess multimodal input
-        inputs = processor(
-            text=[prompt],
-            videos=[frames],
-            padding=True,
-            return_tensors="pt"
-        ).to(model.device)
+        if i == 2:
+            # Preprocess multimodal input
+            inputs = processor(
+                text=[prompt_full],
+                videos=[frames],
+                padding=True,
+                return_tensors="pt"
+            ).to(model.device)
+
+        else: 
+            # Preprocess multimodal input
+            inputs = processor(
+                text=[prompt_up_to_2_40],
+                videos=[frames],
+                padding=True,
+                return_tensors="pt"
+            ).to(model.device)
 
         # Generate
         output = model.generate(
             **inputs,
-            max_new_tokens=250,
+            max_new_tokens=256,
             do_sample=False
         )
 
@@ -85,3 +124,4 @@ for video_path in videos:
         print("\nModel output:\n", response)
         print(70 * "=")
         torch.cuda.empty_cache()
+    
