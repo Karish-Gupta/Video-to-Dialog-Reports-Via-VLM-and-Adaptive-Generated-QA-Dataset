@@ -1,172 +1,140 @@
 import os
-import sys
-import argparse
-import json
-from typing import List, Dict
-
-# Ensure repo root on path so package-style imports work when run from repo root
-REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if REPO_ROOT not in sys.path:
-    sys.path.insert(0, REPO_ROOT)
-
-from newPipeline.data_extraction.downloader import download_video, download_audio
-from newPipeline.data_extraction.audio_transcriber import transcribe_audio_with_diarization, save_transcript
-from newPipeline.data_extraction.video_processor import create_video_chunks, extract_video_chunk_with_decord
-from newPipeline.model_inference.llm import llm
-from newPipeline.model_inference.vlm import vlm
-from decord import VideoReader, cpu
+import torch
+from datetime import datetime
 
 
-def get_video_duration(video_path: str) -> float:
-    vr = VideoReader(video_path, ctx=cpu())
-    fps = vr.get_avg_fps()
-    duration = len(vr) / float(fps) if fps and fps > 0 else 0.0
-    return duration
+from data_extraction.downloader import download_video, download_audio
+from data_extraction.embedding_extractor import process_video_with_embeddings, save_video_embeddings
+from data_extraction.utils import get_device, print_section, extract_transcript_chunks
+from data_extraction.audio_transcriber import transcribe_audio_with_diarization, save_transcript
+from model_inference.llm import *
+from model_inference.vlm import *
 
 
-def concat_transcript_segments(segments: List[Dict]) -> str:
-    texts = []
-    for s in segments:
-        t = s.get('text', '').strip()
-        if t:
-            texts.append(t)
-    return '\n'.join(texts)
+
+def main():
+    # YouTube video URL (HARDCODED AT THE MOMENT)
+    youtube_url = "https://www.youtube.com/watch?v=83jt-xOJok4"
+
+    # Output directory (changed to outputs2)
+    output_dir = "outputs2"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Download full video
+    video_file, video_info = download_video(youtube_url, output_path=output_dir)
+    audio_file = download_audio(youtube_url, output_path=output_dir)
+    print(f"\nVideo title: {video_info.get('title')}")
+    print(f"Duration: {video_info.get('duration')} seconds")
+
+    # Device selection
+    device = get_device()
+    print(f"Using device: {device}")
+
+    # =========================================================================
+    # STEP 1: Process video with CLIP embeddings (30-second chunks)
+    # =========================================================================
+    chunk_duration = 30.0  
+    frames_per_chunk = 64
+    clip_model = "openai/clip-vit-base-patch32"
+
+    print_section("STEP 1: EXTRACTING CLIP EMBEDDINGS")
+    print(f"Video processing parameters:")
+    print(f"  Chunk duration: {chunk_duration}s")
+    print(f"  Frames per chunk (for CLIP): {frames_per_chunk}")
+    print(f"  CLIP model: {clip_model}")
+
+    # Pass empty transcript (no WhisperX transcription in this simplified flow)
+    video_result = process_video_with_embeddings(
+        video_path=video_file,
+        transcript={},
+        output_dir=output_dir,
+        chunk_duration=chunk_duration,
+        frames_per_chunk=frames_per_chunk,
+        model_name=clip_model,
+        device=device
+    )
+
+    # Save CLIP embeddings to outputs2
+    save_video_embeddings(video_result, output_dir=output_dir, prefix="video_embeddings")
+
+    model_size = "base"
+    
+    # Set device and compute type
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    compute_type = "float16" if device == "cuda" else "int8"
+    
+    # Get HuggingFace token from env
+    hf_token = os.environ.get("HF_TOKEN", None)
+    
+    print(f"\nUsing device: {device}")
+    print(f"Compute type: {compute_type}")
+    if hf_token:
+        print("HuggingFace token found - speaker diarization will be enabled")
+    else:
+        print("No HuggingFace token - speaker diarization will be skipped")
+    
+    result = transcribe_audio_with_diarization(
+        audio_file, 
+        model_size=model_size,
+        device=device,
+        compute_type=compute_type,
+        hf_token=hf_token
+    )
+    
+    # Save transcript
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    txt_output = f"{output_dir}/transcript_{timestamp}.txt"
+    json_output = f"{output_dir}/transcript_{timestamp}.json"
+    timestamped_output = f"{output_dir}/transcript_{timestamp}_timestamped.txt"
+    save_transcript(result, output_file=txt_output, json_file=json_output, timestamped_file=timestamped_output)
+    
+
+    vlm_descriptions = []
+    chunks = video_result['chunks']
+    # Initialize LLM
+    llm_model = "meta-llama/Llama-3.3-70B-Instruct"
+    llm_ = llm(llm_model)
+
+    vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
+    vlm_ = vlm(vlm_model_name)
+
+    for i, chunk in enumerate(chunks):
+        chunk_id = chunk['chunk_id']
+        start_time = chunk['start_time']
+        end_time = chunk['end_time']
+        
+        print(f"\n[{i+1}/{len(chunks)}] Processing chunk {chunk_id}: {start_time:.1f}s - {end_time:.1f}s")
+        video_1_path = video_file
 
 
-def run_pipeline(youtube_url: str,
-                 out_dir: str = 'outputs',
-                 chunk_duration: float = 5.0,
-                 llm_model_name: str = 'meta-llama/Llama-3.3-70B-Instruct',
-                 vlm_model_name: str = 'llava-hf/LLaVA-NeXT-Video-34B-hf',
-                 max_frames_per_chunk: int = 32):
+        # VLM summary
+        vlm_conversation = vlm_.build_conversation()
+        vlm_summary = vlm_.invoke(video_1_path, vlm_conversation)
+        print(f"VLM Summary:\n{vlm_summary}")
 
-    os.makedirs(out_dir, exist_ok=True)
+        # Step 1 prompt
+        chunk_transcript = extract_transcript_chunks(
+            transcript_json_path=json_output,
+            start_time=start_time,
+            end_time=end_time,
+            chunk_duration=chunk_duration)
+        step_1_prompt = llm_.step_1_chat_template(chunk_transcript, vlm_summary)
+        print(f"Step 1 Prompt:\n {step_1_prompt}")
 
-    print(f"Downloading video and audio from: {youtube_url}")
-    video_file = download_video(youtube_url, output_path=out_dir)
-    audio_file = download_audio(youtube_url, output_path=out_dir)
-
-    print(f"Video saved to: {video_file}")
-    print(f"Audio saved to: {audio_file}")
-
-    # Transcribe (use HF token from env if present)
-    hf_token = os.environ.get('HF_TOKEN')
-    transcript_result = transcribe_audio_with_diarization(audio_file,
-                                                         model_size='base',
-                                                         device='cuda' if os.environ.get('CUDA_VISIBLE_DEVICES', None) or os.getenv('CUDA') else 'cpu',
-                                                         hf_token=hf_token)
-
-    # Save transcripts to out_dir
-    transcript_txt = os.path.join(out_dir, 'transcript.txt')
-    transcript_json = os.path.join(out_dir, 'transcript.json')
-    transcript_timestamp = os.path.join(out_dir, 'transcript_timestamped.txt')
-    save_transcript(transcript_result, output_file=transcript_txt, json_file=transcript_json, timestamped_file=transcript_timestamp)
-
-    # Video duration and chunking
-    video_duration = get_video_duration(video_file)
-    chunks = create_video_chunks(video_duration, transcript_result, chunk_duration=chunk_duration)
-
-    # Initialize models once
-    print("Initializing models (this may take a while)...")
-    vlm_model = vlm(vlm_model_name)
-    llm_model = llm(llm_model_name)
-
-    results = []
-
-    for chunk in chunks:
-        cid = chunk['chunk_id']
-        start = chunk['start_time']
-        end = chunk['end_time']
-
-        print(f"\n--- Processing chunk {cid}: {start:.2f}s -> {end:.2f}s ({chunk['duration']:.2f}s) ---")
-
-        # Extract frames for this chunk
-        frames = extract_video_chunk_with_decord(video_file, start, end, max_frames=max_frames_per_chunk)
-        if not frames:
-            print(f"No frames found for chunk {cid}, skipping.")
-            continue
-
-        # Build chunk-level transcript
-        chunk_transcript = concat_transcript_segments(chunk.get('transcript_segments', []))
-
-        # VLM summary for chunk (use processor + model directly with the chunk frames)
-        conversation = vlm_model.build_conversation()
-        processed_text = vlm_model.processor.apply_chat_template(conversation, add_generation_prompt=True)
-        inputs = vlm_model.processor(
-            text=[processed_text],
-            videos=[frames],
-            padding=True,
-            return_tensors='pt'
-        ).to(vlm_model.model.device)
-
-        out = vlm_model.model.generate(
-            **inputs,
-            max_new_tokens=512,
-            do_sample=False
-        )
-        vlm_summary = vlm_model.processor.batch_decode(out, skip_special_tokens=True)[0]
-        print(f"VLM summary (chunk {cid}): {vlm_summary}")
-
-        # LLM Step 1: structured extraction
-        step1_prompt = llm_model.step_1_chat_template(chunk_transcript, vlm_summary)
-        structured_output = llm_model.invoke(step1_prompt)
-        print(f"Structured output (chunk {cid}): {structured_output}")
-
-        # LLM Step 2: generate questions
-        step2_prompt = llm_model.step_2_chat_template(structured_output)
-        generated_questions = llm_model.invoke(step2_prompt)
-        print(f"Generated questions (chunk {cid}):\n{generated_questions}")
-
-        # VLM answer generation for those questions
-        qa_conversation = vlm_model.build_qa_conversation(generated_questions)
-        processed_qa_text = vlm_model.processor.apply_chat_template(qa_conversation, add_generation_prompt=True)
-        qa_inputs = vlm_model.processor(
-            text=[processed_qa_text],
-            videos=[frames],
-            padding=True,
-            return_tensors='pt'
-        ).to(vlm_model.model.device)
-
-        qa_out = vlm_model.model.generate(
-            **qa_inputs,
-            max_new_tokens=512,
-            do_sample=False
-        )
-        vlm_answers = vlm_model.processor.batch_decode(qa_out, skip_special_tokens=True)[0]
-        print(f"VLM answers (chunk {cid}):\n{vlm_answers}")
-
-        # Collect results
-        item = {
-            'chunk_id': cid,
-            'start': start,
-            'end': end,
-            'vlm_summary': vlm_summary,
-            'structured_output': structured_output,
-            'generated_questions': generated_questions,
-            'vlm_answers': vlm_answers
-        }
-        results.append(item)
-
-    # Write results to file
-    out_results_path = os.path.join(out_dir, 'chunk_inference_results.json')
-    with open(out_results_path, 'w', encoding='utf-8') as fh:
-        json.dump(results, fh, indent=2, ensure_ascii=False)
-
-    print(f"\nAll done. Results saved to: {out_results_path}")
+        structured_output = llm_.invoke(step_1_prompt)
+        print(f"Generated Structured Elements:\n {structured_output}")
 
 
-def cli():
-    p = argparse.ArgumentParser(description='Run end-to-end VLM+LLM pipeline on a YouTube URL and per-chunk inference')
-    p.add_argument('youtube_url', type=str, help='YouTube video URL to process')
-    p.add_argument('--out', type=str, default='outputs', help='Output folder')
-    p.add_argument('--chunk-duration', type=float, default=60.0, help='Seconds per chunk')
-    p.add_argument('--llm-model', type=str, default='meta-llama/Llama-3.3-70B-Instruct', help='LLM model name')
-    p.add_argument('--vlm-model', type=str, default='llava-hf/LLaVA-NeXT-Video-34B-hf', help='VLM model name')
-    args = p.parse_args()
+        # Step 2 prompt
+        step_2_prompt = llm_.step_2_chat_template(structured_output)
+        print(f"Step 2 Prompt:\n {step_2_prompt}")
 
-    run_pipeline(args.youtube_url, out_dir=args.out, chunk_duration=args.chunk_duration,
-                 llm_model_name=args.llm_model, vlm_model_name=args.vlm_model)
+        generated_qs = llm_.invoke(step_2_prompt)
+        print(f"Generated Questions:\n {generated_qs}")
 
+        # Pass generated questions to VLM for answer generation
+        qa_conversation = vlm_.build_qa_conversation(generated_qs)
+        print (f"QA Prompt:\n {qa_conversation}")
 
-if __name__ == '__main__':
-    cli()
+        vlm_answers = vlm_.invoke(video_1_path, qa_conversation)
+        print(f"VLM Generated Answers:\n {vlm_answers}") 
