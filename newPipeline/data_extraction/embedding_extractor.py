@@ -9,7 +9,7 @@ import pickle
 import os
 from datetime import datetime
 
-from functions.video_processor import create_video_chunks, extract_frames_from_chunk
+from data_extraction.video_processor import create_video_chunks, extract_frames_from_chunk
 
 def extract_clip_embeddings(frames: List[np.ndarray], model, processor, device: str) -> np.ndarray:
     """
