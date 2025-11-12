@@ -11,9 +11,9 @@
 
 cd $SLURM_SUBMIT_DIR/..
 
-module load python/3.10.2/mqmlxcf
-module load cuda/12.4.0/3mdaov5
+module load python/3.11.10
 module load ffmpeg/6.1.1
+module load cuda/12.1 
 
 
 python -m venv env
