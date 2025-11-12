@@ -74,7 +74,7 @@ def main():
         print("No HuggingFace token - speaker diarization will be skipped")
     
     result = transcribe_audio_with_diarization(
-        audio_file, 
+        audio_file[0], 
         model_size=model_size,
         device=device,
         compute_type=compute_type,
