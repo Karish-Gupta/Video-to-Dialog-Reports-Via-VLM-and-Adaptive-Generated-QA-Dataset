@@ -138,3 +138,6 @@ def main():
 
         vlm_answers = vlm_.invoke(video_1_path, qa_conversation)
         print(f"VLM Generated Answers:\n {vlm_answers}") 
+
+
+main()
