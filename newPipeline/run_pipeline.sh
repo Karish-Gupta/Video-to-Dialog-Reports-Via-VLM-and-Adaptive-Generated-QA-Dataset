@@ -13,7 +13,7 @@ cd $SLURM_SUBMIT_DIR/..
 
 module load python/3.11.10
 module load ffmpeg/6.1.1
-module load cuda/12.1 
+module load cuda/12.4.0/3mdaov5
 
 
 python -m venv env
@@ -32,7 +32,6 @@ pip install protobuf
 pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
-pip install ctranslate2==4.4.0
 
 
 python newPipeline/run_pipeline.py 

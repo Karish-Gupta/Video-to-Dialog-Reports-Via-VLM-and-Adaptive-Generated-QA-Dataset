@@ -16,6 +16,8 @@ def transcribe_audio_with_diarization(audio_file, model_size="base", device="cud
     print(f"{'='*80}")
     
     # Load WhisperX model
+    torch.backends.cuda.matmul.allow_tf32 = False
+    torch.backends.cudnn.allow_tf32 = False
     model = whisperx.load_model(model_size, device, compute_type=compute_type)
     
     # Load audio
