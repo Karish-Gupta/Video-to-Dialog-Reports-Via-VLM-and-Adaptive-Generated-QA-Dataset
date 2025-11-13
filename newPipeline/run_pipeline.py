@@ -60,7 +60,6 @@ def main():
     model_size = "base"
     
     # Set device and compute type
-    device = "cuda" if torch.cuda.is_available() else "cpu"
     compute_type = "float16" if device == "cuda" else "int8"
     
     # Get HuggingFace token from env
@@ -88,7 +87,7 @@ def main():
     timestamped_output = f"{output_dir}/transcript_{timestamp}_timestamped.txt"
     save_transcript(result, output_file=txt_output, json_file=json_output, timestamped_file=timestamped_output)
     
-
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     vlm_descriptions = []
     chunks = video_result['chunks']
     # Initialize LLM
