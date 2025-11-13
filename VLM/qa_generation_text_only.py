@@ -2,6 +2,18 @@ from llm import *
 from vlm import *
 from transcript_context import *
 
+def extract_generated_text_vlm(raw_output: str):
+    """VLM ouput inlcude input as well, this can be used to keep just generated tokens"""
+    raw_output = raw_output.strip()
+
+    if "assistant" in raw_output:
+        idx = raw_output.index("assistant") + len("assistant")
+        return raw_output[idx:].strip()
+
+    # If there's no "assistant:", return full output
+    return raw_output
+
+
 # Initialize LLM
 llm_model = "meta-llama/Llama-3.3-70B-Instruct"
 llm_ = llm(llm_model)
@@ -15,11 +27,12 @@ video_1_path = "VLM/videos/high_way_bodycam_30_sec.mp4"
 # VLM summary
 vlm_conversation = vlm_.build_conversation()
 vlm_summary = vlm_.invoke(video_1_path, vlm_conversation)
+vlm_summary = extract_generated_text_vlm(vlm_summary)
 print(f"VLM Summary:\n{vlm_summary}")
 
 # Step 1 prompt
 step_1_prompt = llm_.step_1_chat_template(transcript_60_sec, vlm_summary)
-print(f"Step 1 Prompt:\n {step_1_prompt}")
+# print(f"Step 1 Prompt:\n {step_1_prompt}")
 
 structured_output = llm_.invoke(step_1_prompt)
 print(f"Generated Structured Elements:\n {structured_output}")
@@ -27,7 +40,7 @@ print(f"Generated Structured Elements:\n {structured_output}")
 
 # Step 2 prompt
 step_2_prompt = llm_.step_2_chat_template(structured_output)
-print(f"Step 2 Prompt:\n {step_2_prompt}")
+# print(f"Step 2 Prompt:\n {step_2_prompt}")
 
 generated_qs = llm_.invoke(step_2_prompt)
 print(f"Generated Questions:\n {generated_qs}")
@@ -37,4 +50,10 @@ qa_conversation = vlm_.build_qa_conversation(generated_qs)
 print (f"QA Prompt:\n {qa_conversation}")
 
 vlm_answers = vlm_.invoke(video_1_path, qa_conversation)
+vlm_answers = extract_generated_text_vlm(vlm_answers)
 print(f"VLM Generated Answers:\n {vlm_answers}") 
+
+# Generate video caption
+caption_prompt = llm_.caption_chat_template(generated_qs, vlm_answers, transcript_60_sec, vlm_summary)
+caption = llm_.invoke(caption_prompt)
+print(f"Generated caption:\n {caption}")
