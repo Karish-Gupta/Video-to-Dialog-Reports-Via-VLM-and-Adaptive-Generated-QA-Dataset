@@ -1,38 +1,35 @@
 #!/bin/bash
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
-#SBATCH --mem=128g                     # allocate 128 GB of memory
-#SBATCH -J "qa_generation_text_only"              # name of the job
-#SBATCH -o qa_generation_text_only%j.out         # name of the output file
-#SBATCH -e qa_generation_text_only%j.err         # name of the error file
+#SBATCH --mem=32g                     # allocate 32 GB of memory
+#SBATCH -J "whisperx_transcript"      # name of the job
+#SBATCH -o whisperx_%j.out            # name of the output file
+#SBATCH -e whisperx_%j.err            # name of the error file
 #SBATCH -p short                      # partition to submit to
-#SBATCH -t 5:00:00                   # time limit of 12 hours
-#SBATCH --gres=gpu:A100:2             # request 1 H200 GPU
+#SBATCH -t 04:00:00                   # time limit of 4 hours (CPU is slower)
+#SBATCH --cpus-per-task=8             # request 8 CPU cores
 
-cd $SLURM_SUBMIT_DIR/..
+cd $SLURM_SUBMIT_DIR
 
 module load python/3.11.10
 module load ffmpeg/6.1.1
 module load cuda/12.4.0/3mdaov5
 
 
-python -m venv env
-source env/bin/activate
+# Remove incomplete environment and create fresh one
+rm -rf ./whisper_env
+python -m venv whisper_env
 
+# Activate the environment
+source ./whisper_env/bin/activate
+
+# Install dependencies
 pip install --upgrade pip
-pip install -r newPipeline/requirements.txt
+pip install whisperx yt-dlp torch
+pip install opencv-python Pillow transformers numpy scipy
+pip install -r requirements.txt
 
-pip install --upgrade -q accelerate bitsandbytes
-pip install transformers
-pip install huggingface-hub
-pip install -q av
-pip install pillow
-pip install torchvision
-pip install protobuf
-pip install sentencepiece
-pip install torchcodec
-pip install decord==0.6.0
-pip install ctranslate2==4.5.0
+# Run the transcription script on CPU
+python run_pipeline.py
 
-
-python newPipeline/run_pipeline.py 
+echo "Transcription completed!"
