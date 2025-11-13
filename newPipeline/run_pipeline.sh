@@ -28,6 +28,16 @@ pip install --upgrade pip
 pip install whisperx yt-dlp torch
 pip install opencv-python Pillow transformers numpy scipy
 pip install -r requirements.txt
+pip install --upgrade -q accelerate bitsandbytes
+pip install transformers==4.45.0
+pip install huggingface-hub
+pip install -q av
+pip install pillow
+pip install torchvision
+pip install protobuf
+pip install sentencepiece
+pip install torchcodec
+pip install decord==0.6.0
 
 # Run the transcription script on CPU
 python run_pipeline.py
