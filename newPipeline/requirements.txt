@@ -1,7 +1,6 @@
 whisperx
 yt-dlp
 ffmpeg-python
-ffmpeg
 torch
 torchvision
 pyannote.audio
@@ -13,4 +12,3 @@ Pillow
 transformers
 numpy
 scipy
-bitsandbytes
