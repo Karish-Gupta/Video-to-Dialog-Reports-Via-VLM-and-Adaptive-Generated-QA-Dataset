@@ -7,7 +7,7 @@
 #SBATCH -e whisperx_%j.err            # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 04:00:00                   # time limit of 4 hours (CPU is slower)
-#SBATCH --cpus-per-task=8             # request 8 CPU cores
+#SBATCH --gres=gpu:A100:2             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR
 
