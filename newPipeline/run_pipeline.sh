@@ -1,12 +1,13 @@
 #!/bin/bash
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
-#SBATCH --mem=32g                     # allocate 32 GB of memory
+#SBATCH --mem=64g                     # allocate 32 GB of memory
 #SBATCH -J "VQApipeline"              # name of the job
 #SBATCH -o VQA_%j.out            # name of the output file
 #SBATCH -e VQA_%j.err            # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 04:00:00                   # time limit of 4 hours (CPU is slower)
+#SBATCH --cpus-per-task=8             # request 8 CPU cores
 #SBATCH --gres=gpu:A100:2             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR
@@ -25,15 +26,12 @@ source ./whisper_env/bin/activate
 
 # Install dependencies
 pip install --upgrade pip
-pip install whisperx yt-dlp torch
-pip install opencv-python Pillow transformers numpy scipy
 pip install -r requirements.txt
 pip install --upgrade -q accelerate bitsandbytes
 pip install transformers
 pip install huggingface-hub
 pip install -q av
 pip install pillow
-pip install torchvision
 pip install protobuf
 pip install sentencepiece
 pip install torchcodec

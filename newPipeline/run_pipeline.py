@@ -27,8 +27,8 @@ def main():
     print(f"Duration: {video_info.get('duration')} seconds")
 
     # Device selection
-    device = get_device()
-    print(f"Using device: {device}")
+    device = 'cpu'  # Force CPU usage
+    print(f"Using device: {'device'}")
 
     # =========================================================================
     # STEP 1: Process video with CLIP embeddings (30-second chunks)
