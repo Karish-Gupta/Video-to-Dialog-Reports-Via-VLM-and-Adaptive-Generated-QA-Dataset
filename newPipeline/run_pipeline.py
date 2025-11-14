@@ -90,13 +90,14 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     vlm_descriptions = []
     chunks = video_result['chunks']
+    print(f"\nTotal chunks to evaluate: {len(chunks)}")
     # Initialize LLM
     llm_model = "meta-llama/Llama-3.3-70B-Instruct"
     llm_ = llm(llm_model)
 
     vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
     vlm_ = vlm(vlm_model_name)
-
+    
     for i, chunk in enumerate(chunks):
         chunk_id = chunk['chunk_id']
         start_time = chunk['start_time']

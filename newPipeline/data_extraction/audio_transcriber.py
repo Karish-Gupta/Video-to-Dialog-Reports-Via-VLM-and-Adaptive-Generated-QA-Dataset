@@ -129,9 +129,3 @@ def save_transcript(result, output_file="transcript.txt", json_file="transcript.
     
     print(f"Human-readable timestamped transcript saved to: {timestamped_file}")
     
-    # Print the transcript
-    print("\n" + "="*80)
-    print("TRANSCRIPT:")
-    print("="*80)
-    print(full_text)
-    print("="*80)
