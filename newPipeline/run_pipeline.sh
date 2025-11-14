@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
-#SBATCH --mem=64g                     # allocate 32 GB of memory
+#SBATCH --mem=128g                     # allocate 32 GB of memory
 #SBATCH -J "VQApipeline"              # name of the job
 #SBATCH -o VQA_%j.out            # name of the output file
 #SBATCH -e VQA_%j.err            # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 04:00:00                   # time limit of 4 hours (CPU is slower)
 #SBATCH --cpus-per-task=8             # request 8 CPU cores
-#SBATCH --gres=gpu:A100:2             # request 1 H200 GPU
+#SBATCH --gres=gpu:H100:2             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR
 

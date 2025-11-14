@@ -88,6 +88,11 @@ def main():
     save_transcript(result, output_file=txt_output, json_file=json_output, timestamped_file=timestamped_output)
     
     device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    if(device == "cpu"):
+        print("GPU not available, exiting...")
+        exit(0)
+    
     vlm_descriptions = []
     chunks = video_result['chunks']
     print(f"\nTotal chunks to evaluate: {len(chunks)}")
