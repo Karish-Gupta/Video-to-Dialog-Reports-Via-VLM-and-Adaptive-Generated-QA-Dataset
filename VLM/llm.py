@@ -88,10 +88,10 @@ class llm:
       prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
       return prompt
    
-   def caption_chat_template(self, questions, answers, transcript, vlm_summary):
-      system_prompt = f"""
-         given a bodycam video transcript, visual summary, and question-answer pairs, generate a caption that gives strong visual details about the video.
-         
+   def qa_caption_chat_template(self, questions, answers, transcript, vlm_summary):
+      system_prompt = "Given a bodycam video transcript, visual summary, and question-answer pairs, generate a caption that gives strong visual details about the video."
+      
+      user_prompt = f"""
          Transcript: 
          {transcript}
          
@@ -103,11 +103,27 @@ class llm:
          
          Answers:
          {answers}
-         
       """
       
-      user_prompt = f"Structured information:\n {structured_output}"
+      messages = [
+         {"role": "system", "content": system_prompt},
+         {"role": "user", "content": user_prompt}
+      ]
 
+      prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+      return prompt
+   
+   def caption_chat_template(self, transcript, vlm_summary):
+      system_prompt = "Given a bodycam video transcript and visual summary generate a caption that gives strong visual details about the video."
+      
+      user_prompt = f"""
+         Transcript: 
+         {transcript}
+         
+         Visual Summary:
+         {vlm_summary}
+      """
+      
       messages = [
          {"role": "system", "content": system_prompt},
          {"role": "user", "content": user_prompt}

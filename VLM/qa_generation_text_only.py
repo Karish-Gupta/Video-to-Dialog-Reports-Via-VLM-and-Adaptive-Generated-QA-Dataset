@@ -21,12 +21,12 @@ llm_ = llm(llm_model)
 vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
 vlm_ = vlm(vlm_model_name)
 
-video_1_path = "VLM/videos/high_way_bodycam_30_sec.mp4"
+video_2_path = "VLM/videos/highway_bodycam_one_min.mp4"
 
 
 # VLM summary
 vlm_conversation = vlm_.build_conversation()
-vlm_summary = vlm_.invoke(video_1_path, vlm_conversation)
+vlm_summary = vlm_.invoke(video_2_path, vlm_conversation)
 vlm_summary = extract_generated_text_vlm(vlm_summary)
 print(f"VLM Summary:\n{vlm_summary}")
 
@@ -49,11 +49,15 @@ print(f"Generated Questions:\n {generated_qs}")
 qa_conversation = vlm_.build_qa_conversation(generated_qs)
 print (f"QA Prompt:\n {qa_conversation}")
 
-vlm_answers = vlm_.invoke(video_1_path, qa_conversation)
+vlm_answers = vlm_.invoke(video_2_path, qa_conversation)
 vlm_answers = extract_generated_text_vlm(vlm_answers)
 print(f"VLM Generated Answers:\n {vlm_answers}") 
 
-# Generate video caption
-caption_prompt = llm_.caption_chat_template(generated_qs, vlm_answers, transcript_60_sec, vlm_summary)
-caption = llm_.invoke(caption_prompt)
-print(f"Generated caption:\n {caption}")
+# Generate video captions
+qa_caption_prompt = llm_.qa_caption_chat_template(generated_qs, vlm_answers, transcript_60_sec, vlm_summary)
+qa_caption = llm_.invoke(qa_caption_prompt)
+print(f"Generated QA Caption:\n {qa_caption}")
+
+non_qa_caption_prompt = llm_.caption_chat_template(transcript_60_sec, vlm_summary)
+non_qa_caption = llm_.invoke(non_qa_caption_prompt)
+print(f"Generated NO QA Caption:\n {non_qa_caption}")
