@@ -27,7 +27,7 @@ def main():
     print(f"Duration: {video_info.get('duration')} seconds")
 
     # Device selection
-    device = 'cpu'  # Force CPU usage
+    device_start = 'cpu'  # Force CPU usage
     print(f"Using device: {'device'}")
 
     # =========================================================================
@@ -51,7 +51,7 @@ def main():
         chunk_duration=chunk_duration,
         frames_per_chunk=frames_per_chunk,
         model_name=clip_model,
-        device=device
+        device=device_start
     )
 
     # Save CLIP embeddings to outputs2
@@ -65,7 +65,7 @@ def main():
     # Get HuggingFace token from env
     hf_token = os.environ.get("HF_TOKEN", None)
     
-    print(f"\nUsing device: {device}")
+    print(f"\nUsing device: {device_start}")
     print(f"Compute type: {compute_type}")
     if hf_token:
         print("HuggingFace token found - speaker diarization will be enabled")
@@ -75,7 +75,7 @@ def main():
     result = transcribe_audio_with_diarization(
         audio_file[0], 
         model_size=model_size,
-        device=device,
+        device=device_start,
         compute_type=compute_type,
         hf_token=hf_token
     )
