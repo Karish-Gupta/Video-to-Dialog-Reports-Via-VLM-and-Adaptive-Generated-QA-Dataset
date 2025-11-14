@@ -60,7 +60,7 @@ def main():
     model_size = "base"
     
     # Set device and compute type
-    compute_type = "float16" if device == "cuda" else "int8"
+    compute_type = "float16" if device_start == "cuda" else "int8"
     
     # Get HuggingFace token from env
     hf_token = os.environ.get("HF_TOKEN", None)
