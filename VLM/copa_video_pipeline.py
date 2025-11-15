@@ -15,12 +15,10 @@ def extract_generated_text_vlm(raw_output: str):
     return raw_output
 
 
-# ----------------------------
 # CONFIG
-# ----------------------------
-VIDEO_DIR = "copa_videos"
-TRANSCRIPT_DIR = "copa_transcripts"
-OUTPUT_DIR = "output_results"
+VIDEO_DIR = "VLM/copa_videos"
+TRANSCRIPT_DIR = "VLM/copa_transcripts"
+OUTPUT_DIR = "VLM/output_results"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
