@@ -6,7 +6,7 @@
 #SBATCH -o copa_video_pipeline%j.out         # name of the output file
 #SBATCH -e copa_video_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
-#SBATCH -t 5:00:00                   # time limit of 12 hours
+#SBATCH -t 20:00:00                   # time limit of 12 hours
 #SBATCH --gres=gpu:A100:2             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR/..

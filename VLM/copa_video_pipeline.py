@@ -86,7 +86,11 @@ pairs = zip(video_files, transcript_files)
 print("\n Starting processing pipeline...\n")
 
 for video_file, transcript_file in pairs:
-    index = ''.join(filter(str.isdigit, video_file))
+    # Remove extension to extract correct index
+    video_name_without_ext = os.path.splitext(video_file)[0]
+    index = ''.join(filter(str.isdigit, video_name_without_ext))
+
+    # Use full filename (with extension) for actual file path
     video_path = os.path.join(VIDEO_DIR, video_file)
     transcript_path = os.path.join(TRANSCRIPT_DIR, transcript_file)
 
