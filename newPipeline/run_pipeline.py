@@ -7,6 +7,7 @@ from data_extraction.downloader import download_video, download_audio
 from data_extraction.embedding_extractor import process_video_with_embeddings, save_video_embeddings
 from data_extraction.utils import get_device, print_section, extract_transcript_chunks
 from data_extraction.audio_transcriber import transcribe_audio_with_diarization, save_transcript
+from data_extraction.video_processor import extract_video_chunk_with_decord
 from model_inference.llm import *
 from model_inference.vlm import *
 
@@ -108,8 +109,22 @@ def main():
         start_time = chunk['start_time']
         end_time = chunk['end_time']
         
-        print(f"\n[{i+1}/{len(chunks)}] Processing chunk {chunk_id}: {start_time:.1f}s - {end_time:.1f}s")
-        video_1_path = video_file
+         # create an output path for the chunk video
+        chunk_filename = f"chunk_{chunk_id}_{int(start_time)}_{int(end_time)}.mp4"
+        chunk_path = os.path.join(output_dir, chunk_filename)
+
+        # Extract the chunk to a new short video file (use repo helper when possible)
+        if not os.path.exists(chunk_path):
+            try:
+                # preferred: use the project's function to extract chunk (decord-based)
+                extract_video_chunk_with_decord(video_file, start_time, end_time, out_path=chunk_path)
+            except TypeError:
+                # fallback: use ffmpeg command-line if signature differs or function not available
+                ffmpeg_cmd = f'ffmpeg -y -ss {start_time} -to {end_time} -i "{video_file}" -c copy "{chunk_path}"'
+                os.system(ffmpeg_cmd)
+
+        # point VLM/LLM to the per-chunk clip
+        video_1_path = chunk_path
 
 
         # VLM summary
