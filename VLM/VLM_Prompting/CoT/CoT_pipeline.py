@@ -1,5 +1,5 @@
 import os
-from zero_shot_vlm import *
+from CoT import *
 
 
 def extract_generated_text_vlm(raw_output: str):

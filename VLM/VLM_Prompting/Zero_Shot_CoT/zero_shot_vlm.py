@@ -40,7 +40,7 @@ class vlm:
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": f" This is a police bodycam video. Based on the video and the following transcript, answer the questions step by step:\n {transcript}"},
+                    {"type": "text", "text": f" This is a police bodycam video. Based on the video and the following transcript, create a summary step by step:\n {transcript}"},
                     {"type": "video"},
                 ],
             },
