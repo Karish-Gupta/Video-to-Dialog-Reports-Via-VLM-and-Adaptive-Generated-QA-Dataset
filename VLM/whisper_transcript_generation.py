@@ -3,8 +3,7 @@ import whisperx
 from whisperx.diarize import DiarizationPipeline
 from huggingface_hub import login
 
-if "HF_TOKEN" in os.environ:
-   login(token=os.environ["HF_TOKEN"])
+hf_token = os.getenv("HF_TOKEN")
    
 VIDEO_DIR = "VLM/copa_videos"
 OUTPUT_DIR = "VLM/whisper_transcripts"
