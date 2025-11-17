@@ -29,7 +29,7 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 1: VLM Summary
     print("\n Generating VLM Summary...")
-    vlm_conversation = vlm_.zero_shot_prompting()
+    vlm_conversation = vlm_.cot_prompting()
     vlm_summary = vlm_.invoke(video_path, vlm_conversation)
     vlm_summary = extract_generated_text_vlm(vlm_summary)
     print(f"VLM Summary:\n{vlm_summary}")

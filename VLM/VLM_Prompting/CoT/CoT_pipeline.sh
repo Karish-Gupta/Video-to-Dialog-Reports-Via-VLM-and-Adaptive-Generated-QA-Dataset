@@ -29,4 +29,4 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 
-python VLM/VLM_Prompting/Zero_Shot_CoT/zero_shot_pipeline.py
+python CoT/zero_shot_pipeline.py
