@@ -34,21 +34,8 @@ for video in videos:
    audio = whisperx.load_audio(video_path)
    result = model.transcribe(audio)
 
-   # Apply speaker diarization
-   diarization = diarize_model(audio)
-
-   # Assign speakers to segments 
-   # This merges Whisper segments with diarization timestamps
-   result_with_spk = whisperx.assign_word_speakers(diarization, result["segments"])
-
-   # Format transcript
-   transcript_lines = []
-   for seg in result_with_spk:
-      speaker = seg.get("speaker", "Unknown Speaker")
-      text = seg["text"].strip()
-      transcript_lines.append(f"{speaker}: {text}")
-
-   transcript_text = "\n".join(transcript_lines)
+# Extract text (no alignment or diarization)
+   transcript_text = "\n".join([segment["text"].strip() for segment in result["segments"]])
 
    # Save transcript
    with open(transcript_path, "w", encoding="utf-8") as f:
@@ -56,4 +43,4 @@ for video in videos:
 
    print(f"Saved: {transcript_path}")
 
-print("\n All transcripts with diarization created")
+print("\n All transcripts created")
