@@ -92,7 +92,7 @@ class llm:
       system_prompt = f"""
          You are given a bodycam video transcript, visual summary, and question-answer pairs.
          Generate a caption that gives visual details about the video. 
-         Ensure that you make use of the QA's to enhance the caption.
+         Ensure that you make use of the questions and answers to enhance the caption.
          Include the following in caption: 
          - Describe the setting (Time of day, vehicles, buildings, etc.)
          - Objects in the frame (Weapons, items in hand, consumables, etc.)
