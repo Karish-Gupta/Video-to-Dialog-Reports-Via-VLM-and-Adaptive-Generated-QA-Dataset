@@ -31,7 +31,7 @@ class llm:
    
    def step_1_chat_template(self, transcript, summary):
       # Use chat template for step 1 prompt
-      system_prompt = "You are a helpful assistant working with bodycam video transcript information. You are given a police bodycam transcript inside <transcript> tags and a visual summary in <summary> tags. Extract key details and return ONLY key details in valid JSON."
+      system_prompt = "You are working with bodycam video transcript information. You are given a police bodycam transcript inside <transcript> tags and a visual summary in <summary> tags. Extract key details and return ONLY key details in valid JSON."
       
       user_prompt = f"""
          <summary>
@@ -80,6 +80,69 @@ class llm:
       
       user_prompt = f"Structured information:\n {structured_output}"
 
+      messages = [
+         {"role": "system", "content": system_prompt},
+         {"role": "user", "content": user_prompt}
+      ]
+
+      prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+      return prompt
+   
+   def qa_caption_chat_template(self, questions, answers, transcript, vlm_summary):
+      system_prompt = f"""
+         You are given a bodycam video transcript, visual summary, and question-answer pairs.
+         Generate a caption that gives visual details about the video. 
+         Ensure that you make use of the QA's to enhance the caption.
+         Include the following in caption: 
+         - Describe the setting (Time of day, vehicles, buildings, etc.)
+         - Objects in the frame (Weapons, items in hand, consumables, etc.)
+         - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+         - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+         - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+      """
+      
+      user_prompt = f"""
+         Transcript: 
+         {transcript}
+         
+         Visual Summary:
+         {vlm_summary}
+         
+         Questions:
+         {questions}
+         
+         Answers:
+         {answers}
+      """
+      
+      messages = [
+         {"role": "system", "content": system_prompt},
+         {"role": "user", "content": user_prompt}
+      ]
+
+      prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+      return prompt
+   
+   def caption_chat_template(self, transcript, vlm_summary):
+      system_prompt = f"""
+         You are given a bodycam video transcript, visual summary.
+         Generate a caption that gives visual details about the video. 
+         Include the following in caption: 
+         - Describe the setting (Time of day, vehicles, buildings, etc.)
+         - Objects in the frame (Weapons, items in hand, consumables, etc.)
+         - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+         - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+         - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+      """
+      
+      user_prompt = f"""
+         Transcript: 
+         {transcript}
+         
+         Visual Summary:
+         {vlm_summary}
+      """
+      
       messages = [
          {"role": "system", "content": system_prompt},
          {"role": "user", "content": user_prompt}

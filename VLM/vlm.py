@@ -66,7 +66,7 @@ class vlm:
 
         # Extract frames from video
         vr = VideoReader(video_path, ctx=cpu())
-        num_frames = min(len(vr), 64)
+        num_frames = min(len(vr), 128)
         indices = np.linspace(0, len(vr) - 1, num_frames, dtype=int)
         frames = [vr[i].asnumpy() for i in indices]
 
