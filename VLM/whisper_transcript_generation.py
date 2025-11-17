@@ -1,6 +1,5 @@
 import os
 import whisperx
-from huggingface_hub import login
 
 hf_token = os.getenv("HF_TOKEN")
    

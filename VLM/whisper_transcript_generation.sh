@@ -13,7 +13,7 @@ cd $SLURM_SUBMIT_DIR/..
 
 module load python/3.11.10
 module load cuda/12.4.0/3mdaov5
-module load cudnn8.9-cuda12.3/8.9.7.29
+# module load cudnn8.9-cuda12.3/8.9.7.29
 module load ffmpeg/6.1.1
 
 python -m venv whisper_env
@@ -25,7 +25,7 @@ pip install huggingface-hub
 pip install whisperx 
 pip install torch 
 pip install ffmpeg-python
-pip install pyannote.audio
+# pip install pyannote.audio
 pip install opencv-python Pillow scipy
 
 
