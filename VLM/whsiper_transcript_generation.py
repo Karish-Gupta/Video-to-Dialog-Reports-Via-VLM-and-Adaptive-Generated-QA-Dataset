@@ -1,6 +1,7 @@
 import os
 import whisperx
-import torch
+
+hf_token = os.environ.get("HF_TOKEN", None) # Huggingface token
 
 VIDEO_DIR = "VLM/copa_videos"
 OUTPUT_DIR = "VLM/whisper_transcripts"
@@ -9,9 +10,9 @@ OUTPUT_DIR = "VLM/whisper_transcripts"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Load WhisperX model
-device = "cuda" if torch.is_cuda_available() else "cpu"
+device = "cuda"
 model = whisperx.load_model("large-v2", device)
-diarize_model = whisperx.DiarizationPipeline(use_auth_token=False, device=device)
+diarize_model = whisperx.DiarizationPipeline(use_auth_token=hf_token, device=device)
 
 # Sort videos to keep correct order (Video1, Video2, ...)
 videos = sorted([f for f in os.listdir(VIDEO_DIR) if f.lower().startswith("video")])
