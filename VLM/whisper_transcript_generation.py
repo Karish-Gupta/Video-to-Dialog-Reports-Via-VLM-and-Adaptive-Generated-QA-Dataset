@@ -13,7 +13,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # Load WhisperX model
 device = "cuda"
 model = whisperx.load_model("large-v2", device)
-diarize_model = whisperx.DiarizationPipeline(use_auth_token=hf_token, device=device)
+diarize_model = DiarizationPipeline(use_auth_token=hf_token, device=device)
 
 # Sort videos to keep correct order (Video1, Video2, ...)
 videos = sorted([f for f in os.listdir(VIDEO_DIR) if f.lower().startswith("video")])
