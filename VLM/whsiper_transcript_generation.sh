@@ -7,7 +7,7 @@
 #SBATCH -e whsiper_transcript_generation%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 5:00:00                   # time limit of 12 hours
-#SBATCH --gres=gpu:A100:1             
+#SBATCH --gres=gpu:H100:1             
 
 cd $SLURM_SUBMIT_DIR/..
 

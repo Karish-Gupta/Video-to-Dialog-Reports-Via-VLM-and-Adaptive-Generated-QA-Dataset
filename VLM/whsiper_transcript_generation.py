@@ -1,5 +1,6 @@
 import os
 import whisperx
+import torch
 
 VIDEO_DIR = "VLM/copa_videos"
 OUTPUT_DIR = "VLM/whisper_transcripts"
@@ -8,7 +9,7 @@ OUTPUT_DIR = "VLM/whisper_transcripts"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Load WhisperX model
-device = "cuda" if whisperx.is_cuda_available() else "cpu"
+device = "cuda" if torch.is_cuda_available() else "cpu"
 model = whisperx.load_model("large-v2", device)
 diarize_model = whisperx.DiarizationPipeline(use_auth_token=False, device=device)
 
