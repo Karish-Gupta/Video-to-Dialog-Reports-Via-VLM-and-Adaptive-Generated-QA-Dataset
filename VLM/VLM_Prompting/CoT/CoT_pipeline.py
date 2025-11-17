@@ -14,9 +14,9 @@ def extract_generated_text_vlm(raw_output: str):
 
 
 # CONFIG
-VIDEO_DIR = "VLM/VLM_Prompting/copa_videos"
-TRANSCRIPT_DIR = "VLM/VLM_Prompting/copa_transcripts"
-OUTPUT_DIR = "VLM/VLM_Prompting/zero_shot_output_results"
+VIDEO_DIR = "copa_videos"
+TRANSCRIPT_DIR = "copa_transcripts"
+OUTPUT_DIR = "CoT/CoT_output_results"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
