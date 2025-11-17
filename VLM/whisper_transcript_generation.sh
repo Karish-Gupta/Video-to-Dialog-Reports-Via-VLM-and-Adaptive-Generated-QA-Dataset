@@ -25,4 +25,4 @@ pip install torch
 pip install pyannote.audio
 
 
-python VLM/whsiper_transcript_generation.py
+python VLM/whisper_transcript_generation.py

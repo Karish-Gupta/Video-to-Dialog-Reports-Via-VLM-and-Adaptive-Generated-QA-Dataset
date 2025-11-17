@@ -1,5 +1,6 @@
 import os
 import whisperx
+from whisperx.diarize import DiarizationPipeline
 
 hf_token = os.environ.get("HF_TOKEN", None) # Huggingface token
 
