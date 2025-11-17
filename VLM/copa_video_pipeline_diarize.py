@@ -16,8 +16,8 @@ def extract_generated_text_vlm(raw_output: str):
 
 # CONFIG
 VIDEO_DIR = "VLM/copa_videos"
-TRANSCRIPT_DIR = "VLM/whisper_transcripts"
-OUTPUT_DIR = "VLM/output_results_whisper"
+TRANSCRIPT_DIR = "VLM/whisper_transcripts_diarize"
+OUTPUT_DIR = "VLM/output_results_whisper_diarize"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
