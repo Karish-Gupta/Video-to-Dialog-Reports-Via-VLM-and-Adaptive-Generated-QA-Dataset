@@ -51,7 +51,7 @@ class vlm:
 
 "----------------------------------------\n"
 "1. CONTEXT SUMMARY (1 sentence)\n"
-"State what the footage generally depicts.\n\n"
+"State what the footage generally depicts. Use transcript to assist.\n\n"
 
 "----------------------------------------\n"
 "2. TIMELINE OF OBSERVATIONS (FACTS ONLY)\n"
