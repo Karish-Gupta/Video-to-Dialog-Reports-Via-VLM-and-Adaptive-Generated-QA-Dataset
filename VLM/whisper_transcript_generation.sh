@@ -13,6 +13,7 @@ cd $SLURM_SUBMIT_DIR/..
 
 module load python/3.10.2/mqmlxcf
 module load cuda/12.4.0/3mdaov5
+module load ffmpeg/6.1.1
 
 python -m venv whisper_env
 source ./whisper_env/bin/activate
@@ -23,6 +24,7 @@ pip install huggingface-hub
 pip install whisperx 
 pip install torch
 pip install pyannote.audio
+pip install opencv-python Pillow scipy
 
 
 python VLM/whisper_transcript_generation.py
