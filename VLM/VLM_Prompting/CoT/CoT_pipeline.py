@@ -14,9 +14,9 @@ def extract_generated_text_vlm(raw_output: str):
 
 
 # CONFIG
-VIDEO_DIR = "copa_videos"
-TRANSCRIPT_DIR = "copa_transcripts"
-OUTPUT_DIR = "zero_shot_output_results"
+VIDEO_DIR = "VLM/VLM_Prompting/copa_videos"
+TRANSCRIPT_DIR = "VLM/VLM_Prompting/copa_transcripts"
+OUTPUT_DIR = "VLM/VLM_Prompting/zero_shot_output_results"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
@@ -29,7 +29,7 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 1: VLM Summary
     print("\n Generating VLM Summary...")
-    vlm_conversation = vlm_.cot_prompting()
+    vlm_conversation = vlm_.cot_prompting(transcript=transcript_text)
     vlm_summary = vlm_.invoke(video_path, vlm_conversation)
     vlm_summary = extract_generated_text_vlm(vlm_summary)
     print(f"VLM Summary:\n{vlm_summary}")
