@@ -89,7 +89,17 @@ class llm:
       return prompt
    
    def qa_caption_chat_template(self, questions, answers, transcript, vlm_summary):
-      system_prompt = "Given a bodycam video transcript, visual summary, and question-answer pairs, generate a caption that gives strong visual details about the video."
+      system_prompt = f"""
+         You are given a bodycam video transcript, visual summary, and question-answer pairs.
+         Generate a caption that gives visual details about the video. 
+         Ensure that you make use of the QA's to enhance the caption.
+         Include the following in caption: 
+         - Describe the setting (Time of day, vehicles, buildings, etc.)
+         - Objects in the frame (Weapons, items in hand, consumables, etc.)
+         - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+         - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+         - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+      """
       
       user_prompt = f"""
          Transcript: 
@@ -114,7 +124,16 @@ class llm:
       return prompt
    
    def caption_chat_template(self, transcript, vlm_summary):
-      system_prompt = "Given a bodycam video transcript and visual summary generate a caption that gives strong visual details about the video."
+      system_prompt = f"""
+         You are given a bodycam video transcript, visual summary.
+         Generate a caption that gives visual details about the video. 
+         Include the following in caption: 
+         - Describe the setting (Time of day, vehicles, buildings, etc.)
+         - Objects in the frame (Weapons, items in hand, consumables, etc.)
+         - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+         - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+         - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+      """
       
       user_prompt = f"""
          Transcript: 
