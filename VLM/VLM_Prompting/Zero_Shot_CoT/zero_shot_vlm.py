@@ -34,26 +34,13 @@ class vlm:
             trust_remote_code=True,
         )
     
-    def build_conversation(self):
+    def zero_shot_prompting(self, transcript):
         # Proper chat template
         conversation = [
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": f"This is a police bodycam video. Thinking step by step, describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific."},
-                    {"type": "video"},
-                ],
-            },
-        ]
-        return conversation
-    
-    def build_qa_conversation(self, questions):
-        # Proper chat template
-        conversation = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": f" This is a police bodycam video. You are given a set of questions, based on the video, answer these questions:\n {questions}"},
+                    {"type": "text", "text": f" This is a police bodycam video. Based on the video and the following transcript, answer the questions step by step:\n {transcript}"},
                     {"type": "video"},
                 ],
             },

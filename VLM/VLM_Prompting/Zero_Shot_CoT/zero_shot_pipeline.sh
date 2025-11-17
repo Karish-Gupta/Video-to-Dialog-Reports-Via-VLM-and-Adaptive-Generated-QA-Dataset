@@ -2,9 +2,9 @@
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
 #SBATCH --mem=128g                     # allocate 128 GB of memory
-#SBATCH -J "copa_video_pipeline"              # name of the job
-#SBATCH -o copa_video_pipeline%j.out         # name of the output file
-#SBATCH -e copa_video_pipeline%j.err         # name of the error file
+#SBATCH -J "run_zero"              # name of the job
+#SBATCH -o run_zero%j.out         # name of the output file
+#SBATCH -e run_zero%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 20:00:00                   # time limit of 12 hours
 #SBATCH --gres=gpu:A100:2             # request 1 H200 GPU
@@ -29,4 +29,4 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 
-python VLM/VLM_Prompting/Zero_Shot_CoT/copa_video_pipeline.py
+python VLM/VLM_Prompting/Zero_Shot_CoT/zero_shot_pipeline.py
