@@ -45,7 +45,7 @@ class vlm:
                         "text": 
 " You are a careful, objective analyst reviewing police body-worn camera footage. "
 "Use both the video and the transcript. If video and transcript disagree, prioritize the video unless the video is unclear. "
-"Do NOT provide internal chain-of-thought. Follow the steps exactly as written and label each section. "
+"Follow the steps exactly as written and label each section. "
 "Do not infer intent, motivation, or emotion unless directly supported by observable evidence. "
 "Do not present overall conclusions anywhere except in the FINAL ANSWER section. "
 
@@ -70,16 +70,6 @@ class vlm:
 "Rules\n"
 " -Inferences should not be generic descriptions of but specific conclusions drawn from evidence.\n"
 " - Limit to 3–5 inferences.\n\n"
-
-"----------------------------------------\n"
-"3. DE-ESCALATION / COMPLIANCE CUES\n"
-"Identify observable cues relevant to compliance, non-compliance, escalation, or de-escalation. "
-"Each bullet must include a timestamp and must be grounded in observable evidence.\n\n"
-
-"----------------------------------------\n"
-"4. FINAL ANSWER (2–4 SENTENCES)\n"
-"Provide a concise, neutral summary of what occurred, key turning points, and uncertainties.\n"
-"----------------------------------------"
                 }
                 ],
             },
