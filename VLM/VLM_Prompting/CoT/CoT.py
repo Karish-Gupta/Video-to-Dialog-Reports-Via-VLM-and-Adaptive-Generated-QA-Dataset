@@ -37,77 +37,104 @@ class vlm:
    
     def cot_prompting(self, transcript):
         conversation = [
-            {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": 
-" You are a careful, objective analyst reviewing police body-worn camera footage. "
-"Use both the video and the transcript. If video and transcript disagree, prioritize the video unless the video is unclear. "
-"Do NOT provide internal chain-of-thought. Follow the steps exactly as written and label each section. "
-"Do not infer intent, motivation, or emotion unless directly supported by observable evidence. "
-"Do not present overall conclusions anywhere except in the FINAL ANSWER section. "
-
-"----------------------------------------\n"
-"1. CONTEXT SUMMARY (1 sentence)\n"
-"State what the footage generally depicts. Use transcript to assist.\n\n"
-
-"----------------------------------------\n"
-"2. TIMELINE OF OBSERVATIONS (FACTS ONLY)\n"
-"List observable, timestamped events from both video and transcript.\n"
-"Format: [MM:SS] – <description>\n"
-"Rules:\n"
-"- Only describe what is visible or audible or from transcript.\n"
-"- Include short verbatim quotes if relevant (max 10 words).\n"
-"- No interpretation, no assumptions.\n"
-"- Use a maximum of 3 bullets per subject in the video\n\n"
-"- Use the transcript as part of the bullets when it adds clear, objective information not evident in the video alone.\n\n"
-
-"----------------------------------------\n"
-"3. KEY ACTIONS BY EACH PERSON\n"
-"Group observable actions (no interpretation) by actor.\n"
-"Each bullet must include a timestamp.\n\n"
-
-"----------------------------------------\n"
-"4. EVIDENCE-BASED INFERENCES\n"
-"For each inference:\n"
-"- Conclusion: <short inference>\n"
-"- Evidence: <specific timestamps + observations>\n"
-"- Confidence: <0–100>\n"
-"- Notes: <uncertainty or alternative explanation>\n"
-"Rules\n"
-" -Inferences should not be generic descriptions of the scene/peoples but specific conclusions drawn from evidence about what is happening.\n"
-" - Limit to 3–5 inferences.\n\n"
-
-"----------------------------------------\n"
-"5. DE-ESCALATION / COMPLIANCE CUES\n"
-"Identify observable cues relevant to compliance, non-compliance, escalation, or de-escalation. "
-"Each bullet must include a timestamp and must be grounded in observable evidence.\n\n"
-
-"----------------------------------------\n"
-"6. LIMITATIONS & UNCERTAINTIES\n"
-"List factors that limit confident interpretation (e.g., angles, audio quality, missing POVs, darkness).\n\n"
-
-"----------------------------------------\n"
-"7. FINAL ANSWER (2–4 SENTENCES)\n"
-"Provide a concise, neutral summary of what occurred, key turning points, and uncertainties.\n"
-"----------------------------------------"
+        {
+            "role": "system",
+            "content": [
+                {
+                    "type": "text",
+                    "text": (
+                        "You are a careful, objective analyst reviewing police body-worn camera footage. "
+                        "Use both the video and the transcript. If video and transcript disagree, prioritize the video unless the video is unclear. "
+                        "Do NOT provide internal chain-of-thought. Do not infer intent, motivation, or emotion unless directly supported by observable evidence. "
+                        "Do not present overall conclusions anywhere except in the FINAL ANSWER section."
+                    )
                 }
-                ],
-            },
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text":
-    f"This is a police bodycam video. Using the video and the transcript below, produce the structured analysis described by the system instructions.\nTranscript:\n{transcript}"
-                    },
-                    {"type": "video"},
-                ],
-            },
-        ]
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "What is the context summary from this video and this transcript: \n{transcript}?"}],
+        },
+        {
+            "role": "assistant",
+            "content": [{"type": "text", "text": "This footage generally depicts [one-sentence neutral summary]."}],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "Can you provide the timeline of observations?"}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "text", "text": "[MM:SS] – Description of observable event\n[MM:SS] – Description of observable event"}
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "List the key actions by each person."}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "text", "text": "[Person 1]: [MM:SS] – Action\n[Person 2]: [MM:SS] – Action"}
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "What are the evidence-based inferences?"}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": (
+                        "Conclusion: <short inference>\n"
+                        "Evidence: [MM:SS] observations\n"
+                        "Confidence: [0-100]\n"
+                        "Notes: alternative explanation"
+                    )
+                }
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "Identify de-escalation or compliance cues."}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "text", "text": "[MM:SS] – Observable cue of compliance/non-compliance"}
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "What are the limitations and uncertainties?"}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "text", "text": "Limited visibility due to camera angle; audio unclear at [MM:SS]."}
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "Give me the final answer summary."}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": (
+                        "The footage shows [neutral summary]. Key turning points occurred at [timestamps]. "
+                        "Uncertainties remain due to [limitations]."
+                    )
+                }
+            ],
+        },
+    ]
+
         return conversation
 
 
