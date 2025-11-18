@@ -53,7 +53,7 @@ class vlm:
         },
         {
             "role": "user",
-            "content": [{"type": "text", "text": "What is the context summary from this video and this transcript: \n{transcript}?"},
+            "content": [{"type": "text", "text": f"What is the context summary from this video and this transcript: \n{transcript}?"},
                         {"type": "video"},],
         },
         {
@@ -63,7 +63,7 @@ class vlm:
         {
             "role": "user",
             "content": [{"type": "text", "text": "Can you provide the timeline of observations?"},
-                        {"type": "video"},],
+                        ],
         },
         {
             "role": "assistant",
@@ -74,7 +74,7 @@ class vlm:
         {
             "role": "user",
             "content": [{"type": "text", "text": "List the key actions by each person."},
-                        {"type": "video"},],
+                        ],
         },
         {
             "role": "assistant",
@@ -85,7 +85,7 @@ class vlm:
         {
             "role": "user",
             "content": [{"type": "text", "text": "What are the evidence-based inferences?"},
-                        {"type": "video"},],
+                        ],
         },
         {
             "role": "assistant",
@@ -104,7 +104,7 @@ class vlm:
         {
             "role": "user",
             "content": [{"type": "text", "text": "Identify de-escalation or compliance cues."},
-                        {"type": "video"},],
+                        ],
         },
         {
             "role": "assistant",
@@ -115,7 +115,7 @@ class vlm:
         {
             "role": "user",
             "content": [{"type": "text", "text": "What are the limitations and uncertainties?"},
-                        {"type": "video"},],
+                        ],
         },
         {
             "role": "assistant",
@@ -126,7 +126,7 @@ class vlm:
         {
             "role": "user",
             "content": [{"type": "text", "text": "Give me the final answer summary."},
-                        {"type": "video"},],
+                        ],
         },
         {
             "role": "assistant",
