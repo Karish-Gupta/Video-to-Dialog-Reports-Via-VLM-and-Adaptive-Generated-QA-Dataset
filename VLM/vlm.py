@@ -28,7 +28,7 @@ class vlm:
         self.model = LlavaNextVideoForConditionalGeneration.from_pretrained(
             model_name,
             quantization_config=quantization_config,
-            torch_dtype=torch.float16,
+            dtype=torch.float16,
             low_cpu_mem_usage=True,
             device_map="cuda:1",
             trust_remote_code=True,

@@ -62,7 +62,7 @@ class llm:
    
    def step_2_chat_template(self, structured_output):
       system_prompt = """
-         Based on the given structured information about a police bodycam video, generate thoughtful and specific questions based on pair combinations of key detail elements:
+         Based on the given structured information about a police bodycam video, generate specific questions based on pair combinations of key detail elements:
       
          Questions to generate:
          1. Scene Observations  
@@ -70,12 +70,11 @@ class llm:
          3. Descriptions of Idividuals in Frame
          4. Actions 
 
-         Output only the questions in format:
-
-         1. 
-         2.
-         3.
-         4.
+         Examples:
+         1. Why is the vehicle pulled over along the side of the road? What is the passenger holding in their hands?
+         2. What items are in the suspect's car? What is the officer holding?
+         3. What clothing or accessories is the suspect wearing? What is the age, ethnicity, and gender of the suspect?
+         4. Why is the officer yelling profanity at the suspect? What is the officer doing to the suspect?
       """
       
       user_prompt = f"Structured information:\n {structured_output}"
@@ -94,13 +93,19 @@ class llm:
          Generate a caption that gives visual details about the video. 
          Ensure that you make use of the questions and answers to enhance the caption.
          Include the following in caption: 
+
          - Describe the setting (Time of day, vehicles, buildings, etc.)
          - Objects in the frame (Weapons, items in hand, consumables, etc.)
          - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
          - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
          - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+
+         Write in active voice as much as possible.
+         Be direct, concise, and concrete.
+         Use direct quotes only when needed.
+         Use a person's name if it is known.
       """
-      
+               
       user_prompt = f"""
          Transcript: 
          {transcript}
@@ -128,11 +133,19 @@ class llm:
          You are given a bodycam video transcript, visual summary.
          Generate a caption that gives visual details about the video. 
          Include the following in caption: 
+
          - Describe the setting (Time of day, vehicles, buildings, etc.)
          - Objects in the frame (Weapons, items in hand, consumables, etc.)
          - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
          - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
          - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+
+         Ensure captions are direct and formal.
+
+         Write in active voice as much as possible.
+         Be direct, concise, and concrete.
+         Use direct quotes only when needed.
+         Use a person's name if it is known.
       """
       
       user_prompt = f"""
