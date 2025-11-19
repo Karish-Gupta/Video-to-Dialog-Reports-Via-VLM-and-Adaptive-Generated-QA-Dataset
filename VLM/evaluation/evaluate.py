@@ -1,5 +1,5 @@
 from llm import *
-from ground_truths import copa_video_ground_truths, evaluation_rubric
+from VLM.evaluation.ground_truths import copa_video_ground_truths, evaluation_rubric
 import os 
 
 OUTPUT_DIR = "VLM/output_results_whisper" # Folder with each video caption output
