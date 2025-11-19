@@ -71,10 +71,10 @@ class llm:
          4. Actions 
 
          Examples:
-         1. Why is the vehicle pulled over along the side of the road? What is the passenger holding in their hands?
-         2. What items are in the suspect's car? What is the officer holding?
-         3. What clothing or accessories is the suspect wearing? What is the age, ethnicity, and gender of the suspect?
-         4. Why is the officer yelling profanity at the suspect? What is the officer doing to the suspect?
+         1. Why is the vehicle pulled over along the side of the road?
+         2. What items are in the suspect's car?
+         3. What is the age, ethnicity, and gender of the suspect?
+         4. Why is the officer yelling profanity at the suspect?
       """
       
       user_prompt = f"Key Details:\n {structured_output}"
