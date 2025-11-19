@@ -62,7 +62,7 @@ class llm:
    
    def step_2_chat_template(self, structured_output):
       system_prompt = """
-         Based on the given structured information about a police bodycam video, generate specific questions based on pair combinations of key detail elements:
+         Based on the given structured information about a police bodycam video, generate specific questions based on key details:
       
          Questions to generate:
          1. Scene Observations  
@@ -77,7 +77,7 @@ class llm:
          4. Why is the officer yelling profanity at the suspect? What is the officer doing to the suspect?
       """
       
-      user_prompt = f"Structured information:\n {structured_output}"
+      user_prompt = f"Key Details:\n {structured_output}"
 
       messages = [
          {"role": "system", "content": system_prompt},
