@@ -1,3 +1,5 @@
+# Video ground truths 
+
 video_1_ground_truth = """
 - Nighttime video
 - First 5 seconds show a group of officers surrounding an individual (suspect) in a blue and yellow beanie
@@ -89,7 +91,7 @@ video_8_ground_truth = """
 - The man who was talking in the background before continues to speak
 - One of the other officers tells the man talking to “step over there”
 - A female officer starts telling the people spectating to stop loitering and move on
-- She tells them “If you don’t get out the bus stop, you gon be going with em”
+- She tells them “If you don't get out the bus stop, you gon be going with em”
 - More officers enter the frame, along with a police car blocking part of the intersection
 - The female officer asks the people around for the mans name, and tells them that he is going to get an ambulance
 - A bystander mentions he got shot
@@ -124,6 +126,7 @@ video_11_ground_truth = """
 - Our 3rd perpetrator then says that he's a friend of the fiedel? 
 """
 
+# Video ground truth dict
 copa_video_ground_truths = {
    "video1": video_1_ground_truth,
    "video2": video_2_ground_truth,
@@ -137,3 +140,51 @@ copa_video_ground_truths = {
    "video10": video_10_ground_truth,
    "video11": video_11_ground_truth
 }
+
+# Eval rubric definition
+evaluation_rubric = """
+Factual Accuracy (0-5)
+Measures whether statements in the caption are true given the ground truth.
+| Score | Criteria                                                                                        |
+| ----- | ----------------------------------------------------------------------------------------------- |
+| **5** | All details are verifiably correct; no hallucinated events, objects, identities, or intentions. |
+| **4** | Mostly correct with minor inaccuracies that do not change meaning.                              |
+| **3** | Some inaccuracies or speculative language, but core meaning is correct.                         |
+| **2** | Several incorrect statements or guesses; meaning is partially misleading.                       |
+| **1** | Mostly inaccurate or speculative.                                                               |
+| **0** | Completely fabricated or unrelated to the content.                                              |
+
+Coverage & Completeness (0-5)
+Does the caption capture all relevant and important events?
+| Score | Criteria                                                                        |
+| ----- | ------------------------------------------------------------------------------- |
+| **5** | Captures all key actions, objects, people, environmental context, and sequence. |
+| **4** | Covers most important details but misses a few.                                 |
+| **3** | Adequate but incomplete.                                                        |
+| **2** | Important information missing or unclear.                                       |
+| **1** | Barely covers relevant content.                                                 |
+| **0** | Provides no meaningful coverage.                                                |
+
+Visual Enrichment (Non-Transcript Information) (0-5)
+Measures how well the caption adds useful visual details that are not present in the transcript (e.g., location, lighting, gestures, expressions).
+| Score | Criteria                                                         |
+| ----- | ---------------------------------------------------------------- |
+| **5** | Adds highly relevant visual context that improves understanding. |
+| **4** | Adds useful visual details but limited variety.                  |
+| **3** | Some visual context, but sparse.                                 |
+| **2** | Minimal relevant visual additions.                               |
+| **1** | Tries to add visual info but inaccurate or irrelevant.           |
+| **0** | No visual context added.                                         |
+
+Clarity, Neutral Tone, and Professionalism (0-5)
+Captions should follow bodycam/LE reporting standards: neutral, clear, descriptive—not interpretive.
+| Score | Criteria                                                       |
+| ----- | -------------------------------------------------------------- |
+| **5** | Clear, objective, structured narrative with professional tone. |
+| **4** | Minor issues in tone, grammar, or flow.                        |
+| **3** | Understandable but casual or inconsistent.                     |
+| **2** | Hard to follow or language not appropriate.                    |
+| **1** | Tone biased, emotional, or unclear.                            |
+| **0** | Not coherent.                                                  |
+
+"""

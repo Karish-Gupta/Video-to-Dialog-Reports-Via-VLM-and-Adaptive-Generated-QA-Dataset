@@ -164,6 +164,25 @@ class llm:
       prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
       return prompt
    
+   def eval_chat_template(self, caption, ground_truth, eval_prompt_template):
+      system_prompt = f"{eval_prompt_template}"
+      
+      user_prompt = f"""
+         Ground Truth:
+         {ground_truth}
+
+         Model Caption:
+         {caption}
+      """
+      
+      messages = [
+         {"role": "system", "content": system_prompt},
+         {"role": "user", "content": user_prompt}
+      ]
+
+      prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+      return prompt
+   
    def invoke(self, prompt):
       inputs = self.tokenizer(
          prompt, 
