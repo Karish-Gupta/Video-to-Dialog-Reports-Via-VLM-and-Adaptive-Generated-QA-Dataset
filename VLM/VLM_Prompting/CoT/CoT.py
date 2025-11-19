@@ -45,31 +45,22 @@ class vlm:
                         "text": 
 " You are a careful, objective analyst reviewing police body-worn camera footage. "
 "Use both the video and the transcript. If video and transcript disagree, prioritize the video unless the video is unclear. "
-"Follow the steps exactly as written and label each section. "
 "Do not infer intent, motivation, or emotion unless directly supported by observable evidence. "
 "Do not present overall conclusions anywhere except in the FINAL ANSWER section. "
 
-"----------------------------------------\n"
 "1. TIMELINE OF OBSERVATIONS (FACTS ONLY, MAX 10 BULLETS)\n"
 "List observable, timestamped events from both video and transcript.\n"
 "Format: [MM:SS] – <description>\n"
-"Rules:\n"
-"- Only describe what is visible or audible or from transcript.\n"
-"- Include short verbatim quotes if relevant (max 10 words).\n"
-"- No interpretation, no assumptions.\n"
-"- Use a maximum of 3 bullets per subject in the video\n\n"
-"- Use the transcript as part of the bullets when it adds clear, objective information not evident in the video alone.\n\n"
 
-"----------------------------------------\n"
 "2. EVIDENCE-BASED INFERENCES\n"
 "For each inference:\n"
 "- Conclusion: <short inference>\n"
 "- Evidence: <specific timestamps + observations>\n"
 "- Confidence: <0–100>\n"
 "- Notes: <uncertainty or alternative explanation>\n"
-"Rules\n"
-" -Inferences should not be generic descriptions of but specific conclusions drawn from evidence.\n"
-" - Limit to 3–5 inferences.\n\n"
+
+"3. FINAL ANSWER\n"
+"Based on the above observations and inferences, provide a concise summary of the key events and findings from the footage. "
                 }
                 ],
             },
