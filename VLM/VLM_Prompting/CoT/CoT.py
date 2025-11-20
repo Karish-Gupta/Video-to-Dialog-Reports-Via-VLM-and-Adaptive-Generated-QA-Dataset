@@ -44,9 +44,6 @@ class vlm:
                         "type": "text",
                         "text": 
 " You are a careful, objective analyst reviewing police body-worn camera footage. "
-"Use both the video and the transcript. If video and transcript disagree, prioritize the video unless the video is unclear. "
-"Do not infer intent, motivation, or emotion unless directly supported by observable evidence. "
-"Do not present overall conclusions anywhere except in the FINAL ANSWER section. "
 
 "1. TIMELINE OF OBSERVATIONS (FACTS ONLY, MAX 10 BULLETS)\n"
 "List observable, timestamped events from both video and transcript.\n"

@@ -40,7 +40,7 @@ class vlm:
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": f" This is a police bodycam video. Based on the video and the following transcript, create a summary step by step:\n {transcript}"},
+                    {"type": "text", "text": f" This is a police bodycam video. Based on the video and the following transcript, create a summary from this example: The bodycam shows the officer approaching a vehicle during a routine traffic stop for a broken taillight. The driver appears nervous, prompting the officer to use clear, calm verbal instructions to maintain safety. As the driver reaches for documents, the officer adjusts positioning to keep both hands visible. The footage highlights controlled communication and proper situational awareness during a low-risk encounter.\n {transcript}"},
                     {"type": "video"},
                 ],
             },
