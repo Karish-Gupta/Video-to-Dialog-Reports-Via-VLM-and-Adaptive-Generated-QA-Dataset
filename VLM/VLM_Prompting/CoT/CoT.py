@@ -50,14 +50,9 @@ class vlm:
 
 "1. TIMELINE OF OBSERVATIONS (FACTS ONLY, MAX 10 BULLETS)\n"
 "List observable, timestamped events from both video and transcript.\n"
-"Format: [MM:SS] – <description>\n"
 
 "2. EVIDENCE-BASED INFERENCES\n"
-"For each inference:\n"
-"- Conclusion: <short inference>\n"
-"- Evidence: <specific timestamps + observations>\n"
-"- Confidence: <0–100>\n"
-"- Notes: <uncertainty or alternative explanation>\n"
+"Make reasoning based inferences based on the timeline of events with evidence:\n"
 
 "3. FINAL ANSWER\n"
 "Based on the above observations and inferences, provide a concise summary of the key events and findings from the footage. "
