@@ -5,9 +5,9 @@ from utils.gemini_llm import *
 import csv
 
 # CONFIG
-VIDEO_DIR = "VLM/training_videos"
-TRANSCRIPT_DIR = "VLM/training_transcripts"
-OUTPUT_DIR = "VLM/distillation_training_data"
+VIDEO_DIR = "data_generation/training_videos"
+TRANSCRIPT_DIR = "data_generation/training_transcripts"
+OUTPUT_DIR = "data_generation/distillation_training_data"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 CSV_PATH = os.path.join(OUTPUT_DIR, "distillation_results.csv")
