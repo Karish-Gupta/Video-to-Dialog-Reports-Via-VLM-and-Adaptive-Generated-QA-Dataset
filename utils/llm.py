@@ -31,24 +31,71 @@ class llm:
    
    def step_1_chat_template(self, transcript, summary):
       # Use chat template for step 1 prompt
-      system_prompt = "You are working with bodycam video transcript information. You are given a police bodycam transcript inside <transcript> tags and a visual summary in <summary> tags. Extract key details and return ONLY key details in valid JSON."
-      
-      user_prompt = f"""
-         <summary>
-         {json.dumps(summary)}
-         <summary>
-         
-         <transcript>
-         {json.dumps(transcript)}
-         </transcript>
+      system_prompt = (
+        "You analyze police body-worn camera recordings.\n"
+        "You will be given:\n"
+        "  - A visual summary of the video (<summary>)\n"
+        "  - The transcript of spoken dialogue (<transcript>)\n\n"
+        "Your task is to extract factual key details strictly grounded in what can be:\n"
+        "  - Seen\n"
+        "  - Heard\n"
+        "  - Directly inferred from observable physical evidence\n\n"
+        "Do NOT speculate or invent missing details.\n"
+        "Return ONLY the JSON output structure—no commentary, no explanation."
+    )
 
-         Output JSON structure:
-         {{
-         "Scene Observations": [""],
-         "Actions": [""],
-         "Items in Frame": [""],
-         "Descriptions of Idividuals in Frame": [""],
-         }}
+      user_prompt = f"""
+      <summary>
+      {json.dumps(summary)}
+      </summary>
+
+      <transcript>
+      {json.dumps(transcript)}
+      </transcript>
+
+      Extract and output key details using the following structure:
+
+      {{
+      "Scene-Level": {{
+         "Environment": "",        // Indoors/outdoors, setting type, weather, lighting
+         "Location_Clues": "",     // Visible signage, street names, inferred setting only if visually grounded
+         "Scene_Changes": []       // Changes in environment or camera movement (entry/exit rooms, approach vehicle, etc.)
+      }},
+      
+      "Entity-Level": {{
+         "People": [
+            {{
+            "Description": "",     // Clothing, identifiers, notable appearance features
+            "Role_if_Clear": "",   // officer, civilian, suspect (ONLY if visually or transcript-confirmed)
+            "Position": ""         // relative spatial location (left/right/behind/near doorway/etc.)
+            }}
+         ],
+         "Animals": [],
+         "Objects": [
+            {{
+            "Type": "",
+            "Location": "",
+            "Attributes": ""       // visible characteristics: damaged, brand, color, shape
+            }}
+         ]
+      }},
+
+      "Action-Level": {{
+         "Primary_Actions": [],     // major events or movements observed in order
+         "Secondary_Actions": [],   // gestures, handling items, positioning, approach/retreat
+         "Interactions": []         // human-object, human-human, object-object
+      }},
+
+      "Semantic-Level": {{
+         "Intent_if_Visible": "",   // ONLY if visually clear (e.g., fleeing, surrendering, reaching for object)
+         "Emotional_State": "",     // body language, tone indicators (NOT speculation)
+         "Notable_Audio": []        // shouting, sirens, arguments, commands, unknown sounds
+      }}
+      }}
+
+      Rules:
+      - If a category has no evidence, return an empty string or empty list.
+      - Do NOT repeat transcript verbatim — summarize into structured facts.
       """
       
       messages = [
