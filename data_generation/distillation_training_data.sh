@@ -7,7 +7,7 @@
 #SBATCH -e distillation_training_data%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 20:00:00                   # time limit of 12 hours
-#SBATCH --gres=gpu:H100:2             # request 1 H200 GPU
+#SBATCH --gres=gpu:A100:2             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR/..
 
@@ -29,6 +29,6 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 pip install python-dotenv
-
+pip install google-genai
 
 python -m data_generation.generate_distillation_training_data
