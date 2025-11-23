@@ -31,4 +31,4 @@ pip install decord==0.6.0
 pip install python-dotenv
 
 
-python data_generation/generate_distillation_training_data.py
+python -m data_generation.generate_distillation_training_data
