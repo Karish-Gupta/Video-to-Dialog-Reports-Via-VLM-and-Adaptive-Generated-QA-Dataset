@@ -1,0 +1,45 @@
+from google import genai
+import os
+from dotenv import load_dotenv
+
+class gemini_model:
+    def __init__(self, model_name: str = "gemini-2.5-pro"):
+        # Load API key from env
+        load_dotenv()
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise ValueError("No GEMINI_API_KEY found in .env file")
+        
+        # Initialize variables
+        self.client = genai.Client(api_key=api_key)
+        self.model_name = model_name
+    
+    def generate_distillation_model_qs(self, structured_details):
+        """
+        Takes structured details extracted from bodycam video and prompt Gemini to generate questions
+        """
+        
+        prompt = f"""
+        You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
+
+        Your task:
+        - Based on the provided structured details, generate a list of investigative questions.
+        - Every question must be something a human could answer by watching the video.
+        - The goal is to guide analysts toward visual clues, context, behavior, or environment details that may matter.
+
+        Rules for your output:
+        - Write a total of 4 meaningful questions that can extract the most visual information.
+        - Each question should pertain to one of the four categories (scene-level, entity-level, action-level, semantic-level).
+        - Do NOT repeat facts already stated.
+        - Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
+        - Use clear, concise, professional language.
+        - Format the output as a numbered list.
+
+        Structured information provided:
+        {structured_details}
+        """
+        
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
+        )

@@ -1,7 +1,6 @@
 import os
-from llm import *
-from vlm import *
-from transcript_context import *
+from utils.llm import *
+from utils.vlm import *
 
 
 def extract_generated_text_vlm(raw_output: str):
@@ -16,9 +15,9 @@ def extract_generated_text_vlm(raw_output: str):
 
 
 # CONFIG
-VIDEO_DIR = "VLM/copa_videos"
-TRANSCRIPT_DIR = "VLM/copa_transcripts"
-OUTPUT_DIR = "VLM/output_results"
+VIDEO_DIR = "pipeline/copa_videos"
+TRANSCRIPT_DIR = "pipeline/whisper_transcripts"
+OUTPUT_DIR = "pipeline/output_results_whisper"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)

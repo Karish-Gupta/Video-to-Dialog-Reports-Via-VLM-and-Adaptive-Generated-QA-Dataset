@@ -7,7 +7,7 @@
 #SBATCH -e copa_video_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 20:00:00                   # time limit of 12 hours
-#SBATCH --gres=gpu:A100:2             # request 1 H200 GPU
+#SBATCH --gres=gpu:H100:2             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR/..
 
@@ -29,4 +29,4 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 
-python VLM/copa_video_pipeline.py
+python -m pipeline.copa_video_pipeline
