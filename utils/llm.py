@@ -109,19 +109,10 @@ class llm:
    
    def step_2_chat_template(self, structured_output):
       system_prompt = """
-         Based on the given structured information about a police bodycam video, generate specific questions based on key details:
-      
-         Questions to generate:
-         1. Scene Observations  
-         2. Items in Frame  
-         3. Descriptions of Idividuals in Frame
-         4. Actions 
-
-         Examples:
-         1. Why is the vehicle pulled over along the side of the road?
-         2. What items are in the suspect's car?
-         3. What is the age, ethnicity, and gender of the suspect?
-         4. Why is the officer yelling profanity at the suspect?
+         You analyze police body-worn camera recordings.
+         Generate 4 specific questions based on key details that would help clarify or expand understanding of the scene.
+         Ensure questions are directly relevant to observable details from the structured output.
+         Return ONLY the questions as a numbered list—no commentary, no explanation.
       """
       
       user_prompt = f"Key Details:\n {structured_output}"
