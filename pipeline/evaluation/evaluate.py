@@ -1,4 +1,5 @@
 from utils.llm import *
+from utils.gemini_llm import *
 from ground_truths import copa_video_ground_truths, evaluation_rubric
 import os 
 
@@ -8,6 +9,8 @@ RESULTS_FILE = "evaluation_results.json"
 # Initialize model
 llm_model = "meta-llama/Llama-3.3-70B-Instruct"
 llm_ = llm(llm_model)
+gemini = gemini_model()
+
 
 # Evaluation prompt template
 evaluation_prompt_template = f"""
@@ -34,8 +37,7 @@ Return output in the following JSON format:
 """
 
 def evaluate_caption(caption_text, ground_truth):
-    query = llm_.eval_chat_template(caption_text, ground_truth, evaluation_prompt_template)
-    response = llm_.invoke(query)
+    response = gemini.eval(caption_text, ground_truth, evaluation_prompt_template)
     
     try:
         parsed = json.loads(response)

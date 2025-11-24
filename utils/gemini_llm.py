@@ -42,3 +42,15 @@ class gemini_model:
             model=self.model_name,
             contents=prompt
         )
+    
+
+    def eval(self, caption_text, ground_truth, evaluation_prompt_template):
+        prompt = evaluation_prompt_template.format(
+            caption_text=caption_text,
+            ground_truth=ground_truth
+        )
+        
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
+        )
