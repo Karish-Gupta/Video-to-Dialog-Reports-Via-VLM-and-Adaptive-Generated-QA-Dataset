@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 class gemini_model:
-    def __init__(self, model_name: str = "gemini-2.5-pro", temperature: float = 0.2):
+    def __init__(self, model_name: str = "gemini-2.5-pro"):
         # Load API key from env
         load_dotenv()
         api_key = os.getenv("GEMINI_API_KEY")
@@ -13,7 +13,6 @@ class gemini_model:
         # Initialize variables
         self.client = genai.Client(api_key=api_key)
         self.model_name = model_name
-        self.temperature = temperature
     
     def generate_distillation_model_qs(self, structured_details):
         """
@@ -41,6 +40,5 @@ class gemini_model:
         
         return self.client.models.generate_content(
             model=self.model_name,
-            contents=prompt,
-            generation_config={"temperature": self.temperature}
+            contents=prompt
         )
