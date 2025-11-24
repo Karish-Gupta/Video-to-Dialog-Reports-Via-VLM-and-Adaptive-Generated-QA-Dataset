@@ -1,5 +1,5 @@
-from llm import *
-from VLM.evaluation.ground_truths import copa_video_ground_truths, evaluation_rubric
+from utils.llm import *
+from ground_truths import copa_video_ground_truths, evaluation_rubric
 import os 
 
 OUTPUT_DIR = "VLM/output_results_whisper" # Folder with each video caption output
@@ -17,6 +17,11 @@ Use the rubric below and give only a JSON response with numerical scores and a s
 
 Rubric:
 {evaluation_rubric}
+
+Ground Truths:
+{copa_video_ground_truths}
+
+
 
 Return output in the following JSON format:
 {{
