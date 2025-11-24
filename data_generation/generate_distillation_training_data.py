@@ -1,8 +1,8 @@
 import os
+import json
 from utils.llm import *
 from utils.vlm import *
 from utils.gemini_llm import *
-import csv
 
 # CONFIG
 VIDEO_DIR = "data_generation/training_videos"
@@ -10,13 +10,7 @@ TRANSCRIPT_DIR = "data_generation/training_transcripts"
 OUTPUT_DIR = "data_generation/distillation_training_data"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-CSV_PATH = os.path.join(OUTPUT_DIR, "distillation_results.csv")
-
-# Create CSV with headers if not already present
-if not os.path.exists(CSV_PATH):
-    with open(CSV_PATH, "w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["video_index", "vlm_summary", "structured_details", "questions"])  # headers
+JSONL_PATH = os.path.join(OUTPUT_DIR, "distillation_results.jsonl")
 
 # Model Init
 llm_model = "meta-llama/Llama-3.3-70B-Instruct"
@@ -47,19 +41,24 @@ def process_pair(video_path, transcript_text, index):
     # Step 2: LLM Extraction
     step_1_prompt = llm_.step_1_chat_template(transcript_text, vlm_summary)
     structured_output = llm_.invoke(step_1_prompt)
-    
+
     # Step 3: Generate questions
     questions = gemini.generate_distillation_model_qs(structured_output)
 
-    # ---- Append to CSV ----
-    with open(CSV_PATH, "a", newline="", encoding="utf-8") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow([index, vlm_summary, structured_output, questions])
+    # ---- Append to JSONL ----
+    record = {
+        "video_index": index,
+        "vlm_summary": vlm_summary,
+        "structured_details": structured_output,
+        "questions": questions
+    }
 
-    print(f"Finished Video {index} appended to CSV")
+    with open(JSONL_PATH, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    print(f"Finished Video {index} appended to JSONL file")
 
 def main():
-    # Identify all video-to-transcript pairs
     video_files = sorted([f for f in os.listdir(VIDEO_DIR) if f.lower().startswith("video")])
     transcript_files = sorted([f for f in os.listdir(TRANSCRIPT_DIR) if f.lower().startswith("transcript")])
 
@@ -68,11 +67,7 @@ def main():
     print("\n Starting processing pipeline...\n")
 
     for video_file, transcript_file in pairs:
-        # Remove extension to extract correct index
-        video_name_without_ext = os.path.splitext(video_file)[0]
-        index = ''.join(filter(str.isdigit, video_name_without_ext))
-
-        # Use full filename (with extension) for actual file path
+        index = ''.join(filter(str.isdigit, os.path.splitext(video_file)[0]))
         video_path = os.path.join(VIDEO_DIR, video_file)
         transcript_path = os.path.join(TRANSCRIPT_DIR, transcript_file)
 
@@ -81,8 +76,8 @@ def main():
 
         process_pair(video_path, transcript_text, index)
 
-    print("\n All videos processed successfully! CSV Created at:", CSV_PATH)
-    
-    
+    print("\n All videos processed successfully! JSONL saved at:", JSONL_PATH)
+
+
 if __name__ == "__main__":
     main()
