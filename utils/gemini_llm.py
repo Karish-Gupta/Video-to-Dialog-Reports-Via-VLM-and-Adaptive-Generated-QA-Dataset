@@ -39,7 +39,9 @@ class gemini_model:
         {structured_details}
         """
         
-        return self.client.models.generate_content(
+        response = self.client.models.generate_content(
             model=self.model_name,
             contents=prompt
         )
+
+        return response.text
