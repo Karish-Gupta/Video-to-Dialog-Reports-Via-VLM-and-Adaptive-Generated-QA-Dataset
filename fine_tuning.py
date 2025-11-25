@@ -37,6 +37,96 @@ class FineTuner:
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
+    def convert_distillation_to_prompt_completion(
+        self,
+        distill_path: str = "distillation_results.jsonl", # The default output we set here
+        out_path: str = "distillation_prompt_completion.jsonl",
+        direction: str = "label->question",
+    ):
+        """Converts distillation results into prompt-completion SFT JSONL.
+        """
+        if not os.path.exists(distill_path):
+            raise FileNotFoundError(f"Distillation file not found: {distill_path}")
+
+        out_dir = os.path.dirname(out_path)
+        if out_dir and not os.path.exists(out_dir):
+            os.makedirs(out_dir, exist_ok=True)
+
+        written = 0
+        with open(distill_path, "r", encoding="utf-8") as fh_in, open(
+            out_path, "w", encoding="utf-8"
+        ) as fh_out:
+            for line in fh_in:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    # skip malformed lines
+                    continue
+
+                # structured_details may include triple-backtick fenced JSON; try to clean
+                struct_raw = obj.get("structured_details") or ""
+                if isinstance(struct_raw, str):
+                    struct_clean = struct_raw.strip()
+                    if struct_clean.startswith("```") and struct_clean.endswith("```"):
+                        struct_clean = struct_clean.strip("`\n ")
+                    # try parse to dict
+                    try:
+                        gold_label = json.loads(struct_clean)
+                    except Exception:
+                        # leave as string fallback
+                        gold_label = struct_clean
+                else:
+                    gold_label = struct_raw
+
+                # Questions may be a single string with numbered list; extract first question
+                questions_raw = obj.get("questions") or ""
+                first_question = ""
+                if isinstance(questions_raw, list) and questions_raw:
+                    first_question = questions_raw[0]
+                elif isinstance(questions_raw, str) and questions_raw.strip():
+                    # attempt to split by newlines and numbers
+                    q_lines = [l.strip() for l in questions_raw.splitlines() if l.strip()]
+                    if q_lines:
+                        # remove leading numbering if present
+                        q = q_lines[0]
+                        if q[0].isdigit() and "." in q:
+                            q = q.split(".", 1)[1].strip()
+                        first_question = q
+
+                # Prepare two directions if possible
+                examples = []
+                if direction == "label->question" or direction == "both":
+                    prompt = (
+                        "You are given a structured description of a video scene.\n"
+                        "Return one concise, high-quality question that would help clarify or expand understanding of the scene.\n\n"
+                        "Structured Output:\n"
+                        f"{json.dumps(gold_label, ensure_ascii=False)}\n\n"
+                        "Question:"
+                    )
+                    completion = first_question or "WRITE_QUESTION_HERE"
+                    examples.append({"prompt": prompt, "completion": completion})
+
+                if direction == "question->label" or direction == "both":
+                    q = first_question or "WHAT_IS_SEEN?"
+                    prompt = (
+                        "You are given a high-quality question about a video scene.\n"
+                        "Return a grounded structured JSON output strictly based on the question's focus.\n\n"
+                        "Question:\n"
+                        f"{q}\n\n"
+                        "Structured Output (JSON):"
+                    )
+                    completion = json.dumps(gold_label, ensure_ascii=False)
+                    examples.append({"prompt": prompt, "completion": completion})
+
+                for ex in examples:
+                    fh_out.write(json.dumps(ex, ensure_ascii=False) + "\n")
+                    written += 1
+
+        print(f"Wrote {written} training examples to {out_path}")
+
 
 # ------------------------------------------------------------
 # PEFT / LoRA Adapter (NOT IMPLEMENTED YET)
