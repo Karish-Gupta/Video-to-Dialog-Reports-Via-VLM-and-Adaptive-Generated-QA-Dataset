@@ -28,6 +28,6 @@ pip install protobuf
 pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
-pip install google
+pip install google-genai
 
 python -m pipeline.evaluation.evaluate
