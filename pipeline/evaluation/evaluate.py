@@ -1,6 +1,6 @@
 from utils.llm import *
 from utils.gemini_llm import *
-from ground_truths import copa_video_ground_truths, factual_accuracy_rubric, clarity_professionalism_rubric, coverage_completeness_rubric, visual_enrichment_rubric
+from pipeline.evaluation.ground_truths import copa_video_ground_truths, factual_accuracy_rubric, clarity_professionalism_rubric, coverage_completeness_rubric, visual_enrichment_rubric
 import os 
 import json
 import re
