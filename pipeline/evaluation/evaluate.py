@@ -8,7 +8,7 @@ from typing import Dict, Any
 
 
 
-OUTPUT_DIR = "VLM/output_results_whisper" # Folder with each video caption output
+OUTPUT_DIR = "output_results_whisper" # Folder with each video caption output
 RESULTS_FILE = "evaluation_results.json"
 
 # Initialize model
