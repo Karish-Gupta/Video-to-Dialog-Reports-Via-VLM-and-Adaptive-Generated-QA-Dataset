@@ -233,4 +233,6 @@ def calculate_score(factual_accuracy, completeness, visual_enrichment, clarity):
         "Clarity": clarity,
         "Total Score": percentage_score
     }
+
+run_evaluation()
     
