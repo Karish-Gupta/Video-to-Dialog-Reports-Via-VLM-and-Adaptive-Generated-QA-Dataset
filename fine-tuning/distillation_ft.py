@@ -3,8 +3,8 @@ import torch
 from peft import LoraConfig, get_peft_model, TaskType
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import login
-from model_utils.eval_utils import *
-from model_utils.preprocessing import *
+from eval_utils import *
+from preprocessing import *
 import os
 
 # Login to HF CLI
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     train_batch_size = 4
     eval_batch_size = 4
     gradient_accumulation_steps = 8 # Adjusted: 32 might be too slow for small datasets, 8 is usually stable
-    num_epochs = 3
+    num_epochs = 15
     learning_rate = 2e-4
     
     # Lengths
