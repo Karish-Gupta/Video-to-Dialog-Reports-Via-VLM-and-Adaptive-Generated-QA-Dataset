@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 class gemini_model:
-    def __init__(self, model_name: str = "gemini-2.5-pro"):
+    def __init__(self, model_name: str = "gemini-2.5-flash-live"):
         # Load API key from env
         load_dotenv()
         api_key = os.getenv("GEMINI_API_KEY")
