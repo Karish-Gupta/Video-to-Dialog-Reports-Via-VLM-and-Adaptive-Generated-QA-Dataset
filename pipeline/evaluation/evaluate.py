@@ -144,10 +144,10 @@ def _gemini_text(resp) -> str:
 
 def evaluate_caption(caption_text, ground_truth):
     prompts = {
-        "Factual Accuracy": evaluation_prompt_template_factual.format(caption=caption_text, ground_truth=ground_truth),
-        "Completeness": evaluation_prompt_template_complete.format(caption=caption_text, ground_truth=ground_truth),
-        "Visual Enrichment": evaluation_prompt_template_enrich.format(caption=caption_text, ground_truth=ground_truth),
-        "Clarity": evaluation_prompt_template_clarity.format(caption=caption_text, ground_truth=ground_truth)
+        "Factual Accuracy": evaluation_prompt_template_factual.replace("{caption}", caption_text).replace("{ground_truth}", ground_truth),
+        "Completeness": evaluation_prompt_template_complete.replace("{caption}", caption_text).replace("{ground_truth}", ground_truth),
+        "Visual Enrichment": evaluation_prompt_template_enrich.replace("{caption}", caption_text).replace("{ground_truth}", ground_truth),
+        "Clarity": evaluation_prompt_template_clarity.replace("{caption}", caption_text).replace("{ground_truth}", ground_truth)
     }
     results = {}
     for metric_name, prompt_text in prompts.items():
