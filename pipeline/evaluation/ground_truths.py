@@ -142,8 +142,7 @@ copa_video_ground_truths = {
 }
 
 # Eval rubric definition
-factual_accuracy_rubric = """
-Factual Accuracy (0-5)
+factual_accuracy_rubric = """Factual Accuracy (0-5)
 Measures whether statements in the caption are true given the ground truth.
 
 | Score | Criteria                                                                                        |
@@ -156,8 +155,7 @@ Measures whether statements in the caption are true given the ground truth.
 | **0** | Completely fabricated or unrelated to the content.                                              |
 """
 
-coverage_completeness_rubric = """
-Coverage & Completeness (0-5)
+coverage_completeness_rubric = """Coverage & Completeness (0-5)
 Does the caption capture all relevant and important events?
 
 | Score | Criteria                                                                        |
@@ -170,8 +168,7 @@ Does the caption capture all relevant and important events?
 | **0** | Provides no meaningful coverage.                                                |
 """
 
-visual_enrichment_rubric = """
-Visual Enrichment (Non-Transcript Information) (0-5)
+visual_enrichment_rubric = """Visual Enrichment (Non-Transcript Information) (0-5)
 Measures how well the caption adds useful visual details that are not present in the transcript.
 
 | Score | Criteria                                                         |
@@ -184,8 +181,7 @@ Measures how well the caption adds useful visual details that are not present in
 | **0** | No visual context added.                                         |
 """
 
-clarity_professionalism_rubric = """
-Clarity, Neutral Tone, and Professionalism (0-5)
+clarity_professionalism_rubric = """Clarity, Neutral Tone, and Professionalism (0-5)
 Captions should follow bodycam/LE reporting standards.
 
 | Score | Criteria                                                       |
