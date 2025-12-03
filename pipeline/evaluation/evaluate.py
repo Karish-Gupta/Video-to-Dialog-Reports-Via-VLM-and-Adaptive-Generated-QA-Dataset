@@ -151,7 +151,7 @@ def evaluate_caption(caption_text, ground_truth):
     }
     results = {}
     for metric_name, prompt_text in prompts.items():
-        resp = gemini.eval(caption_text, ground_truth, prompt_text)
+        resp = gemini.eval_safe(caption_text, ground_truth, prompt_text)
         raw_text = _gemini_text(resp)
         parsed = _extract_json_from_text(raw_text)
         results[metric_name] = parsed

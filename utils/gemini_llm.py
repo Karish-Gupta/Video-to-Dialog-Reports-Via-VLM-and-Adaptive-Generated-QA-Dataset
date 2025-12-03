@@ -54,3 +54,22 @@ class gemini_model:
             model=self.model_name,
             contents=prompt
         )
+    
+    def eval_safe(self, caption_text, ground_truth, evaluation_prompt_template):
+        """
+        Safely substitute caption and ground_truth into the template using simple
+        .replace to avoid KeyError caused by stray braces in the template/rubrics.
+        If the template is already formatted, this will leave it unchanged.
+        """
+        prompt = evaluation_prompt_template
+        # prefer simple placeholder replacement to avoid str.format KeyError
+        if "{caption}" in prompt or "{ground_truth}" in prompt:
+            prompt = prompt.replace("{caption}", caption_text).replace("{ground_truth}", ground_truth)
+        else:
+            # handle templates that might use doubled braces or already be formatted
+            prompt = prompt.replace("{{caption}}", caption_text).replace("{{ground_truth}}", ground_truth)
+
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
+        )
