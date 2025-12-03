@@ -3,8 +3,8 @@ import torch
 from peft import LoraConfig, get_peft_model, TaskType
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import login
-from eval_utils import *
-from preprocessing import *
+from fine_tuning.model_utils.eval_utils import *
+from fine_tuning.model_utils.preprocessing import * 
 import os
 
 # Login to HF CLI
