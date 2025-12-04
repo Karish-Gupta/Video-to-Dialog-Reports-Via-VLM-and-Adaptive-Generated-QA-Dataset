@@ -184,7 +184,7 @@ if __name__ == "__main__":
     model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
     
     # Update this to your local JSONL file
-    dataset_name = "distillation_results_full.jsonl" 
+    dataset_name = "fine_tuning/distillation_results_full.jsonl" 
     
     # Training Configs
     train_batch_size = 4
