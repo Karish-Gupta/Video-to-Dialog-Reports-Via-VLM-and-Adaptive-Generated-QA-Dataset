@@ -27,4 +27,4 @@ pip install tqdm
 pip install scikit-learn
 pip install accelerate
 
-python -m fine_tuning.distillation_ft
+python -m fine_tuning.distillation_ft.run_distillation_ft

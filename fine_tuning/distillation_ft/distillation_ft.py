@@ -1,15 +1,9 @@
-import numpy as np
+import gc
 import torch
 from peft import LoraConfig, get_peft_model, TaskType
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from huggingface_hub import login
 from fine_tuning.model_utils.eval_utils import *
 from fine_tuning.model_utils.preprocessing import * 
-import os
-
-# Login to HF CLI
-if "HF_TOKEN" in os.environ:
-    login(token=os.environ["HF_TOKEN"])
 
 class distillation_ft:
     def __init__(
@@ -155,10 +149,10 @@ class distillation_ft:
             print(f"{'='*60}\n")
 
         # Save Final LoRA adapters
-        adapter_dir = "./llama3-8b-instruct-police-questions-lora"
-        print(f"Saving adapter to {adapter_dir}...")
-        self.model.save_pretrained(adapter_dir)
-        self.tokenizer.save_pretrained(adapter_dir)
+        # adapter_dir = "./llama3-8b-instruct-police-questions-lora"
+        # print(f"Saving adapter to {adapter_dir}...")
+        # self.model.save_pretrained(adapter_dir)
+        # self.tokenizer.save_pretrained(adapter_dir)
 
     def evaluate(self):
         if self.val_loader is None:
@@ -169,7 +163,7 @@ class distillation_ft:
         print("Evaluating...")
         
         # Increased max_gen_length to 256 to allow for 4 full questions
-        evaluate_model(
+        token_f1, bert_score_mean = evaluate_model(
             self.model,
             self.val_loader,
             model_device,
@@ -177,47 +171,16 @@ class distillation_ft:
             max_gen_length=256, 
             show_samples=5,
         )
-
-
-if __name__ == "__main__":
-    # Model Configs
-    model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+        
+        return token_f1, bert_score_mean
     
-    # Update this to your local JSONL file
-    dataset_name = "fine_tuning/distillation_results_full.jsonl" 
-    
-    # Training Configs
-    train_batch_size = 4
-    eval_batch_size = 4
-    gradient_accumulation_steps = 8 # Adjusted: 32 might be too slow for small datasets, 8 is usually stable
-    num_epochs = 15
-    learning_rate = 2e-4
-    
-    # Lengths
-    max_input_length = 1024 # Increased for structured details
-    max_target_length = 256 # Enough for 4 questions
-    
-    # Dataset Sizes (Adjust based on your actual file size)
-    train_size = 24 
-    eval_size = 6
-
-    ft_runner = distillation_ft(
-        model_name=model_name,
-        dataset_name=dataset_name,
-        train_batch_size=train_batch_size,
-        eval_batch_size=eval_batch_size,
-        gradient_accumulation_steps=gradient_accumulation_steps,
-        num_epochs=num_epochs,
-        learning_rate=learning_rate,
-        max_input_length=max_input_length,
-        max_target_length=max_target_length,
-    )
-
-    ft_runner.preprocess_dataset(train_size=train_size, eval_size=eval_size, seed=42)
-    ft_runner.init_model()
-    
-    print(f"Starting Fine-tuning for {model_name}")
-    print(f"Dataset: {dataset_name}")
-    
-    ft_runner.train()
-    ft_runner.evaluate()
+    def cleanup(self):
+        # Clears GPU memory for the next tuning trial
+        if self.model:
+            del self.model
+        if self.optimizer:
+            del self.optimizer
+        if self.tokenizer:
+            del self.tokenizer
+        gc.collect()
+        torch.cuda.empty_cache()
