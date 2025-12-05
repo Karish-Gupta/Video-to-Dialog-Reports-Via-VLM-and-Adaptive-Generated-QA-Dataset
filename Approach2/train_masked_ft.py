@@ -173,7 +173,7 @@ class MaskedDistillationFT:
                 val_loader=self.val_loader,
                 device=self.device,
                 tokenizer=self.tokenizer,
-                max_gen_length=256,
+                max_gen_length=512,  # otherwise cut off q gen
                 show_samples=3
             )
 

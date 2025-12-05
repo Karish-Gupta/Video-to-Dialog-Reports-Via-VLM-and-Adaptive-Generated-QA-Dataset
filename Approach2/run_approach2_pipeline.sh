@@ -30,16 +30,7 @@ pip install accelerate
 # First create the masked dataset
 python -m Approach2.masking_utils \
     --input data.jsonl \
-    --output Approach2/masked_data.jsonl \
-    --mask_prob 0.3 \
-    --min_masks 1 \
-    --max_masks 5 \
-    --seed 42
+    --output Approach2/masked_data.jsonl
 
 # Then train on it
-python -m Approach2.train_masked_ft \
-    --dataset Approach2/masked_data.jsonl \
-    --output_dir approach2_finetuned_model \
-    --train_size 100 \
-    --eval_size 20 \
-    --num_epochs 3
+python -m Approach2.train_masked_ft

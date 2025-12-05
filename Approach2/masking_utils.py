@@ -1,155 +1,150 @@
 """
-Masks subsections within structured output (such as Location_Clues -> [MASK])
+Masks subsections within structured output based on what the gold label questions ask about
 """
 
 import json
-import random
+import re
 from typing import Dict, List, Any, Tuple
 
 
-def mask_subsection_value(value: Any, mask_token: str = "[MASK]") -> Any:
+def identify_question_targets(question: str) -> Tuple[str, List[str]]:
     """
-    Mask a single value (string, list, or dict) with [MASK] token.
+    Identify which level and fields a question is asking about.
     
     Args:
-        value: The value to mask
-        mask_token: Token to use for masking
+        question: A single investigative question
         
     Returns:
-        Masked value
+        Tuple of (level, list of field names)
     """
-    if isinstance(value, str):
-        # Only mask non-empty strings
-        return mask_token if value.strip() else value
-    elif isinstance(value, list):
-        # Mask list by replacing with single mask token or empty list
-        return [] if len(value) == 0 else [mask_token]
-    elif isinstance(value, dict):
-        # For nested dicts, mask all values
-        return {k: mask_token for k in value.keys()}
+    question_lower = question.lower()
+    
+    # Determine level
+    if "scene-level" in question_lower or "scene level" in question_lower:
+        level = "Scene-Level"
+    elif "entity-level" in question_lower or "entity level" in question_lower:
+        level = "Entity-Level"
+    elif "action-level" in question_lower or "action level" in question_lower:
+        level = "Action-Level"
+    elif "semantic-level" in question_lower or "semantic level" in question_lower:
+        level = "Semantic-Level"
     else:
-        return mask_token
+        level = None
+    
+    # Identify specific fields being asked about
+    fields = []
+    
+    # Scene-Level fields
+    if any(word in question_lower for word in ["location", "address", "street", "building", "house number"]):
+        fields.append("Location_Clues")
+    if any(word in question_lower for word in ["environment", "setting", "weather", "lighting", "time of day"]):
+        fields.append("Environment")
+    if any(word in question_lower for word in ["scene change", "transition"]):
+        fields.append("Scene_Changes")
+    
+    # Entity-Level fields
+    if any(word in question_lower for word in ["description", "appearance", "clothing", "physical", "build", "height", "features"]):
+        fields.append("Description")
+    if any(word in question_lower for word in ["position", "location of", "where"]):
+        fields.append("Position")
+    if any(word in question_lower for word in ["role", "identity"]):
+        fields.append("Role_if_Clear")
+    if any(word in question_lower for word in ["object", "item", "weapon", "equipment", "holding"]):
+        fields.append("Objects")
+    
+    # Action-Level fields
+    if any(word in question_lower for word in ["action", "doing", "movement", "activity", "behavior"]):
+        fields.extend(["Primary_Actions", "Secondary_Actions"])
+    if any(word in question_lower for word in ["interaction", "engaging", "contact"]):
+        fields.append("Interactions")
+    
+    # Semantic-Level fields
+    if any(word in question_lower for word in ["intent", "purpose", "goal", "trying to"]):
+        fields.append("Intent_if_Visible")
+    if any(word in question_lower for word in ["emotion", "emotional state", "mood", "affect"]):
+        fields.append("Emotional_State")
+    if any(word in question_lower for word in ["audio", "sound", "speech", "voice", "command"]):
+        fields.append("Notable_Audio")
+    
+    return level, fields
 
 
-def apply_masking_strategy(
+def mask_fields_from_questions(
     structured_data: Dict[str, Any],
-    mask_probability: float = 0.3,
-    min_masks: int = 1,
-    max_masks: int = 5,
-    seed: int = None
+    questions: str
 ) -> Tuple[Dict[str, Any], List[str]]:
     """
-    Apply masking strategy to structured data.
-    Randomly mask subsection values within Scene-Level, Entity-Level, Action-Level, Semantic-Level.
+    Mask fields in structured data based on what the gold label questions ask about.
     
     Args:
         structured_data: Parsed structured details dictionary
-        mask_probability: Probability of masking each field
-        min_masks: Minimum number of fields to mask
-        max_masks: Maximum number of fields to mask
-        seed: Random seed for reproducibility
+        questions: Gold label questions string
         
     Returns:
         Tuple of (masked_data, list of masked field paths)
     """
-    if seed is not None:
-        random.seed(seed)
-    
     masked_data = json.loads(json.dumps(structured_data))  # Deep copy
     masked_fields = []
     
-    # Define the main sections
-    main_sections = ["Scene-Level", "Entity-Level", "Action-Level", "Semantic-Level"]
+    # Parse questions - they're numbered lists
+    question_lines = [q.strip() for q in questions.split('\n') if q.strip() and not q.strip().startswith('Here are')]
     
-    # Collect all maskable paths
-    maskable_paths = []
+    # Extract individual gold questions 
+    individual_questions = []
+    for line in question_lines:
+        if re.match(r'^\d+[\.\)\-\:]', line):
+            individual_questions.append(line)
     
-    for section in main_sections:
-        if section not in structured_data:
-            continue
-            
-        section_data = structured_data[section]
-        if not isinstance(section_data, dict):
+    # For each question, identify what it's asking about and mask those said fields
+    for question in individual_questions:
+        level, fields = identify_question_targets(question)
+        
+        if not level or not fields:
             continue
         
-        for key, value in section_data.items():
-            # We can mask individual fields
-            if isinstance(value, (str, list)):
-                # Skip if already empty
-                if (isinstance(value, str) and not value.strip()) or \
-                   (isinstance(value, list) and len(value) == 0):
-                    continue
-                maskable_paths.append((section, key, False))  # False = not nested
-            elif isinstance(value, dict):
-                # For nested structures (like People list with dicts)
-                maskable_paths.append((section, key, True))  # True = nested
-    
-    # Determine how many fields to mask
-    num_to_mask = random.randint(min_masks, min(max_masks, len(maskable_paths)))
-    
-    # Select fields to mask
-    if len(maskable_paths) > 0:
-        fields_to_mask = random.sample(maskable_paths, num_to_mask)
+        if level not in masked_data:
+            continue
         
-        for section, key, is_nested in fields_to_mask:
-            if is_nested:
-                # For nested structures, mask specific sub-fields
-                value = masked_data[section][key]
-                if isinstance(value, list):
-                    # Mask items in list
-                    for i, item in enumerate(value):
-                        if isinstance(item, dict):
-                            # Randomly select sub-keys to mask
-                            sub_keys = list(item.keys())
-                            if sub_keys:
-                                keys_to_mask = random.sample(
-                                    sub_keys, 
-                                    random.randint(1, len(sub_keys))
-                                )
-                                for sub_key in keys_to_mask:
-                                    masked_data[section][key][i][sub_key] = "[MASK]"
-                                    masked_fields.append(f"{section}.{key}[{i}].{sub_key}")
+        # Mask the identified fields
+        for field in fields:
+            if field in masked_data[level]:
+                # Handle different data types
+                value = masked_data[level][field]
+                
+                if isinstance(value, str) and value.strip():
+                    masked_data[level][field] = "[MASK]"
+                    masked_fields.append(f"{level}.{field}")
+                elif isinstance(value, list) and len(value) > 0:
+                    masked_data[level][field] = ["[MASK]"]
+                    masked_fields.append(f"{level}.{field}")
                 elif isinstance(value, dict):
-                    # Mask values in dict
-                    sub_keys = list(value.keys())
-                    if sub_keys:
-                        keys_to_mask = random.sample(
-                            sub_keys,
-                            random.randint(1, len(sub_keys))
-                        )
-                        for sub_key in keys_to_mask:
-                            masked_data[section][key][sub_key] = "[MASK]"
-                            masked_fields.append(f"{section}.{key}.{sub_key}")
-            else:
-                # Simple field masking
-                masked_data[section][key] = mask_subsection_value(
-                    masked_data[section][key]
-                )
-                masked_fields.append(f"{section}.{key}")
+                    # For nested dicts like People
+                    masked_data[level][field] = {k: "[MASK]" for k in value.keys()}
+                    masked_fields.append(f"{level}.{field}")
+            
+            # Special handling for People/Objects in Entity-Level
+            if level == "Entity-Level" and field in ["Description", "Position", "Role_if_Clear"]:
+                if "People" in masked_data[level] and isinstance(masked_data[level]["People"], list):
+                    for i, person in enumerate(masked_data[level]["People"]):
+                        if isinstance(person, dict) and field in person:
+                            if person[field].strip() or field == "Description":  # Always mask Description if asked
+                                masked_data[level]["People"][i][field] = "[MASK]"
+                                masked_fields.append(f"{level}.People[{i}].{field}")
     
     return masked_data, masked_fields
 
 
 def create_masked_dataset(
     input_jsonl_path: str,
-    output_jsonl_path: str,
-    mask_probability: float = 0.3,
-    min_masks: int = 1,
-    max_masks: int = 5,
-    seed: int = 42
+    output_jsonl_path: str
 ):
     """
-    Process the entire data.jsonl file and create a masked version.
+    Process the entire data.jsonl file and create a masked version based on gold label questions.
     
     Args:
         input_jsonl_path: Path to input data.jsonl
         output_jsonl_path: Path to output masked data.jsonl
-        mask_probability: Probability of masking each field
-        min_masks: Minimum number of fields to mask per example
-        max_masks: Maximum number of fields to mask per example
-        seed: Random seed for reproducibility
     """
-    random.seed(seed)
     
     masked_examples = []
     
@@ -174,13 +169,10 @@ def create_masked_dataset(
                 print(f"Warning: Could not parse structured_details for line {line_idx}: {e}")
                 continue
             
-            # Apply masking
-            masked_data, masked_fields = apply_masking_strategy(
+            # Apply masking based on what the questions ask about
+            masked_data, masked_fields = mask_fields_from_questions(
                 structured_data,
-                mask_probability=mask_probability,
-                min_masks=min_masks,
-                max_masks=max_masks,
-                seed=seed + line_idx  # Vary seed per example
+                example['questions']
             )
             
             # Create new example with masked data - keep as clean JSON string
@@ -210,18 +202,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create masked dataset for Approach2")
     parser.add_argument("--input", type=str, required=True, help="Input data.jsonl path")
     parser.add_argument("--output", type=str, required=True, help="Output masked data.jsonl path")
-    parser.add_argument("--mask_prob", type=float, default=0.3, help="Masking probability")
-    parser.add_argument("--min_masks", type=int, default=1, help="Minimum masks per example")
-    parser.add_argument("--max_masks", type=int, default=5, help="Maximum masks per example")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     
     args = parser.parse_args()
     
     create_masked_dataset(
         input_jsonl_path=args.input,
-        output_jsonl_path=args.output,
-        mask_probability=args.mask_prob,
-        min_masks=args.min_masks,
-        max_masks=args.max_masks,
-        seed=args.seed
+        output_jsonl_path=args.output
     )
