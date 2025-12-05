@@ -212,72 +212,26 @@ class MaskedDistillationFT:
 
 
 if __name__ == "__main__":
-    import argparse
     
-    parser = argparse.ArgumentParser(description="Fine-tune LLM with masked structured details (Approach2)")
-    
-    # Model and data
-    parser.add_argument("--model_name", type=str, default="meta-llama/Meta-Llama-3-8B-Instruct",
-                        help="Model name or path")
-    parser.add_argument("--dataset", type=str, required=True,
-                        help="Path to masked dataset JSONL file")
-    parser.add_argument("--output_dir", type=str, default="./approach2_finetuned_model",
-                        help="Output directory for saved model")
-    
-    # Training hyperparameters
-    parser.add_argument("--train_size", type=int, default=100,
-                        help="Number of training examples")
-    parser.add_argument("--eval_size", type=int, default=20,
-                        help="Number of evaluation examples")
-    parser.add_argument("--train_batch_size", type=int, default=1,
-                        help="Training batch size")
-    parser.add_argument("--eval_batch_size", type=int, default=2,
-                        help="Evaluation batch size")
-    parser.add_argument("--gradient_accumulation_steps", type=int, default=8,
-                        help="Gradient accumulation steps")
-    parser.add_argument("--num_epochs", type=int, default=3,
-                        help="Number of training epochs")
-    parser.add_argument("--learning_rate", type=float, default=2e-5,
-                        help="Learning rate")
-    parser.add_argument("--max_input_length", type=int, default=1024,
-                        help="Maximum input sequence length")
-    parser.add_argument("--max_target_length", type=int, default=512,
-                        help="Maximum target sequence length")
-    
-    # LoRA parameters
-    parser.add_argument("--lora_r", type=int, default=64,
-                        help="LoRA rank")
-    parser.add_argument("--lora_alpha", type=int, default=64,
-                        help="LoRA alpha")
-    parser.add_argument("--lora_dropout", type=float, default=0.05,
-                        help="LoRA dropout")
-    
-    # Other
-    parser.add_argument("--seed", type=int, default=101,
-                        help="Random seed")
-    
-    args = parser.parse_args()
-    
-    # Initialize trainer
     trainer = MaskedDistillationFT(
-        model_name=args.model_name,
-        dataset_name=args.dataset,
-        train_batch_size=args.train_batch_size,
-        eval_batch_size=args.eval_batch_size,
-        gradient_accumulation_steps=args.gradient_accumulation_steps,
-        num_epochs=args.num_epochs,
-        learning_rate=args.learning_rate,
-        max_input_length=args.max_input_length,
-        max_target_length=args.max_target_length,
-        lora_r=args.lora_r,
-        lora_alpha=args.lora_alpha,
-        lora_dropout=args.lora_dropout
+        model_name="meta-llama/Meta-Llama-3-8B-Instruct",
+        dataset_name="Approach2/masked_data.jsonl",
+        train_batch_size=1,
+        eval_batch_size=2,
+        gradient_accumulation_steps=8,
+        num_epochs=3,
+        learning_rate=2e-5,
+        max_input_length=1024,
+        max_target_length=512,
+        lora_r=64,
+        lora_alpha=64,
+        lora_dropout=0.05
     )
     
     # Run training pipeline
     trainer.run_full_pipeline(
-        train_size=args.train_size,
-        eval_size=args.eval_size,
-        output_dir=args.output_dir,
-        seed=args.seed
+        train_size=100,
+        eval_size=20,
+        output_dir="approach2_finetuned_model",
+        seed=101
     )
