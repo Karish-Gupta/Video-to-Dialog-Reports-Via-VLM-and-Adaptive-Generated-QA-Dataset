@@ -26,5 +26,7 @@ pip install datasets
 pip install tqdm
 pip install scikit-learn
 pip install accelerate
+pip install bert-score
+pip install optuna
 
 python -m fine_tuning.distillation_ft.distillation_tuning
