@@ -27,5 +27,6 @@ pip install protobuf
 pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
+pip install google-genai
 
-python -m pipeline.gemini_non_vqa_pipeline
+python -m pipeline.gemini_baselines.gemini_non_vqa_pipeline
