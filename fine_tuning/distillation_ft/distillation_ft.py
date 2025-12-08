@@ -9,7 +9,8 @@ class distillation_ft:
     def __init__(
         self,
         model_name,
-        dataset_name,
+        training_dataset,
+        testing_dataset,
         train_batch_size,
         eval_batch_size,
         gradient_accumulation_steps,
@@ -25,7 +26,8 @@ class distillation_ft:
     ):
         # Configs
         self.model_name = model_name
-        self.dataset_name = dataset_name
+        self.training_dataset = training_dataset
+        self.testing_dataset = testing_dataset
         self.train_batch_size = train_batch_size
         self.eval_batch_size = eval_batch_size
         self.gradient_accumulation_steps = gradient_accumulation_steps
@@ -49,9 +51,12 @@ class distillation_ft:
         self.model = None
         self.optimizer = None
 
-    def preprocess_dataset(self, train_size, eval_size, seed=101):
+    def preprocess_dataset(self):
         # Initialize tokenizer
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)\
+        
+        # Ensure padding is on the left for generation
+        self.tokenizer.padding_side = "left" 
         
         # Llama 3 specific padding fix
         if self.tokenizer.pad_token is None:
@@ -61,14 +66,12 @@ class distillation_ft:
         # Call the external preprocessing function
         self.train_loader, self.val_loader = preprocess_dataset(
             tokenizer=self.tokenizer,
-            dataset_name=self.dataset_name,
-            train_size=train_size,
-            eval_size=eval_size,
+            training_dataset=self.training_dataset,
+            testing_dataset=self.testing_dataset,
             max_input_length=self.max_input_length,
             max_target_length=self.max_target_length,
             train_batch_size=self.train_batch_size,
             eval_batch_size=self.eval_batch_size,
-            seed=seed
         )
 
     def init_model(self):
@@ -127,7 +130,8 @@ class distillation_ft:
                 loss = loss / self.gradient_accumulation_steps
                 loss.backward()
 
-                if (step + 1) % self.gradient_accumulation_steps == 0:
+                is_last_step = (step + 1) == len(self.train_loader)
+                if (step + 1) % self.gradient_accumulation_steps == 0 or is_last_step:
                     self.optimizer.step()
                     self.optimizer.zero_grad()
                     global_step += 1
@@ -135,18 +139,12 @@ class distillation_ft:
 
                 running_loss += loss.item() * self.gradient_accumulation_steps
                 
-                # Logging
-                if (step + 1) % 100 == 0: # Log every 100 steps
+                if (step + 1) % 10 == 0: # Log every 10 steps (since dataset is small)
                     avg_loss = running_loss / (step + 1)
-                    print(f"Epoch {epoch+1}/{self.num_epochs} | Step {step+1} | Loss: {avg_loss:.4f} | Global Step: {global_step}")
+                    print(f"Epoch {epoch+1}/{self.num_epochs} | Step {step+1} | Loss: {avg_loss:.4f}")
             
-            # Epoch summary
             epoch_loss = running_loss / len(self.train_loader)
-            print(f"\n{'='*60}")
-            print(f"Epoch {epoch+1}/{self.num_epochs} Complete")
-            print(f"  Average Loss: {epoch_loss:.4f}")
-            print(f"  Steps: {epoch_steps}")
-            print(f"{'='*60}\n")
+            print(f"Epoch {epoch+1} Complete | Avg Loss: {epoch_loss:.4f} | Steps: {epoch_steps}")
 
         # Save Final LoRA adapters
         # adapter_dir = "./llama3-8b-instruct-police-questions-lora"

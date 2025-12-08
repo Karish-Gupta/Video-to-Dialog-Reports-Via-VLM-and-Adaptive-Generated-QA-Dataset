@@ -22,32 +22,27 @@ def collate_eval(batch):
 
 def preprocess_dataset(
    tokenizer,
-   dataset_name, # Path to local jsonl file
-   train_size,
-   eval_size,
+   training_dataset, 
+   testing_dataset,
    max_input_length,
    max_target_length,
    train_batch_size,
    eval_batch_size,
-   seed=101
 ):
    """
    Preprocess dataset for Llama 3 instruction fine-tuning.
    Returns train_loader, val_loader.
    """
    
-  
-      
-   # Load Dataset
-   full_dataset = load_dataset("json", data_files=dataset_name, split="train")
+   # Load Datasets from the file paths 
+   raw_train_dataset = load_dataset("json", data_files=training_dataset, split="train") # Use split="train" because load_dataset defaults to a 'train' key for json files
    
-   # Create a split if your JSONL is one big file
-   dataset = full_dataset.train_test_split(test_size=0.2, seed=seed)
-   
-   # Select subsets based on requested sizes
-   dataset["train"] = dataset["train"].select(range(min(train_size, len(dataset["train"]))))
-   dataset["validation"] = dataset["test"].select(range(min(eval_size, len(dataset["test"]))))
-  
+   # Handle case where testing_dataset might be None or empty (if running full training without eval)
+   if testing_dataset:
+      raw_eval_dataset = load_dataset("json", data_files=testing_dataset, split="train")
+   else:
+      raw_eval_dataset = None
+
    # Define System Prompt
    system_prompt = """
    You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
@@ -89,7 +84,7 @@ def preprocess_dataset(
       # Tokenize Input only (to calculate length for masking)
       input_tokenized = tokenizer(
          input_text, 
-         add_special_tokens=False # template already handled special tokens
+         add_special_tokens=False 
       )
 
       # Tokenize Full Text
@@ -145,21 +140,24 @@ def preprocess_dataset(
       return tokenized
 
    # Apply Mapping
-   print("Tokenizing training data...")
-   train_dataset = dataset["train"].map(
+   print(f"Tokenizing training data from {training_dataset}...")
+   train_dataset = raw_train_dataset.map(
       tokenize_train, 
       batched=False, 
-      remove_columns=dataset["train"].column_names
+      remove_columns=raw_train_dataset.column_names
    )
    
-   print("Tokenizing validation data...")
-   eval_dataset = dataset["validation"].map(
-      tokenize_eval, 
-      batched=False, 
-      remove_columns=dataset["validation"].column_names
-   )
+   if raw_eval_dataset:
+      print(f"Tokenizing validation data from {testing_dataset}...")
+      eval_dataset = raw_eval_dataset.map(
+         tokenize_eval, 
+         batched=False, 
+         remove_columns=raw_eval_dataset.column_names
+      )
+   else:
+      eval_dataset = None
 
-   # Create DataLoaders
+# Create DataLoaders
    train_loader = DataLoader(
       train_dataset, 
       batch_size=train_batch_size, 
@@ -167,10 +165,12 @@ def preprocess_dataset(
       collate_fn=default_data_collator
    )
 
-   val_loader = DataLoader(
-      eval_dataset, 
-      batch_size=eval_batch_size, 
-      collate_fn=collate_eval
-   )
+   val_loader = None
+   if eval_dataset:
+      val_loader = DataLoader(
+         eval_dataset, 
+         batch_size=eval_batch_size, 
+         collate_fn=collate_eval
+      )
 
    return train_loader, val_loader

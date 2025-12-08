@@ -36,10 +36,7 @@ def evaluate_model(model, val_loader, device, tokenizer, max_gen_length=256, sho
     Evaluates the model on the validation set using Token F1 and BERTScore.
     """
     model.eval()
-    
-    # Ensure padding is on the left for generation
-    tokenizer.padding_side = "left" 
-    
+       
     # Llama 3 specific terminators
     terminators = [
         tokenizer.eos_token_id,
