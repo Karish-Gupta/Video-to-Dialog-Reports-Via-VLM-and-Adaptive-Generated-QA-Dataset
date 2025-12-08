@@ -5,20 +5,7 @@ import torch
 from sklearn.model_selection import KFold
 from huggingface_hub import login
 from fine_tuning.distillation_ft.distillation_ft import distillation_ft
-
-# Helper to load JSONL
-def load_jsonl(filename):
-   data = []
-   with open(filename, 'r') as f:
-      for line in f:
-         data.append(json.loads(line))
-   return data
-
-# Helper to save JSONL
-def save_jsonl(data, filename):
-   with open(filename, 'w') as f:
-      for entry in data:
-         f.write(json.dumps(entry) + '\n')
+from fine_tuning.model_utils.helpers import load_jsonl, save_jsonl
 
 if __name__ == "__main__":
    
