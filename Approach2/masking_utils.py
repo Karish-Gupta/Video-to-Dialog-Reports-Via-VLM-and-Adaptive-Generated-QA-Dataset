@@ -195,6 +195,13 @@ def create_masked_dataset(
     print(f"Output written to: {output_jsonl_path}")
 
 
+def failsafe ():
+    """
+    Failsafe function to ensure the script runs correctly.
+    
+    ADD LATER, should skip over this subcategory or mabye even the question alltogether in the event we can't match a keyword to the gold label q's ?
+    """
+    
 if __name__ == "__main__":
     # Example usage
     import argparse

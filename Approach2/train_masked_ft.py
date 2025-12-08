@@ -178,8 +178,8 @@ class MaskedDistillationFT:
             )
 
             print(f"\nEpoch {epoch + 1} Evaluation Results:")
-            print(f"  Exact Match: {eval_results['exact_match_accuracy']:.4f}")
-            print(f"  F1 Score: {eval_results['f1']:.4f}")
+            print(f"  Token F1 Score: {eval_results['f1']:.4f}")
+            print(f"  BERTScore F1: {eval_results['bert_score']:.4f}")
 
     def save_model(self, output_dir):
         """Save the fine-tuned model."""
@@ -219,7 +219,7 @@ if __name__ == "__main__":
         train_batch_size=1,
         eval_batch_size=2,
         gradient_accumulation_steps=8,
-        num_epochs=3,
+        num_epochs=10,
         learning_rate=2e-5,
         max_input_length=1024,
         max_target_length=512,
