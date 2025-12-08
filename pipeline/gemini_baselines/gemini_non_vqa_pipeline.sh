@@ -30,4 +30,4 @@ pip install decord==0.6.0
 pip install decord==0.6.0
 pip install google-genai
 
-python -m pipeline.gemini.baselines.gemini_non_vqa_pipeline
+python -m pipeline.gemini_baselines.gemini_non_vqa_pipeline
