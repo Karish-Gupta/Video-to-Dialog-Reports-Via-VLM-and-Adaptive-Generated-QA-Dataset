@@ -75,7 +75,7 @@ class gemini_model:
         )
     
 
-    def non_QA_prompt(self, transcript, video):
+    def non_QA_prompt(self, transcript, video_path):
         prompt = f"""
          You are given a bodycam video transcript, and the video.
          Generate a caption that gives visual details about the video. 
@@ -100,5 +100,31 @@ class gemini_model:
         return self.client.models.generate_content(
             model=self.model_name,
             contents=prompt,
-            video=video
+            video=video_path
         )
+    
+
+    def step_2_chat_template(self, structured_output):
+        prompt = """
+         Based on the given structured information about a police bodycam video, generate specific questions based on key details:
+      
+         Questions to generate:
+         1. Scene Observations  
+         2. Items in Frame  
+         3. Descriptions of Idividuals in Frame
+         4. Actions 
+
+         Examples:
+         1. Why is the vehicle pulled over along the side of the road?
+         2. What items are in the suspect's car?
+         3. What is the age, ethnicity, and gender of the suspect?
+         4. Why is the officer yelling profanity at the suspect?
+
+         Structured Information:
+        {structured_output}
+      """
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+        )
+   

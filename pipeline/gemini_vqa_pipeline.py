@@ -54,18 +54,14 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 4: Ask VLM to Answer
     print("\n Getting VLM answers to generated questions...")
-    qa_conversation = vlm_.build_qa_conversation(generated_qs)
-    vlm_answers = vlm_.invoke(video_path, qa_conversation)
+    vlm_answers = gemini.build_qa_conversation(generated_qs)
     vlm_answers = extract_generated_text_vlm(vlm_answers)
 
     # Generate Captions
     print("→ Creating QA captions...")
-    qa_caption_prompt = llm_.qa_caption_chat_template(generated_qs, vlm_answers, transcript_text, vlm_summary)
+    qa_caption_prompt = llm_.qa_caption_chat_template(generated_qs, vlm_answers.text, transcript_text, vlm_summary)
     qa_caption = llm_.invoke(qa_caption_prompt)
 
-    print("→ Creating NON-QA captions...")
-    non_qa_caption_prompt = llm_.caption_chat_template(transcript_text, vlm_summary)
-    non_qa_caption = llm_.invoke(non_qa_caption_prompt)
 
     # ---- Save Results ----
     output_file = os.path.join(OUTPUT_DIR, f"Video{index}_results.txt")
@@ -74,9 +70,8 @@ def process_pair(video_path, transcript_text, index):
         f.write(f"=== VLM SUMMARY ===\n{vlm_summary}\n\n")
         f.write(f"=== STRUCTURED OUTPUT ===\n{structured_output}\n\n")
         f.write(f"=== GENERATED QUESTIONS ===\n{generated_qs}\n\n")
-        f.write(f"=== VLM ANSWERS ===\n{vlm_answers}\n\n")
+        f.write(f"=== VLM ANSWERS ===\n{vlm_answers.text}\n\n")
         f.write(f"=== QA CAPTION ===\n{qa_caption}\n\n")
-        f.write(f"=== NON-QA CAPTION ===\n{non_qa_caption}\n\n")
 
     print(f"Finished Video {index} saved to {output_file}")
 
