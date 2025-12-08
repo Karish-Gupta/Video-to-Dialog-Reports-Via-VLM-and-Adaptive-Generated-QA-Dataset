@@ -97,10 +97,11 @@ class gemini_model:
          Transcipt:
         {transcript}
       """
+        myfile = self.client.files.upload(video_path)
+
         return self.client.models.generate_content(
             model=self.model_name,
-            contents=prompt,
-            video=video_path
+            contents=[myfile, prompt],
         )
     
 
