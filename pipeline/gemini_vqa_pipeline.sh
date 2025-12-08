@@ -3,7 +3,7 @@
 #SBATCH -n 1                          # total number of tasks
 #SBATCH --mem=128g                     # allocate 128 GB of memory
 #SBATCH -J "gemini_vqa_pipeline"              # name of the job
-#SBATCH -o gemini_non_vqa_pipeline%j.out         # name of the output file
+#SBATCH -o gemini_vqa_pipeline%j.out         # name of the output file
 #SBATCH -e gemini_vqa_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 1:00:00                   # time limit of 12 hours
@@ -27,7 +27,5 @@ pip install protobuf
 pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
-pip install decord==0.6.0
-pip install google-genai
 
 python -m pipeline.gemini_non_vqa_pipeline
