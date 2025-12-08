@@ -73,3 +73,32 @@ class gemini_model:
             model=self.model_name,
             contents=prompt
         )
+    
+
+    def non_QA_prompt(self, transcript, video):
+        prompt = f"""
+         You are given a bodycam video transcript, and the video.
+         Generate a caption that gives visual details about the video. 
+         Include the following in caption: 
+
+         - Describe the setting (Time of day, vehicles, buildings, etc.)
+         - Objects in the frame (Weapons, items in hand, consumables, etc.)
+         - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+         - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+         - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+
+         Ensure captions are direct and formal.
+
+         Write in active voice as much as possible.
+         Be direct, concise, and concrete.
+         Use direct quotes only when needed.
+         Use a person's name if it is known.
+
+         Transcipt:
+        {transcript}
+      """
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+            video=video
+        )

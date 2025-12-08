@@ -2,9 +2,9 @@
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
 #SBATCH --mem=128g                     # allocate 128 GB of memory
-#SBATCH -J "copa_video_pipeline"              # name of the job
-#SBATCH -o copa_video_pipeline%j.out         # name of the output file
-#SBATCH -e copa_video_pipeline%j.err         # name of the error file
+#SBATCH -J "vqaEVAL"              # name of the job
+#SBATCH -o vqaEVAL%j.out         # name of the output file
+#SBATCH -e vqaEVAL%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 1:00:00                   # time limit of 12 hours
 
