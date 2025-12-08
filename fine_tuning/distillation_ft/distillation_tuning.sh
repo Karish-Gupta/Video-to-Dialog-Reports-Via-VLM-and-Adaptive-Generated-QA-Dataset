@@ -9,7 +9,7 @@
 #SBATCH -t 12:00:00                   # time limit of 12 hours
 #SBATCH --gres=gpu:H100:1             # request 1 H100 GPU
 
-cd $SLURM_SUBMIT_DIR/..
+cd $SLURM_SUBMIT_DIR/../..
 
 module load python/3.11.10
 module load cuda/12.4.0/3mdaov5

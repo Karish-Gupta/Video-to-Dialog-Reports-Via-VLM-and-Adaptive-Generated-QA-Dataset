@@ -1,7 +1,7 @@
 import torch
 from huggingface_hub import login
 import optuna
-from fine_tuning.distillation_ft import distillation_ft
+from fine_tuning.distillation_ft.distillation_ft import distillation_ft
 
 
 def objective(trial):
