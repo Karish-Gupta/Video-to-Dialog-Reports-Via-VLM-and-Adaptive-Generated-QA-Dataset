@@ -24,14 +24,11 @@ VIDEO_DIR = "pipeline/copa_videos"
 TRANSCRIPT_DIR = "pipeline/whisper_transcripts"
 OUTPUT_DIR = "pipeline/output_results_whisper"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-client = genai.Client()
-
 gemini = gemini_model()
+
 
 def process_pair(video_path, transcript_text, index):
     print(f"\nProcessing Video {index}...")
-
-    myfile = client.files.upload(file="path/to/sample.mp4")
 
     non_qa_caption = gemini.non_QA_prompt(transcript_text, video_path)
 
