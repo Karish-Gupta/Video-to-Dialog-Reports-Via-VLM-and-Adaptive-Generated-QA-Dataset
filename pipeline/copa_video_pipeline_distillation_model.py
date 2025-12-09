@@ -43,8 +43,8 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 3: Generate Questions
     print("\n Generating questions...")
-    step_2_prompt = distillation_ft_llm.step_2_chat_template(structured_output)
-    generated_qs = distillation_ft_llm.invoke(step_2_prompt)
+    step_2_prompt = question_generation_model.step_2_chat_template(structured_output)
+    generated_qs = question_generation_model.invoke(step_2_prompt)
 
     # Step 4: Ask VLM to Answer
     print("\n Getting VLM answers to generated questions...")
