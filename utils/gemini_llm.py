@@ -1,9 +1,10 @@
 from google import genai
 import os
+import time
 from dotenv import load_dotenv
 
 class gemini_model:
-    def __init__(self, model_name: str = "gemini-2.5-pro"):
+    def __init__(self, model_name: str = "gemini-2.5-flash"):
         # Load API key from env
         load_dotenv()
         api_key = os.getenv("GEMINI_API_KEY")
@@ -43,5 +44,115 @@ class gemini_model:
             model=self.model_name,
             contents=prompt
         )
+    
 
-        return response.text
+    def eval(self, caption_text, ground_truth, evaluation_prompt_template):
+        prompt = evaluation_prompt_template.format(
+            caption_text=caption_text,
+            ground_truth=ground_truth
+        )
+        
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
+        )
+    
+    def eval_safe(self, caption_text, ground_truth, evaluation_prompt_template):
+        """
+        Safely substitute caption and ground_truth into the template using simple
+        .replace to avoid KeyError caused by stray braces in the template/rubrics.
+        If the template is already formatted, this will leave it unchanged.
+        """
+        prompt = evaluation_prompt_template
+        # prefer simple placeholder replacement to avoid str.format KeyError
+        if "{caption}" in prompt or "{ground_truth}" in prompt:
+            prompt = prompt.replace("{caption}", caption_text).replace("{ground_truth}", ground_truth)
+        else:
+            # handle templates that might use doubled braces or already be formatted
+            prompt = prompt.replace("{{caption}}", caption_text).replace("{{ground_truth}}", ground_truth)
+
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
+        )
+    
+
+    def non_QA_prompt(self, transcript, video_path):
+        prompt = f"""
+         You are given a bodycam video transcript, and the video.
+         Generate a caption that gives visual details about the video. 
+         Include the following in caption: 
+
+         - Describe the setting (Time of day, vehicles, buildings, etc.)
+         - Objects in the frame (Weapons, items in hand, consumables, etc.)
+         - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+         - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+         - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+
+         Ensure captions are direct and formal.
+
+         Write in active voice as much as possible.
+         Be direct, concise, and concrete.
+         Use direct quotes only when needed.
+         Use a person's name if it is known.
+
+         Transcipt:
+        {transcript}
+      """
+            # Upload file (using keyword 'file' which works for many genai clients)
+        
+        my_file = self.client.files.upload(file=video_path)
+
+        # Inspect response to find file id/name
+        # adapt these lines if your SDK response fields differ
+        file_name = my_file.name
+        # Poll until file becomes ACTIVE (or error)
+        start = time.time()
+        while True:
+            meta = self.client.files.get(name=file_name)  # or self.client.files.retrieve(file_id)
+            state = None
+            if isinstance(meta, dict):
+                state = meta.get("state") or meta.get("status")
+            else:
+                state = getattr(meta, "state", None) or getattr(meta, "status", None)
+
+            if state == "ACTIVE":
+                break
+            if state in ("FAILED", "ERROR"):
+                raise RuntimeError(f"File upload failed or rejected: {meta}")
+            if time.time() - start > 100:
+                raise TimeoutError(f"Timed out waiting for file {file_id} to become ACTIVE (last state: {state})")
+            time.sleep(1)
+
+
+
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=[my_file, prompt],
+        )
+    
+
+    def step_2_chat_template(self, structured_output):
+        prompt = f"""
+         Based on the given structured information about a police bodycam video, generate specific questions based on key details:
+      
+         Questions to generate:
+         1. Scene Observations  
+         2. Items in Frame  
+         3. Descriptions of Idividuals in Frame
+         4. Actions 
+
+         Examples:
+         1. Why is the vehicle pulled over along the side of the road?
+         2. What items are in the suspect's car?
+         3. What is the age, ethnicity, and gender of the suspect?
+         4. Why is the officer yelling profanity at the suspect?
+
+         Structured Information:
+        {structured_output}
+      """
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+        )
+   

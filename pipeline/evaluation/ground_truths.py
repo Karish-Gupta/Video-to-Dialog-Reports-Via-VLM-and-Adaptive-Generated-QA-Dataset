@@ -142,9 +142,9 @@ copa_video_ground_truths = {
 }
 
 # Eval rubric definition
-evaluation_rubric = """
-Factual Accuracy (0-5)
+factual_accuracy_rubric = """Factual Accuracy (0-5)
 Measures whether statements in the caption are true given the ground truth.
+
 | Score | Criteria                                                                                        |
 | ----- | ----------------------------------------------------------------------------------------------- |
 | **5** | All details are verifiably correct; no hallucinated events, objects, identities, or intentions. |
@@ -153,9 +153,11 @@ Measures whether statements in the caption are true given the ground truth.
 | **2** | Several incorrect statements or guesses; meaning is partially misleading.                       |
 | **1** | Mostly inaccurate or speculative.                                                               |
 | **0** | Completely fabricated or unrelated to the content.                                              |
+"""
 
-Coverage & Completeness (0-5)
+coverage_completeness_rubric = """Coverage & Completeness (0-5)
 Does the caption capture all relevant and important events?
+
 | Score | Criteria                                                                        |
 | ----- | ------------------------------------------------------------------------------- |
 | **5** | Captures all key actions, objects, people, environmental context, and sequence. |
@@ -164,9 +166,11 @@ Does the caption capture all relevant and important events?
 | **2** | Important information missing or unclear.                                       |
 | **1** | Barely covers relevant content.                                                 |
 | **0** | Provides no meaningful coverage.                                                |
+"""
 
-Visual Enrichment (Non-Transcript Information) (0-5)
-Measures how well the caption adds useful visual details that are not present in the transcript (e.g., location, lighting, gestures, expressions).
+visual_enrichment_rubric = """Visual Enrichment (Non-Transcript Information) (0-5)
+Measures how well the caption adds useful visual details that are not present in the transcript.
+
 | Score | Criteria                                                         |
 | ----- | ---------------------------------------------------------------- |
 | **5** | Adds highly relevant visual context that improves understanding. |
@@ -175,9 +179,11 @@ Measures how well the caption adds useful visual details that are not present in
 | **2** | Minimal relevant visual additions.                               |
 | **1** | Tries to add visual info but inaccurate or irrelevant.           |
 | **0** | No visual context added.                                         |
+"""
 
-Clarity, Neutral Tone, and Professionalism (0-5)
-Captions should follow bodycam/LE reporting standards: neutral, clear, descriptive—not interpretive.
+clarity_professionalism_rubric = """Clarity, Neutral Tone, and Professionalism (0-5)
+Captions should follow bodycam/LE reporting standards.
+
 | Score | Criteria                                                       |
 | ----- | -------------------------------------------------------------- |
 | **5** | Clear, objective, structured narrative with professional tone. |
@@ -186,5 +192,4 @@ Captions should follow bodycam/LE reporting standards: neutral, clear, descripti
 | **2** | Hard to follow or language not appropriate.                    |
 | **1** | Tone biased, emotional, or unclear.                            |
 | **0** | Not coherent.                                                  |
-
 """
