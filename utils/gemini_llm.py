@@ -104,20 +104,11 @@ class gemini_model:
 
         # Inspect response to find file id/name
         # adapt these lines if your SDK response fields differ
-        file_id = None
-        if isinstance(upload_resp, dict):
-            file_id = upload_resp.get("name") or upload_resp.get("id")
-        else:
-            file_id = getattr(upload_resp, "name", None) or getattr(upload_resp, "id", None)
-
-        if not file_id:
-            raise RuntimeError(f"Could not determine file id from upload response: {upload_resp}")
-
+        file_name = upload_resp.name
         # Poll until file becomes ACTIVE (or error)
         start = time.time()
         while True:
-            # adapt method name if your client uses `get` / `retrieve` / `info`
-            meta = self.client.files.get(file_id)  # or self.client.files.retrieve(file_id)
+            meta = self.client.files.get(name=file_name)  # or self.client.files.retrieve(file_id)
             state = None
             if isinstance(meta, dict):
                 state = meta.get("state") or meta.get("status")
