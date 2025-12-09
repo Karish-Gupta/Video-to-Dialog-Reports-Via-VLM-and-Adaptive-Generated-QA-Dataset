@@ -100,11 +100,11 @@ class gemini_model:
       """
             # Upload file (using keyword 'file' which works for many genai clients)
         
-        upload_resp = self.client.files.upload(file=video_path)
+        my_file = self.client.files.upload(file=video_path)
 
         # Inspect response to find file id/name
         # adapt these lines if your SDK response fields differ
-        file_name = upload_resp.name
+        file_name = my_file.name
         # Poll until file becomes ACTIVE (or error)
         start = time.time()
         while True:
