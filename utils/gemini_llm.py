@@ -1,5 +1,6 @@
 from google import genai
 import os
+import time
 from dotenv import load_dotenv
 
 class gemini_model:
@@ -97,7 +98,41 @@ class gemini_model:
          Transcipt:
         {transcript}
       """
-        myfile = self.client.files.upload(file=video_path)
+            # Upload file (using keyword 'file' which works for many genai clients)
+        
+        upload_resp = self.client.files.upload(file=video_path)
+
+        # Inspect response to find file id/name
+        # adapt these lines if your SDK response fields differ
+        file_id = None
+        if isinstance(upload_resp, dict):
+            file_id = upload_resp.get("name") or upload_resp.get("id")
+        else:
+            file_id = getattr(upload_resp, "name", None) or getattr(upload_resp, "id", None)
+
+        if not file_id:
+            raise RuntimeError(f"Could not determine file id from upload response: {upload_resp}")
+
+        # Poll until file becomes ACTIVE (or error)
+        start = time.time()
+        while True:
+            # adapt method name if your client uses `get` / `retrieve` / `info`
+            meta = self.client.files.get(file_id)  # or self.client.files.retrieve(file_id)
+            state = None
+            if isinstance(meta, dict):
+                state = meta.get("state") or meta.get("status")
+            else:
+                state = getattr(meta, "state", None) or getattr(meta, "status", None)
+
+            if state == "ACTIVE":
+                break
+            if state in ("FAILED", "ERROR"):
+                raise RuntimeError(f"File upload failed or rejected: {meta}")
+            if time.time() - start > 100:
+                raise TimeoutError(f"Timed out waiting for file {file_id} to become ACTIVE (last state: {state})")
+            time.sleep(1)
+
+
 
         return self.client.models.generate_content(
             model=self.model_name,
