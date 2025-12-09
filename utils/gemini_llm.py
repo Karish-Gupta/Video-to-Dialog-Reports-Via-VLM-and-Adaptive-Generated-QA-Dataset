@@ -97,7 +97,7 @@ class gemini_model:
          Transcipt:
         {transcript}
       """
-        myfile = self.client.files.upload(path=video_path)
+        myfile = self.client.files.upload(file=video_path)
 
         return self.client.models.generate_content(
             model=self.model_name,
@@ -106,7 +106,7 @@ class gemini_model:
     
 
     def step_2_chat_template(self, structured_output):
-        prompt = """
+        prompt = f"""
          Based on the given structured information about a police bodycam video, generate specific questions based on key details:
       
          Questions to generate:
