@@ -127,7 +127,7 @@ class gemini_model:
 
         return self.client.models.generate_content(
             model=self.model_name,
-            contents=[myfile, prompt],
+            contents=[my_file, prompt],
         )
     
 
