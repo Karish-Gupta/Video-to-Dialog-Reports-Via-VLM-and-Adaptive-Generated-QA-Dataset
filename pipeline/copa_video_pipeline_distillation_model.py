@@ -17,7 +17,7 @@ def extract_generated_text_vlm(raw_output: str):
 # CONFIG
 VIDEO_DIR = "pipeline/copa_videos"
 TRANSCRIPT_DIR = "pipeline/whisper_transcripts"
-OUTPUT_DIR = "pipeline/output_results_whisper"
+OUTPUT_DIR = "pipeline/output_distillation_model"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
