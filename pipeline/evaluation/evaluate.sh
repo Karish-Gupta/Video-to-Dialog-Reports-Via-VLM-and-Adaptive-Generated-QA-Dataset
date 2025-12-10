@@ -29,7 +29,7 @@ pip install torchcodec
 pip install decord==0.6.0
 pip install google-genai
 pip install python-dotenv
-
+pip install openai
 
 # python -m pipeline.evaluation.evaluateQA
 python -m pipeline.evaluation.evaluateNQA
