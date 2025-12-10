@@ -8,7 +8,7 @@
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 1:00:00                   # time limit of 12 hours
 
-cd $SLURM_SUBMIT_DIR/..
+cd $SLURM_SUBMIT_DIR/../..
 
 module load python/3.10.2/mqmlxcf
 module load cuda/12.4.0/3mdaov5
@@ -31,6 +31,7 @@ pip install google-genai
 pip install python-dotenv
 
 
-python -m pipeline.evaluation.evaluateQA
+# python -m pipeline.evaluation.evaluateQA
 python -m pipeline.evaluation.evaluateNQA
-python -m pipeline.evaluation.evaluateSummary
+# python -m pipeline.evaluation.evaluateSummary
+python -m pipeline.evaluation.evaluate_QA_distillation_model

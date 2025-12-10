@@ -8,9 +8,9 @@ from typing import Dict, Any
 
 
 
-OUTPUT_DIR = "pipeline/gemini_non_vqa" # Folder with each video caption output
+OUTPUT_DIR = "pipeline/output_distillation_model" # Folder with each video caption output
 VIDEO_DIR = "pipeline/copa_videos"  # Folder with each video file
-RESULTS_FILE = "pipeline/evaluation_NQA_results.json"
+RESULTS_FILE = "pipeline/evaluation_QA_results.json"
 
 
 gemini = gemini_model()
@@ -161,7 +161,7 @@ def _extract_caption_from_output_file(output_text: str) -> str:
     """
     Return only the content under the '=== QA CAPTION ===' header.
     """
-    match = re.search(r"===\s*NON-QA\s*CAPTION\s*===\s*(.*?)(?=\n===|\Z)", output_text, re.DOTALL | re.IGNORECASE)
+    match = re.search(r"===\s*QA\s*CAPTION\s*===\s*(.*?)(?=\n===|\Z)", output_text, re.DOTALL | re.IGNORECASE)
     if match:
         return match.group(1).strip()
     return ""
