@@ -32,4 +32,4 @@ pip install python-dotenv
 pip install openai
 
 
-python -m pipeline.evaluation.evaluate_gemini
+python -m pipeline.evaluation.gemini_evaluation

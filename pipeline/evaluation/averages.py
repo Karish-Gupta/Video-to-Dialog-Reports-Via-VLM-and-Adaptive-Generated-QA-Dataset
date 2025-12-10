@@ -32,7 +32,7 @@ def calculate_averages(data):
 
 def main():
     # Load from a JSON file named 'scores.json'
-    json_path = "./evaluation_VS_results.json"
+    json_path = "./evaluation_NQA_results.json"
 
     with open(json_path, "r", encoding="utf-8") as f:
         data = json.load(f)

@@ -5,6 +5,7 @@ import os
 import json
 import re
 from typing import Dict, Any
+from utils.open_ai import *
 
 
 
@@ -14,6 +15,7 @@ RESULTS_FILE = "pipeline/evaluation_NQA_results.json"
 
 
 gemini = gemini_model()
+gpt = openai_model()
 
 
 evaluation_prompt_template_factual = f"""
