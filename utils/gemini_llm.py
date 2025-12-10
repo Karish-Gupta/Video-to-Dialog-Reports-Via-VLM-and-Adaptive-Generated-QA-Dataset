@@ -98,10 +98,10 @@ class gemini_model:
                 model=self.model_name,
                 messages=[
                     {"role": "user", "content": prompt}
-                ],
+                ]
                 # GPT-5 supports "json_object" for reliable formatting
                 # response_format={"type": "json_object"}, 
-                temperature=0 
+                # temperature=0 
             )
             return response.choices[0].message.content
         except Exception as e:
