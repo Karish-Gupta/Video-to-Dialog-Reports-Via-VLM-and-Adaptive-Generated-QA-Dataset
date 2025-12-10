@@ -143,7 +143,8 @@ copa_video_ground_truths = {
 
 # Eval rubric definition
 factual_accuracy_rubric = """Factual Accuracy (0-5)
-Measures whether statements in the caption are true given the ground truth.
+Measures whether statements in the caption are true given the ground truth. 
+Check sentece by sentence with the ground truth to verify accuracy of the presented information
 
 | Score | Criteria                                                                                        |
 | ----- | ----------------------------------------------------------------------------------------------- |

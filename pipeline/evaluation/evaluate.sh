@@ -31,6 +31,4 @@ pip install google-genai
 pip install python-dotenv
 
 
-python -m pipeline.evaluation.evaluateQA
-python -m pipeline.evaluation.evaluateNQA
-python -m pipeline.evaluation.evaluateSummary
+python -m pipeline.evaluation.evaluation
