@@ -30,7 +30,7 @@ class openai_model:
             prompt = prompt.replace("{{caption}}", caption_text).replace("{{ground_truth}}", ground_truth)
 
         return self.client.responses.create(
-            model=self.model_name,
+            model=self.model,
             input=prompt
         )
 
