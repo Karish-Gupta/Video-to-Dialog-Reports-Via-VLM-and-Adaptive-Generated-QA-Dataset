@@ -1,4 +1,6 @@
-# Video ground truths 
+  # ┌──────────────────────────────┐
+  # │         GROUND TRUTHS        │
+  # └──────────────────────────────┘
 
 video_1_ground_truth = """
 - Nighttime video

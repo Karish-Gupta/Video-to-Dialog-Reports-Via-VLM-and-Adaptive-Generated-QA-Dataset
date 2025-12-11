@@ -1,14 +1,14 @@
 from models.llm import *
 from models.gemini_model import *
-from pipeline.evaluation.ground_truths import copa_video_ground_truths
+from pipeline.evaluation.eval_utils.ground_truths import copa_video_ground_truths
 import json
 import re
 import os
 import argparse
 from typing import Any
 from models.open_ai import *
-from pipeline.evaluation.eval_prompt_templates import *
-from utils.averages import calculate_averages
+from pipeline.evaluation.eval_utils.eval_prompt_templates import *
+from pipeline.evaluation.eval_utils.calculate_averages import calculate_averages
 
 gemini = gemini_model()
 gpt = openai_model()
