@@ -1,0 +1,11 @@
+Fine-Tuning
+
+## Distillation_FT
+This folder includes standard fine-tuning for the Llama 3 Instruct model
+- This is named "distillation" because the gold answers are generated from a teacher model, Gemini 2.5 Pro
+- The small student model is trained to generate questions about videos based on structured inputs
+- The gold answers are masked and the model is trained to predict the gold answers
+- The model is evaluated with F1 and BERTScore metrics
+
+## Masked Fine-Tuning
+This folder includes our research-driven fine-tuning approach where we mask sections of the input associated with gold label questions and have the model predict 
