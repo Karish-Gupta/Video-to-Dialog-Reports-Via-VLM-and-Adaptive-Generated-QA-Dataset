@@ -1,7 +1,7 @@
 import os
-from utils.llm import *
-from utils.vlm import *
-from utils.gemini_llm import *
+from models.llm import *
+from models.vlm import *
+from models.gemini_model import *
 import csv
 
 # CONFIG

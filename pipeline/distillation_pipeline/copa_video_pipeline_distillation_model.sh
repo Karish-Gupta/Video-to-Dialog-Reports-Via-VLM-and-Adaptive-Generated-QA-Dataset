@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
-#SBATCH --mem=128g                     # allocate 32 GB of memory
-#SBATCH -J "vlm_inference"              # name of the job
-#SBATCH -o vlm_inference_%j.out         # name of the output file
-#SBATCH -e vlm_inference_%j.err         # name of the error file
+#SBATCH --mem=128g                     # allocate 128 GB of memory
+#SBATCH -J "copa_video_pipeline"              # name of the job
+#SBATCH -o copa_video_pipeline%j.out         # name of the output file
+#SBATCH -e copa_video_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
-#SBATCH -t 5:00:00                   # time limit of 12 hours
-#SBATCH --gres=gpu:H100:1             # request 1 H100 GPU
+#SBATCH -t 20:00:00                   # time limit of 12 hours
+#SBATCH --gres=gpu:H100:2             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR/..
 
@@ -19,7 +19,7 @@ source env/bin/activate
 
 pip install --upgrade pip
 pip install --upgrade -q accelerate bitsandbytes
-pip install transformers==4.45.0
+pip install transformers
 pip install huggingface-hub
 pip install -q av
 pip install pillow
@@ -29,4 +29,4 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 
-python VLM/LLaVA-NeXT-Video.py
+python -m pipeline.copa_video_pipeline_distillation_model

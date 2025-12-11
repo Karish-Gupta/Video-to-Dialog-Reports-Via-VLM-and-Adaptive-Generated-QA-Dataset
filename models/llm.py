@@ -1,5 +1,4 @@
 import json
-import numpy as np
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from huggingface_hub import login
@@ -109,13 +108,23 @@ class llm:
    
    def step_2_chat_template(self, structured_output):
       system_prompt = """
-         You analyze police body-worn camera recordings.
-         Generate 4 specific questions based on key details that would help clarify or expand understanding of the scene.
-         Ensure questions are directly relevant to observable details from the structured output.
-         Return ONLY the questions as a numbered list—no commentary, no explanation.
+      You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
+
+      Your task:
+      - Based on the provided structured details, generate a list of investigative questions.
+      - Every question must be something a human could answer by watching the video.
+      - The goal is to guide analysts toward visual clues, context, behavior, or environment details that may matter.
+
+      Rules for your output:
+      - Write a total of 4 meaningful questions that can extract the most visual information.
+      - Each question should pertain to one of the four categories (scene-level, entity-level, action-level, semantic-level).
+      - Do NOT repeat facts already stated.
+      - Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
+      - Use clear, concise, professional language.
+      - Format the output as a numbered list.
       """
       
-      user_prompt = f"Key Details:\n {structured_output}"
+      user_prompt = f"Structured information provided:\n {structured_output}"
 
       messages = [
          {"role": "system", "content": system_prompt},

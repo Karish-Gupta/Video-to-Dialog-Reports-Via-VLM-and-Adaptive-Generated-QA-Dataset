@@ -1,6 +1,6 @@
 import os
-from utils.llm import *
-from utils.vlm import *
+from models.llm import *
+from models.vlm import *
 
 
 def extract_generated_text_vlm(raw_output: str):
