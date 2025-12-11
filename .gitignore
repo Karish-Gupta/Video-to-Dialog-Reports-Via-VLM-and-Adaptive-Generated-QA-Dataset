@@ -1,6 +1,10 @@
 whisper_env/
 __pycache__/
 output/
-env
+.env
+.env/
 *.jsonl
 *.json
+data_generation/training_transcripts/
+data_generation/training_videos/
+env/
