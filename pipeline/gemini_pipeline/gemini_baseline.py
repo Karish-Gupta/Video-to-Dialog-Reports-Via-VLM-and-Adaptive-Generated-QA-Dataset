@@ -1,28 +1,14 @@
 import os
-from utils.llm import *
-from utils.vlm import *
-from utils.gemini_llm import *
+from models.llm import *
+from models.vlm import *
+from models.gemini_llm import *
 from google import genai
-
-
-
-
-
-def extract_generated_text_vlm(raw_output: str):
-    """VLM output includes input as well, this slices out only generated tokens."""
-    raw_output = raw_output.strip()
-
-    if "assistant" in raw_output:
-        idx = raw_output.index("assistant") + len("assistant")
-        return raw_output[idx:].strip()
-
-    return raw_output
-
 
 # CONFIG
 VIDEO_DIR = "pipeline/copa_videos"
-TRANSCRIPT_DIR = "pipeline/whisper_transcripts"
+TRANSCRIPT_DIR = "pipeline/whisper_transcripts_diarize"
 OUTPUT_DIR = "pipeline/gemini_non_vqa"
+
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 gemini = gemini_model()
 
@@ -38,6 +24,7 @@ def process_pair(video_path, transcript_text, index):
         f.write(f"=== NON-QA CAPTION ===\n{non_qa_caption.text}\n\n")
 
     print(f"Finished Video {index} saved to {output_file}")
+
 
 # Identify all video-to-transcript pairs
 video_files = sorted([f for f in os.listdir(VIDEO_DIR) if f.lower().startswith("video")])

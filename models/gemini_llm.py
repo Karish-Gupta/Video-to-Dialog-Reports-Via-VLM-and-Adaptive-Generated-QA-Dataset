@@ -2,21 +2,17 @@ from google import genai
 import os
 import time
 from dotenv import load_dotenv
-from openai import OpenAI
 
 class gemini_model:
-    def __init__(self, model_name="gpt-4"):
+    def __init__(self, model_name: str = "gemini-2.5-flash-lite"):
         # Load API key from env
         load_dotenv()
-        api_key = os.getenv("OPENAI_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            raise ValueError("No OpenAI API key found in .env file")
+            raise ValueError("No GEMINI_API_KEY found in .env file")
         
         # Initialize variables
-        # self.client = genai.Client(api_key=api_key)
-        # self.model_name = model_name
-        
-        self.client = OpenAI(api_key=api_key)
+        self.client = genai.Client(api_key=api_key)
         self.model_name = model_name
     
     def generate_distillation_model_qs(self, structured_details):
@@ -33,9 +29,8 @@ class gemini_model:
         - The goal is to guide analysts toward visual clues, context, behavior, or environment details that may matter.
 
         Rules for your output:
-        - Write a total of 4 meaningful questions that can extract the most visual information.
-        - Each question should pertain to one of the four categories (scene-level, entity-level, action-level, semantic-level).
-        - Do NOT repeat facts already stated.
+        - Write 1 meaningful question per detail element.
+        - Do NOT repeat facts already stated — ask what is *unknown or unclear* visually.
         - Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
         - Use clear, concise, professional language.
         - Format the output as a numbered list.
@@ -44,7 +39,7 @@ class gemini_model:
         {structured_details}
         """
         
-        response = self.client.models.generate_content(
+        return self.client.models.generate_content(
             model=self.model_name,
             contents=prompt
         )
@@ -61,44 +56,12 @@ class gemini_model:
             contents=prompt
         )
     
-    # def eval_safe(self, caption_text, ground_truth, evaluation_prompt_template):
-    #     """
-    #     Safely substitute caption and ground_truth into the template using simple
-    #     .replace to avoid KeyError caused by stray braces in the template/rubrics.
-    #     If the template is already formatted, this will leave it unchanged.
-    #     """
-    #     prompt = evaluation_prompt_template
-    #     # prefer simple placeholder replacement to avoid str.format KeyError
-    #     if "{caption}" in prompt or "{ground_truth}" in prompt:
-    #         prompt = prompt.replace("{caption}", caption_text).replace("{ground_truth}", ground_truth)
-    #     else:
-    #         # handle templates that might use doubled braces or already be formatted
-    #         prompt = prompt.replace("{{caption}}", caption_text).replace("{{ground_truth}}", ground_truth)
-
-    #     return self.client.models.generate_content(
-    #         model=self.model_name,
-    #         contents=prompt
-    #     )
-    
-    def eval_safe(self, caption_text, ground_truth, evaluation_prompt_template):
-        """
-        Safely substitute caption and ground_truth into the template using simple
-        .replace to avoid KeyError caused by stray braces in the template/rubrics.
-        If the template is already formatted, this will leave it unchanged.
-        """
-        prompt = evaluation_prompt_template
-        # prefer simple placeholder replacement to avoid str.format KeyError
-        if "{caption}" in prompt or "{ground_truth}" in prompt:
-            prompt = prompt.replace("{caption}", caption_text).replace("{ground_truth}", ground_truth)
-        else:
-            # handle templates that might use doubled braces or already be formatted
-            prompt = prompt.replace("{{caption}}", caption_text).replace("{{ground_truth}}", ground_truth)
-
-        return self.client.responses.create(
-            model=self.model,
-            input=prompt
+    def invoke(self, prompt):
+        return self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
         )
-
+    
 
     def non_QA_prompt(self, transcript, video_path):
         prompt = f"""
@@ -122,17 +85,14 @@ class gemini_model:
          Transcipt:
         {transcript}
       """
-            # Upload file (using keyword 'file' which works for many genai clients)
-        
+        # Upload file
         my_file = self.client.files.upload(file=video_path)
-
-        # Inspect response to find file id/name
-        # adapt these lines if your SDK response fields differ
         file_name = my_file.name
+        
         # Poll until file becomes ACTIVE (or error)
         start = time.time()
         while True:
-            meta = self.client.files.get(name=file_name)  # or self.client.files.retrieve(file_id)
+            meta = self.client.files.get(name=file_name)
             state = None
             if isinstance(meta, dict):
                 state = meta.get("state") or meta.get("status")
@@ -144,10 +104,8 @@ class gemini_model:
             if state in ("FAILED", "ERROR"):
                 raise RuntimeError(f"File upload failed or rejected: {meta}")
             if time.time() - start > 100:
-                raise TimeoutError(f"Timed out waiting for file {file_id} to become ACTIVE (last state: {state})")
+                raise TimeoutError(f"Timed out waiting for file to become ACTIVE (last state: {state})")
             time.sleep(1)
-
-
 
         return self.client.models.generate_content(
             model=self.model_name,

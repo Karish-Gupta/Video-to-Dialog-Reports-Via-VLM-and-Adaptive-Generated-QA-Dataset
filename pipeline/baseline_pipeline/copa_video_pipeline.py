@@ -1,7 +1,7 @@
 import os
-from utils.llm import *
-from utils.vlm import *
-from utils.distillation_ft_llm import *
+from models.llm import *
+from models.vlm import *
+
 
 def extract_generated_text_vlm(raw_output: str):
     """VLM output includes input as well, this slices out only generated tokens."""
@@ -16,8 +16,8 @@ def extract_generated_text_vlm(raw_output: str):
 
 # CONFIG
 VIDEO_DIR = "pipeline/copa_videos"
-TRANSCRIPT_DIR = "pipeline/whisper_transcripts_diarize"
-OUTPUT_DIR = "pipeline/output_distillation_model"
+TRANSCRIPT_DIR = "pipeline/whisper_transcripts"
+OUTPUT_DIR = "pipeline/output_results_whisper"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
@@ -25,7 +25,7 @@ llm_model = "meta-llama/Llama-3.3-70B-Instruct"
 vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
 llm_ = llm(llm_model)
 vlm_ = vlm(vlm_model_name)
-question_generation_model = distillation_ft_llm()
+
 
 def process_pair(video_path, transcript_text, index):
     print(f"\nProcessing Video {index}...")
@@ -43,8 +43,8 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 3: Generate Questions
     print("\n Generating questions...")
-    step_2_prompt = question_generation_model.step_2_chat_template(structured_output)
-    generated_qs = question_generation_model.invoke(step_2_prompt)
+    step_2_prompt = llm_.step_2_chat_template(structured_output)
+    generated_qs = llm_.invoke(step_2_prompt)
 
     # Step 4: Ask VLM to Answer
     print("\n Getting VLM answers to generated questions...")

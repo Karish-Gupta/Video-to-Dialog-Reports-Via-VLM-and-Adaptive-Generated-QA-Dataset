@@ -28,10 +28,7 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 pip install google-genai
-pip install python-dotenv
 pip install openai
+pip install python-dotenv
 
-# python -m pipeline.evaluation.evaluateQA
-python -m pipeline.evaluation.evaluateNQA
-# python -m pipeline.evaluation.evaluateSummary
-python -m pipeline.evaluation.evaluate_QA_distillation_model
+python -m pipeline.evaluation.evaluation
