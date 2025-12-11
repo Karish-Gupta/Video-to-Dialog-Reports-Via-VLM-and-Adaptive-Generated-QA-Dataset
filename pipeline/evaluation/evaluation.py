@@ -47,9 +47,9 @@ def evaluate_caption(caption, ground_truth, model="OPENAI"):
             resp = gpt.invoke(prompt)
             raw_text = resp.output_text
         
-        # if model == "GEMINI":
-        #     resp = gemini.invoke(prompt)
-        #     raw_text = _gemini_text(resp)
+        if model == "GEMINI":
+            resp = gemini.invoke(prompt)
+            raw_text = resp.text
         
         parsed = _extract_json_from_text(raw_text)
         results[metric_name] = parsed
@@ -243,18 +243,6 @@ if __name__ == "__main__":
     parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
 
     args = parser.parse_args()
-
-    # If no flags were provided, preserve function defaults by calling without overrides
-    if not (args.nqa or args.qa or args.summary or args.all_flags):
-        run_evaluation(OUTPUT_DIR=args.output_dir, RESULTS_FOLDER=args.results_folder)
-    else:
-        if args.all_flags:
-            nqa = qa = summary = True
-        else:
-            nqa = args.nqa
-            qa = args.qa
-            summary = args.summary
-
-        run_evaluation(OUTPUT_DIR=args.output_dir, RESULTS_FOLDER=args.results_folder, NQA=nqa, QA=qa, SUMMARY=summary)
+    run_evaluation(OUTPUT_DIR=args.output_dir, RESULTS_FOLDER=args.results_folder, NQA=args.nqa, QA=args.qa, SUMMARY=args.summary)
 
 
