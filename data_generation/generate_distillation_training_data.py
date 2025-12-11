@@ -1,8 +1,8 @@
 import os
 import json
-from utils.llm import *
-from utils.vlm import *
-from utils.gemini_llm import *
+from models.llm import *
+from models.vlm import *
+from models.gemini_model import *
 
 # CONFIG
 VIDEO_DIR = "data_generation/training_videos"

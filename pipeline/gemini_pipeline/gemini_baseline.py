@@ -1,8 +1,7 @@
 import os
 from models.llm import *
 from models.vlm import *
-from models.gemini_llm import *
-from google import genai
+from models.gemini_model import *
 
 # CONFIG
 VIDEO_DIR = "pipeline/copa_videos"

@@ -1,11 +1,11 @@
 from models.llm import *
-from models.gemini_llm import *
+from models.gemini_model import *
 from pipeline.evaluation.ground_truths import copa_video_ground_truths
 import json
 import re
 import os
 import argparse
-from typing import Dict, Any
+from typing import Any
 from models.open_ai import *
 from pipeline.evaluation.eval_prompt_templates import *
 from utils.averages import calculate_averages
