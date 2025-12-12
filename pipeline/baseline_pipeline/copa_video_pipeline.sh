@@ -7,9 +7,9 @@
 #SBATCH -e copa_video_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 20:00:00                   # time limit of 12 hours
-#SBATCH --gres=gpu:H100:2             # request 1 H200 GPU
+#SBATCH --gres=gpu:H100:1             # request 1 H200 GPU
 
-cd $SLURM_SUBMIT_DIR/..
+cd $SLURM_SUBMIT_DIR/../..
 
 module load python/3.10.2/mqmlxcf
 module load cuda/12.4.0/3mdaov5
