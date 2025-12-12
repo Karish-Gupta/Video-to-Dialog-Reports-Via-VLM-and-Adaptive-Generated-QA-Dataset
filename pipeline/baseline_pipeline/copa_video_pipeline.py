@@ -2,22 +2,10 @@ import os
 from models.llm import *
 from models.gemini_model import *
 
-
-def extract_generated_text_vlm(raw_output: str):
-    """VLM output includes input as well, this slices out only generated tokens."""
-    raw_output = raw_output.strip()
-
-    if "assistant" in raw_output:
-        idx = raw_output.index("assistant") + len("assistant")
-        return raw_output[idx:].strip()
-
-    return raw_output
-
-
 # CONFIG
 VIDEO_DIR = "pipeline/copa_videos"
 TRANSCRIPT_DIR = "pipeline/whisper_transcripts"
-OUTPUT_DIR = "pipeline/output_results_whisper"
+OUTPUT_DIR = "pipeline/baseline_captions"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)

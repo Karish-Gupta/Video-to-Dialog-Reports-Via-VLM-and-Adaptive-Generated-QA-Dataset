@@ -6,7 +6,7 @@ from models.gemini_model import *
 # CONFIG
 VIDEO_DIR = "pipeline/copa_videos"
 TRANSCRIPT_DIR = "pipeline/whisper_transcripts_diarize"
-OUTPUT_DIR = "pipeline/gemini_non_vqa"
+OUTPUT_DIR = "pipeline/gemini_non_vqa_captions"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 gemini = gemini_model()

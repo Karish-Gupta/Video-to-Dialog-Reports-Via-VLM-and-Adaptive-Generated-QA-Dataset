@@ -1,30 +1,20 @@
 import os
 from models.llm import *
-from models.vlm import *
+from models.gemini_model import *
 from models.distillation_ft_llm import *
-
-def extract_generated_text_vlm(raw_output: str):
-    """VLM output includes input as well, this slices out only generated tokens."""
-    raw_output = raw_output.strip()
-
-    if "assistant" in raw_output:
-        idx = raw_output.index("assistant") + len("assistant")
-        return raw_output[idx:].strip()
-
-    return raw_output
 
 
 # CONFIG
 VIDEO_DIR = "pipeline/copa_videos"
 TRANSCRIPT_DIR = "pipeline/whisper_transcripts_diarize"
-OUTPUT_DIR = "pipeline/output_distillation_model"
+OUTPUT_DIR = "pipeline/distillation_captions"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
 llm_model = "meta-llama/Llama-3.3-70B-Instruct"
-vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
+vlm_model_name = "gemini-2.5-flash"
 llm_ = llm(llm_model)
-vlm_ = vlm(vlm_model_name)
+vlm_ = gemini_model(vlm_model_name)
 question_generation_model = distillation_ft_llm()
 
 def process_pair(video_path, transcript_text, index):
@@ -32,9 +22,11 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 1: VLM Summary
     print("\n Generating VLM Summary...")
-    vlm_conversation = vlm_.build_conversation()
-    vlm_summary = vlm_.invoke(video_path, vlm_conversation)
-    vlm_summary = extract_generated_text_vlm(vlm_summary)
+    print("\n Generating VLM Summary...")
+    prompt = f"""
+        This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific.
+        """
+    vlm_summary = vlm_.vlm_invoke(video_path, prompt)
 
     # Step 2: LLM Extraction
     print("\n Extracting structured output...")
@@ -48,9 +40,10 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 4: Ask VLM to Answer
     print("\n Getting VLM answers to generated questions...")
-    qa_conversation = vlm_.build_qa_conversation(generated_qs)
-    vlm_answers = vlm_.invoke(video_path, qa_conversation)
-    vlm_answers = extract_generated_text_vlm(vlm_answers)
+    prompt = f"""
+        This is a police bodycam video. You are given a set of questions, based on the video, answer these questions:\n {generated_qs}
+        """
+    vlm_answers = vlm_.vlm_invoke(video_path, prompt)
 
     # Generate Captions
     print("→ Creating QA captions...")
