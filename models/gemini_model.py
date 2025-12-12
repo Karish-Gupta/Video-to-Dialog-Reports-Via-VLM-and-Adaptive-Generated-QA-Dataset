@@ -4,7 +4,7 @@ import time
 from dotenv import load_dotenv
 
 class gemini_model:
-    def __init__(self, model_name: str = "gemini-2.5-flash-lite"):
+    def __init__(self, model_name: str = "gemini-2.5-flash"):
         # Load API key from env
         load_dotenv()
         api_key = os.getenv("GEMINI_API_KEY")
@@ -62,29 +62,8 @@ class gemini_model:
             contents=prompt
         )
     
+    def vlm_invoke(self, video_path, prompt):
 
-    def non_QA_prompt(self, transcript, video_path):
-        prompt = f"""
-         You are given a bodycam video transcript, and the video.
-         Generate a caption that gives visual details about the video. 
-         Include the following in caption: 
-
-         - Describe the setting (Time of day, vehicles, buildings, etc.)
-         - Objects in the frame (Weapons, items in hand, consumables, etc.)
-         - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
-         - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
-         - Actions each individual made (Officer stating instructions, civilians complying, etc.)
-
-         Ensure captions are direct and formal.
-
-         Write in active voice as much as possible.
-         Be direct, concise, and concrete.
-         Use direct quotes only when needed.
-         Use a person's name if it is known.
-
-         Transcipt:
-        {transcript}
-      """
         # Upload file
         my_file = self.client.files.upload(file=video_path)
         file_name = my_file.name
@@ -112,7 +91,6 @@ class gemini_model:
             contents=[my_file, prompt],
         )
     
-
     def step_2_chat_template(self, structured_output):
         prompt = f"""
          Based on the given structured information about a police bodycam video, generate specific questions based on key details:

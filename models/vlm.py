@@ -53,7 +53,7 @@ class vlm:
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": f" This is a police bodycam video. You are given a set of questions, based on the video, answer these questions:\n {questions}"},
+                    {"type": "text", "text": f"This is a police bodycam video. You are given a set of questions, based on the video, answer these questions:\n {questions}"},
                     {"type": "video"},
                 ],
             },

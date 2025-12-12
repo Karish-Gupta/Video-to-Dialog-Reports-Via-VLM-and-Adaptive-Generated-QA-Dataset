@@ -1,6 +1,6 @@
 import os
 from models.llm import *
-from models.vlm import *
+from models.gemini_model import *
 
 
 def extract_generated_text_vlm(raw_output: str):
@@ -22,19 +22,20 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
 llm_model = "meta-llama/Llama-3.3-70B-Instruct"
-vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
+vlm_model_name = "gemini-2.5-flash"
 llm_ = llm(llm_model)
-vlm_ = vlm(vlm_model_name)
+vlm_ = gemini_model(vlm_model_name)
 
 
 def process_pair(video_path, transcript_text, index):
     print(f"\nProcessing Video {index}...")
 
-    # Step 1: VLM Summary
+    # Step 1: VLM Summary with Gemini Model
     print("\n Generating VLM Summary...")
-    vlm_conversation = vlm_.build_conversation()
-    vlm_summary = vlm_.invoke(video_path, vlm_conversation)
-    vlm_summary = extract_generated_text_vlm(vlm_summary)
+    prompt = f"""
+        This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific.
+        """
+    vlm_summary = vlm_.vlm_invoke(video_path, prompt)
 
     # Step 2: LLM Extraction
     print("\n Extracting structured output...")
@@ -48,9 +49,10 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 4: Ask VLM to Answer
     print("\n Getting VLM answers to generated questions...")
-    qa_conversation = vlm_.build_qa_conversation(generated_qs)
-    vlm_answers = vlm_.invoke(video_path, qa_conversation)
-    vlm_answers = extract_generated_text_vlm(vlm_answers)
+    prompt = f"""
+        This is a police bodycam video. You are given a set of questions, based on the video, answer these questions:\n {generated_qs}
+        """
+    vlm_answers = vlm_.vlm_invoke(video_path, prompt)
 
     # Generate Captions
     print("→ Creating QA captions...")
