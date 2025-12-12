@@ -42,19 +42,6 @@ Measures how well the caption adds useful visual details that are not present in
 | **0** | No visual context added.                                         |
 """
 
-clarity_professionalism_rubric = """Clarity, Neutral Tone, and Professionalism (0-5)
-Captions should follow bodycam/LE reporting standards.
-
-| Score | Criteria                                                       |
-| ----- | -------------------------------------------------------------- |
-| **5** | Clear, objective, structured narrative with professional tone. |
-| **4** | Minor issues in tone, grammar, or flow.                        |
-| **3** | Understandable but casual or inconsistent.                     |
-| **2** | Hard to follow or language not appropriate.                    |
-| **1** | Tone biased, emotional, or unclear.                            |
-| **0** | Not coherent.                                                  |
-"""
-
 
 
 # ┌───────────────────────────────────────────────┐
@@ -131,25 +118,4 @@ def evaluation_prompt_template_enrich(caption, ground_truth):
   """
   return visual_enrichment_prompt
 
-def evaluation_prompt_template_clarity(caption, ground_truth):
-  clarity_prompt = f"""
-  You are evaluating an generated caption from a police bodycam video.
 
-  Use the rubric below and give only a JSON response with numerical scores and a short justification.
-
-  Rubric:
-  {clarity_professionalism_rubric}
-
-  Ground Truth:
-  {ground_truth}
-
-  Generated caption:
-  {caption}
-
-  Return output in the following JSON format:
-  {{
-    "Clarity": <0-5>,
-    "Justification": "<2-4 sentence explanation>"
-  }}
-  """
-  return clarity_prompt

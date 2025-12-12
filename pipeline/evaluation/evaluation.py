@@ -38,7 +38,7 @@ def evaluate_caption(caption, ground_truth, model="OPENAI"):
         "Factual Accuracy": evaluation_prompt_template_factual(caption, ground_truth),
         "Completeness": evaluation_prompt_template_complete(caption, ground_truth),
         "Visual Enrichment": evaluation_prompt_template_enrich(caption, ground_truth),
-        "Clarity": evaluation_prompt_template_clarity(caption, ground_truth)
+        # Clarity metric removed
     }
     results = {}
     for metric_name, prompt in prompts.items():
@@ -135,9 +135,8 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
             factual = _get_numeric(eval_results.get("Factual Accuracy", {}), ["Factual Accuracy", "Factual"])
             completeness = _get_numeric(eval_results.get("Completeness", {}), ["Completeness"])
             visual = _get_numeric(eval_results.get("Visual Enrichment", {}), ["Visual Enrichment", "Visual"])
-            clarity = _get_numeric(eval_results.get("Clarity", {}), ["Clarity"])
 
-            score = calculate_score(factual, completeness, visual, clarity)
+            score = calculate_score(factual, completeness, visual)
 
             return {
                 "file": filename,
@@ -222,14 +221,18 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
             print(f"Could not compute SUMMARY averages: {e}")
 
 
-def calculate_score(factual_accuracy, completeness, visual_enrichment, clarity):
-    percentage_score = ((factual_accuracy + completeness + visual_enrichment + clarity) / 20) * 100
-    
+def calculate_score(factual_accuracy, completeness, visual_enrichment):
+    """
+    Calculate aggregate score from three metrics (each 0-5). Total possible = 15.
+    Returns a dict with the individual metric values and a percentage Total Score.
+    """
+    total = factual_accuracy + completeness + visual_enrichment
+    percentage_score = (total / 15) * 100 if total is not None else 0
+
     return {
-        "Factual Accuracy": factual_accuracy, 
+        "Factual Accuracy": factual_accuracy,
         "Completeness": completeness,
         "Visual Enrichment": visual_enrichment,
-        "Clarity": clarity,
         "Total Score": percentage_score
     }
 
