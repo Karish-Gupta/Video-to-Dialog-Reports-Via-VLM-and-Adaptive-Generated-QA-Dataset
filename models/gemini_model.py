@@ -42,7 +42,7 @@ class gemini_model:
         return self.client.models.generate_content(
             model=self.model_name,
             contents=prompt
-        )
+        ).text
     
 
     def eval(self, caption_text, ground_truth, evaluation_prompt_template):
@@ -60,7 +60,7 @@ class gemini_model:
         return self.client.models.generate_content(
             model=self.model_name,
             contents=prompt
-        )
+        ).text
     
     def vlm_invoke(self, video_path, prompt):
 
