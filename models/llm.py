@@ -45,7 +45,7 @@ class llm:
 
       user_prompt = f"""
       <summary>
-      {json.dumps(summary)}
+      {summary}
       </summary>
 
       <transcript>
