@@ -39,10 +39,12 @@ class gemini_model:
         {structured_details}
         """
         
-        return self.client.models.generate_content(
+        response = self.client.models.generate_content(
             model=self.model_name,
             contents=prompt
-        ).text
+        )
+
+        return response.candidates[0].content.parts[0].text
     
 
     def eval(self, caption_text, ground_truth, evaluation_prompt_template):
@@ -57,10 +59,11 @@ class gemini_model:
         )
     
     def invoke(self, prompt):
-        return self.client.models.generate_content(
+        response = self.client.models.generate_content(
             model=self.model_name,
             contents=prompt
-        ).text
+        )
+        return response.candidates[0].content.parts[0].text
     
     def vlm_invoke(self, video_path, prompt):
 
