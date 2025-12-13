@@ -44,7 +44,7 @@ class gemini_model:
             contents=prompt
         )
 
-        return response.candidates[0].content.parts[0].text
+        return response.text
     
 
     def eval(self, caption_text, ground_truth, evaluation_prompt_template):
@@ -53,17 +53,18 @@ class gemini_model:
             ground_truth=ground_truth
         )
         
-        return self.client.models.generate_content(
+        response = self.client.models.generate_content(
             model=self.model_name,
             contents=prompt
         )
+        return response.text
     
     def invoke(self, prompt):
         response = self.client.models.generate_content(
             model=self.model_name,
             contents=prompt
         )
-        return response.candidates[0].content.parts[0].text
+        return response.text
     
     def vlm_invoke(self, video_path, prompt):
 
@@ -89,10 +90,13 @@ class gemini_model:
                 raise TimeoutError(f"Timed out waiting for file to become ACTIVE (last state: {state})")
             time.sleep(1)
 
-        return self.client.models.generate_content(
+        response = self.client.models.generate_content(
             model=self.model_name,
             contents=[my_file, prompt],
         )
+
+        return response.text
+
     
     def step_2_chat_template(self, structured_output):
         prompt = f"""
@@ -113,8 +117,8 @@ class gemini_model:
          Structured Information:
         {structured_output}
       """
-        return self.client.models.generate_content(
+        response = self.client.models.generate_content(
             model=self.model_name,
             contents=prompt,
         )
-   
+        return response.text
