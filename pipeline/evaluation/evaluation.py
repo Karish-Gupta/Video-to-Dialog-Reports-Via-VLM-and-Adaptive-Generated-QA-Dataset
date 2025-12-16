@@ -237,15 +237,15 @@ def calculate_score(factual_accuracy, completeness, visual_enrichment):
     }
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Evaluate captions in OUTPUT_DIR and save per-flag results.")
-    parser.add_argument("--nqa", dest="nqa", action="store_true", help="Evaluate NON-QA captions")
-    parser.add_argument("--qa", dest="qa", action="store_true", help="Evaluate QA captions")
-    parser.add_argument("--summary", dest="summary", action="store_true", help="Evaluate VLM summary captions")
-    parser.add_argument("--all", dest="all_flags", action="store_true", help="Evaluate all caption types")
-    parser.add_argument("--output-dir", dest="output_dir", default="pipeline/output_results_whisper", help="Directory containing pipeline output files")
-    parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
+    # parser = argparse.ArgumentParser(description="Evaluate captions in OUTPUT_DIR and save per-flag results.")
+    # parser.add_argument("--nqa", dest="nqa", action="store_true", help="Evaluate NON-QA captions")
+    # parser.add_argument("--qa", dest="qa", action="store_true", help="Evaluate QA captions")
+    # parser.add_argument("--summary", dest="summary", action="store_true", help="Evaluate VLM summary captions")
+    # parser.add_argument("--all", dest="all_flags", action="store_true", help="Evaluate all caption types")
+    # parser.add_argument("--output-dir", dest="output_dir", default="pipeline/output_results_whisper", help="Directory containing pipeline output files")
+    # parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
 
-    args = parser.parse_args()
-    run_evaluation(OUTPUT_DIR=args.output_dir, RESULTS_FOLDER=args.results_folder, NQA=args.nqa, QA=args.qa, SUMMARY=args.summary)
+    # args = parser.parse_args()
+    run_evaluation(OUTPUT_DIR="baseline_captions", RESULTS_FOLDER="pipeline/evaluation_results_baseline", NQA=True, QA=True, SUMMARY=False)
 
 
