@@ -4,29 +4,15 @@
   # └──────────────────────────────┘
 factual_accuracy_rubric = """Factual Accuracy (0-5)
 Measures whether statements in the caption are true given the ground truth. 
-Check sentece by sentence with the ground truth to verify accuracy of the presented information
-
-| Score | Criteria                                                                                        |
-| ----- | ----------------------------------------------------------------------------------------------- |
-| **5** | All details are verifiably correct; no hallucinated events, objects, identities, or intentions. |
-| **4** | Mostly correct with minor inaccuracies that do not change meaning.                              |
-| **3** | Some inaccuracies or speculative language, but core meaning is correct.                         |
-| **2** | Several incorrect statements or guesses; meaning is partially misleading.                       |
-| **1** | Mostly inaccurate or speculative.                                                               |
-| **0** | Completely fabricated or unrelated to the content.                                              |
+Check sentence by sentence with the ground truth to verify accuracy of the presented information.
+The final score should be the number of statements grounded in truth divided by the total number of statements multiplied by 5.  
+(e.g., if 4 out of 5 sentences are correct, the score would be 4/5 * 5 = 4)                                        
 """
 
 coverage_completeness_rubric = """Coverage & Completeness (0-5)
 Does the caption capture all relevant and important events?
-
-| Score | Criteria                                                                        |
-| ----- | ------------------------------------------------------------------------------- |
-| **5** | Captures all key actions, objects, people, environmental context, and sequence. |
-| **4** | Covers most important details but misses a few.                                 |
-| **3** | Adequate but incomplete.                                                        |
-| **2** | Important information missing or unclear.                                       |
-| **1** | Barely covers relevant content.                                                 |
-| **0** | Provides no meaningful coverage.                                                |
+Check if key events from the ground truth are missing in the caption, with the final score reflecting the proportion of key events included.
+(e.g., if 4 out of 5 key events are included, the score would be 4/5 * 5 = 4)
 """
 
 visual_enrichment_rubric = """Visual Enrichment (Non-Transcript Information) (0-5)
