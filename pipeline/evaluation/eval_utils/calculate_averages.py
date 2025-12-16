@@ -5,7 +5,6 @@ def calculate_averages(data):
         "Factual Accuracy": 0,
         "Completeness": 0,
         "Visual Enrichment": 0,
-        "Clarity": 0,
         "Total Score": 0,
     }
 
@@ -18,11 +17,14 @@ def calculate_averages(data):
     count = len(score_entries)
 
     for score in score_entries:
-        totals["Factual Accuracy"] += score["Factual Accuracy"]
-        totals["Completeness"] += score["Completeness"]
-        totals["Visual Enrichment"] += score["Visual Enrichment"]
-        totals["Clarity"] += score["Clarity"]
-        totals["Total Score"] += score["Total Score"]
+        totals["Factual Accuracy"] += score.get("Factual Accuracy", 0)
+        totals["Completeness"] += score.get("Completeness", 0)
+        totals["Visual Enrichment"] += score.get("Visual Enrichment", 0)
+        totals["Total Score"] += score.get("Total Score", 0)
+
+    # Avoid division by zero
+    if count == 0:
+        return {k: 0 for k in totals}
 
     # Compute averages
     averages = {key: totals[key] / count for key in totals}
