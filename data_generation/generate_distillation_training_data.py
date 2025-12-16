@@ -10,40 +10,47 @@ TRANSCRIPT_DIR = "data_generation/training_transcripts"
 OUTPUT_DIR = "data_generation/distillation_training_data"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-JSONL_PATH = os.path.join(OUTPUT_DIR, "distillation_results.jsonl")
+JSONL_PATH = os.path.join(OUTPUT_DIR, "distillation_results_gemini.jsonl")
 
 # Model Init
 llm_model = "meta-llama/Llama-3.3-70B-Instruct"
-vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
 llm_ = llm(llm_model)
-vlm_ = vlm(vlm_model_name)
-gemini = gemini_model()
-
-
-def extract_generated_text_vlm(raw_output: str):
-    """VLM output includes input as well, this slices out only generated tokens."""
-    raw_output = raw_output.strip()
-
-    if "assistant" in raw_output:
-        idx = raw_output.index("assistant") + len("assistant")
-        return raw_output[idx:].strip()
-
-    return raw_output
+vlm_ = gemini_model()
 
 def process_pair(video_path, transcript_text, index):
     print(f"\nProcessing Video {index}...")
 
-    # Step 1: VLM Summary
-    vlm_conversation = vlm_.build_conversation()
-    vlm_summary = vlm_.invoke(video_path, vlm_conversation)
-    vlm_summary = extract_generated_text_vlm(vlm_summary)
+    # Step 1: VLM Summary Gemini Model
+    print("\n Generating VLM Summary...")
+    prompt = f"""
+        This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific.
+        """
+    vlm_summary = vlm_.vlm_invoke(video_path, prompt)
 
     # Step 2: LLM Extraction
     step_1_prompt = llm_.step_1_chat_template(transcript_text, vlm_summary)
     structured_output = llm_.invoke(step_1_prompt)
 
     # Step 3: Generate questions
-    questions = gemini.generate_distillation_model_qs(structured_output)
+    question_generation_prompt = f"""
+    You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
+
+    Your task:
+    - Based on the provided structured details, generate a list of investigative questions.
+    - Every question must be something a human could answer by watching the video.
+    - The goal is to guide analysts toward visual clues, context, behavior, or environment details that may matter.
+
+    Rules for your output:
+    - Write 1 meaningful question per detail element.
+    - Do NOT repeat facts already stated — ask what is *unknown or unclear* visually.
+    - Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
+    - Use clear, concise, professional language.
+    - Format the output as a numbered list.
+
+    Structured information provided:
+    {structured_output}
+    """
+    questions = vlm_.invoke(question_generation_prompt)
 
     # ---- Append to JSONL ----
     record = {
