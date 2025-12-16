@@ -11,7 +11,7 @@ from pipeline.evaluation.eval_utils.eval_prompt_templates import *
 from pipeline.evaluation.eval_utils.calculate_averages import calculate_averages
 
 gemini = gemini_model()
-gpt = openai_model()
+# gpt = openai_model()
 
 def _extract_json_from_text(text: str) -> Any:
     # Try to find outermost {...}
@@ -33,25 +33,23 @@ def _extract_json_from_text(text: str) -> Any:
         return {"raw": text}
     
 
-def evaluate_caption(caption, ground_truth, model="OPENAI"):
+def evaluate_caption(caption, ground_truth, model="GEMINI"):
     prompts = {
         "Factual Accuracy": evaluation_prompt_template_factual(caption, ground_truth),
         "Completeness": evaluation_prompt_template_complete(caption, ground_truth),
         "Visual Enrichment": evaluation_prompt_template_enrich(caption, ground_truth),
-        # Clarity metric removed
     }
     results = {}
     for metric_name, prompt in prompts.items():
         
-        if model == "OPENAI":
-            resp = gpt.invoke(prompt)
-            raw_text = resp.output_text
+        # if model == "OPENAI":
+        #     resp = gpt.invoke(prompt)
+        #     raw_text = resp.output_text
         
         if model == "GEMINI":
             resp = gemini.invoke(prompt)
-            raw_text = resp.text
         
-        parsed = _extract_json_from_text(raw_text)
+        parsed = _extract_json_from_text(resp)
         results[metric_name] = parsed
 
     return results
@@ -246,6 +244,6 @@ if __name__ == "__main__":
     # parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
 
     # args = parser.parse_args()
-    run_evaluation(OUTPUT_DIR="baseline_captions", RESULTS_FOLDER="pipeline/evaluation_results_baseline", NQA=True, QA=True, SUMMARY=False)
+    run_evaluation(OUTPUT_DIR="pipeline/baseline_captions", RESULTS_FOLDER="pipeline/evaluation_results_baseline", NQA=True, QA=True, SUMMARY=False)
 
 
