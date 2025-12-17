@@ -38,7 +38,6 @@ def evaluate_caption(caption, ground_truth, model="OPENAI"):
         "Factual Accuracy": evaluation_prompt_template_factual(caption, ground_truth),
         "Completeness": evaluation_prompt_template_complete(caption, ground_truth),
         "Visual Enrichment": evaluation_prompt_template_enrich(caption, ground_truth),
-        # Clarity metric removed
     }
     results = {}
     for metric_name, prompt in prompts.items():

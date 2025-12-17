@@ -11,8 +11,9 @@ The final score should be the number of statements grounded in truth divided by 
 
 coverage_completeness_rubric = """Coverage & Completeness (0-5)
 Does the caption capture all relevant and important events?
-Check if key events from the ground truth are missing in the caption, with the final score reflecting the proportion of key events included.
+Check if all events in the Important Details section of the ground truth are missing in the caption, with the final score reflecting the proportion of events included.
 (e.g., if 4 out of 5 key events are included, the score would be 4/5 * 5 = 4)
+Anything missing from Auxillary Details should not impact the score.
 """
 
 visual_enrichment_rubric = """Visual Enrichment (Non-Transcript Information) (0-5)
@@ -51,7 +52,7 @@ def evaluation_prompt_template_factual(caption, ground_truth):
   Return output in the following JSON format:
   {{
     "Factual Accuracy": <0-5>,
-    "Justification": "<2-4 sentence explanation>"
+    "Justification": "<For each sentence in the caption, indicate whether it is 'True' or 'False' based on the ground truth. Provide a brief explanation for each assessment.>"
   }}
   """
   return factual_accuracy_prompt
