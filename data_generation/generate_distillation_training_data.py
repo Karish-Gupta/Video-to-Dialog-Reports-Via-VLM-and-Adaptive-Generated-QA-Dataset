@@ -41,8 +41,9 @@ def process_pair(video_path, transcript_text, index):
     - The goal is to guide analysts toward visual clues, context, behavior, or environment details that may matter.
 
     Rules for your output:
-    - Write 1 meaningful question per detail element.
-    - Do NOT repeat facts already stated — ask what is *unknown or unclear* visually.
+    - Write a total of 4 meaningful questions that can extract the most visual information.
+    - Each question should pertain to one of the four categories (scene-level, entity-level, action-level, semantic-level).
+    - Do NOT repeat facts already stated.
     - Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
     - Use clear, concise, professional language.
     - Format the output as a numbered list.
