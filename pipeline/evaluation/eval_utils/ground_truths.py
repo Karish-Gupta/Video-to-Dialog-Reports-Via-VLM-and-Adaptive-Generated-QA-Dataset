@@ -8,33 +8,32 @@ video_1_ground_truth = """
 - Officers escort a handcuffed suspect into a white van
 - Suspect is secured inside the van with a seatbelt
 ====Auxillary Details====
-- Suspect wears a blue-and-yellow beanie
+- Suspect wears a blue-and-yellow beanie, gray polkadot shirt, and black pants
 - An officer uses a flashlight
 - A female officer finishes fastening the seatbelt
+- The suspect seems to be cooperative with the officers
 """
 
 video_2_ground_truth = """
 ====Important Details====
-- Police officers engage in a shootout with an armed assailant
-- Assailant fires first
-- Officers confront and subdue the assailant
-- Assailant is pinned against a car and tasered
-- Officers order the assailant to drop a gun
+- Officers with weapons drawn are shown to approach a person
+- Shooter fires first, Officer mentions "Shots Fired"
+- Officers attempt subdue the shooter on top of a parked car
+- Recording officer tells the shooter to "Drop the fucking gun"
 ====Auxillary Details====
-- Officer communicates over police radio
+- Officer communicates over police radio with dispatch
 - Scene occurs on a dark city street with parked cars and dumpsters
+- Taser sound can be heard
 """
 
 video_3_ground_truth = """
 ====Important Details====
-- Daytime traffic stop involving multiple suspects
-- A suspect pulls out a firearm
-- Police order the suspect to show his hands
-- Suspect begins shooting, prompting a shootout
-- POV officer fires from behind a police cruiser
-- Other suspects comply by getting on the ground
+- Starts with a traffic stop
+- Officer asks to see hands and the suspect reaches for something
+- Officers back off and say "Let me see your hands", Officer weapons are drawn
+- Officer fires, gun visible in frame, says "Shots fired", "Shots fired by police"
 ====Auxillary Details====
-- Another officer is present with the POV officer
+- Multiple officers are present besides the POV officer
 - Officer’s firearm is visible in frame
 """
 
