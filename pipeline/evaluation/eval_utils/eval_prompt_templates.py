@@ -4,16 +4,23 @@
   # └──────────────────────────────┘
 factual_accuracy_rubric = """Factual Accuracy (0-5)
 Measures whether statements in the caption are true given the ground truth. 
-Check sentence by sentence with the ground truth to verify accuracy of the presented information.
-The final score should be the number of statements grounded in truth divided by the total number of statements multiplied by 5.  
-(e.g., if 4 out of 5 sentences are correct, the score would be 4/5 * 5 = 4)                                        
+
+Rules:
+- If the general idea is mentioned in the ground truth, it is considered true. If extra details are added, they are not considered in the score. 
+- Check sentence by sentence with the ground truth to verify accuracy of the presented information.
+- The final score should be the number of statements grounded in truth divided by the total number of statements multiplied by 5.  
+- (e.g., if 4 out of 5 sentences are correct, the score would be 4/5 * 5 = 4)              
+- Round to the nearest whole number.
 """
 
 coverage_completeness_rubric = """Coverage & Completeness (0-5)
 Does the caption capture all relevant and important events?
-Check if all events in the Important Details section of the ground truth are missing in the caption, with the final score reflecting the proportion of events included.
-(e.g., if 4 out of 5 key events are included, the score would be 4/5 * 5 = 4)
-Anything missing from Auxillary Details should not impact the score.
+
+Rules:
+- Check if any events in the Important Details section of the ground truth are missing in the caption, with the final score reflecting the proportion of events included.
+- Anything missing from Auxillary Details should not impact the score.
+- (e.g., if 4 out of 5 key events are included, the score would be 4/5 * 5 = 4)
+- Round to the nearest whole number.
 """
 
 visual_enrichment_rubric = """Visual Enrichment (Non-Transcript Information) (0-5)
