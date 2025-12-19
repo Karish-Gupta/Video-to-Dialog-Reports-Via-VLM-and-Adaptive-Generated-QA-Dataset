@@ -3,130 +3,169 @@
   # └──────────────────────────────┘
 
 video_1_ground_truth = """
-- Nighttime video
-- First 5 seconds show a group of officers surrounding an individual (suspect) in a blue and yellow beanie
-- Officer walks to large white Van
-- Officer is holding a flashlight
-- Man in dark blue shirt and blue and yellow beanie hat (suspect) is escorted into the van
-- Suspect is handcuffed
-- POV officer attempts to fasten suspects seatbelt, then lets the female officer fasten suspects seatbelt instead
+====Important Details====
+- Nighttime police activity
+- Officers escort a handcuffed suspect into a white van
+- Suspect is secured inside the van with a seatbelt by female officer
+====Auxillary Details====
+- Takes place on 2021-12-18
+- Group of police officers are on the scene at the start of the video
+- Suspect wears a blue-and-yellow beanie, gray polkadot shirt, and black pants
+- Female officer is wearing a beanie and black jacket
+- An officer uses a flashlight
+- Suspect is uncooperative and struggles with officers when recording officer attempts to secure him
+- The suspect aggressively asks for female officer to fasten the seatbelt
+- Suspect seems to be cooperative with the officers once female officer finishes fastening the seatbelt
 """
+
 video_2_ground_truth = """
-- Video depicts a shootout between a group of police officers and an assailant
-- Assailant started firing
-- Officer speaking on police radio
-- Officer is listening and reporting
-- Walking down dark, dimly lit city street 
-- Dumpsters on side of street and cars parked on side of street
-- POV officer walks to the assailant being held down and tasered by a group of officers all surrounding them
-- Assailant is pinned up against a car
-- Officers aggressively instruct the assailant to drop the gun they are in possession of
+====Important Details====
+- Officers with weapons drawn are shown to approach a person
+- Shooter fires first, Officer mentions "Shots Fired"
+- Group of officers attempt to subdue the shooter next to a parked car
+- Recording officer tells the shooter to "Drop the fucking gun"
+====Auxillary Details====
+- Takes place on 2024-09-16
+- Officer communicates over police radio with dispatch
+- Scene occurs on a dark city street with parked cars and dumpsters
+- Taser sound can be heard
+- Shooter is wearing dark clothing
 """
+
 video_3_ground_truth = """
-- Video occurs in the what looks like afternoon daylight 
-- A man (suspect) is pulled over for what looks like a traffic stop 
-- There are are another two suspects behind the vehicle being held by an officer
-- There is another officer with the POV officer
-- Suspect pulls out a firearm and police back away instructing him to “show his hands”
-- Suspect starts shooting and shootout breaks out
-- POV officer fires shots behind the police cruiser
-- Two suspects behind the vehicle get down on the ground 
-- POV officer gun is in view
+====Important Details====
+- Starts with a traffic stop
+- Officer asks to see hands and the suspect reaches for something
+- Officers back away and say "Let me see your hands", Officer weapons are drawn
+- Officer fires, gun visible in frame, says "Shots fired", "Shots fired by police"
+====Auxillary Details====
+- Takes place on 2021-01-09
+- Multiple officers are present besides the recording officer
+- Two more suspects are seen to be standing next to the stopped vehicle 
+- Two suspects who were standing next to the vehicle drop to the ground
+- Officer’s firearm is visible in frame
 """
+
 video_4_ground_truth = """
-- An officer is speaking with a suspect in a car
-- Suspect drives off quickly
-- Officer gets into police cruiser in pursuit
-- Officer speaks on the police radio reporting incident
-- Officer gets out of cruiser and suspect car is crashed into a pole
-- Vehicle is a blue SUV and is heavily damaged and smoking
+====Important Details====
+- Officer speaks with a suspect in a vehicle
+- Suspect suddenly flees
+- Officer pursues in a police cruiser
+- Suspect crashes into a pole
+- The vehicle is heavily damaged and smoking
+====Auxillary Details====
+- Takes place on 2019-02-14
+- Officer reports the incident over the radio
+- Vehicle is a blue SUV
 """
+
 video_5_ground_truth = """
-- 3 civilians, 1 officer in frame, one officer recording from POV
-- 3 civilians arguing, seemingly about what the non-officer on the left in the black shiny parka said before the video started
-- Situation gets physical at the 00:17 mark between two civilians
-- The civilian (green jacket) gets between them, camera pans too 4th individual in a nike hoodie, officer mentions it being a police investigation
-- Camera cuts at :28
-- Officers mention “seeing him”, shot rings out
-- Location is given as Waveland and Marshfield
-- Recording officer describes individual “black male, black jacket, about six foot tall, is shooting” 
-- Dispatcher confirms and repeats back
-- Cuts again at :50
-- Black shiny parka from earlier is shown lying on the ground between two cars, 
-- Officer asks where their buddy is
-- Dispatch asks if they got the suspect, officer says he is down 
+====Important Details====
+- Officers respond to a civilian argument that escalates into violence
+- A shooting occurs during the incident
+- Officers identify an armed suspect
+- Suspect is shot and taken down
+- Officers communicate details to dispatch
+- A man in a black jacket is shown lying on the ground
+====Auxillary Details====
+- Takes place on 2020-02-09
+- Location is reported as Waveland and Marshfield
+- Civilians argue prior to the shooting
+- A bystander reports the suspect's description
 """
+
 video_6_ground_truth = """
-- Officer walks up and greets suspects with their arms raised
-- Person 1 seems to be a white man, in a white long sleeve and a black tank on top, jean shorts and sneakers, in front of a white truck
-- Person 2 seems to be a white male with a black shirt , white undershirt, black belt, jeans, and grey shoes
-- Person 1 tells the officer he heard shots at the corner and points them in that direction
-- Person 2 asks the officer not to shoot, the officer asks what happened
-- Person 2 says he has his weapon and turns to the side to show a holstered pistol
-- Officer asks if he is a PO, he confirms he is
-- Person 2 tells the officers that someone started attacking him but didn't shoot at him, and that he fired around them
-- While this is happening, the officer recording is fidgeting with his pistol
-- Person 2 says person 1 is his neighbor, then the audio becomes inaudible over dispatch
-- Dispatch asks the recording officer to tell them if the person is compliant
-- Person 2 points to the guy he says was attacking him, who is now in frame and yelling in the background with two officers next to him
-- Video cuts at :47, with the recording officer requesting an ambulance, pans to a man sitting on the sidewalk, says ambulance is for PO
+====Important Details====
+- Officers approach two individuals with raised hands
+- One individual shows a holstered firearm
+- He identifies himself as a police officer
+- He states he fired shots during an altercation
+- Officers request medical assistance
+====Auxillary Details====
+- Takes place on 2020-10-13
+- Takes place during the night in a residential area
+- First individual is wearing a white and blue shirt and grey shorts
+- Second individual is wearing a blue sweater and jeans
+- One individual points out where shots were heard
+- Dispatch asks whether the individuals are compliant
 """
+
 video_7_ground_truth = """
-- Officer is with a black male in a red shirt and black hat 
-- Officer asks if the man has a drivers license, tells him he didn't use his turn signal to pull in and doesn't have a plate light
-- The man tells him his turn signal was on and the officer again states it wasn't
-- A second officer comes into frame shining a light through the passenger side window
-- The man seems to not have realized his plate was out “Are you serious right now”
-- Officer informs him the man is being recorded
-- He continuously repeats are you serious right now after being informed of this, and then after he is asked to lower his windows, which he complies with
-- He is then asked by the officers to get out of the car and put his hands up
-- Cut at :40 seconds, the man is pinned to the floor arms behind back still saying are you serious and is in the process of being cuffed when the video - - Cuts again at :45
-- The suspect asks for his mother while being held down by the officer, who asks how old he is repeatedly
-- Cuts again at :55, where the officer tells the man to “turn around or….”
+====Important Details====
+- Officer conducts a traffic stop for vehicle violations
+- Suspect disputes the reason for the stop
+- Officers order the suspect out of the vehicle
+- Suspect is taken to the ground and handcuffed
+====Auxillary Details====
+- Takes place on 2016-11-22
+- Takes place during the night at a gas station
+- Second officer assists during the stop
+- Suspect repeatedly says “Are you serious right now”
+- Suspect is wearing a red jacket and black hood
+- Suspect asks for his mother
 """
+
 video_8_ground_truth = """
-- One officer is in frame, one is recording
-- A man in the background states “they slammed him on the ground now they throwing him in the back of the cop car”
-- The officers seem to be pushing a limp man in the car
-- 3 more officers come into frame, along with a passerby
-- The other officers seem to be
-- The man who was talking in the background before continues to speak
-- One of the other officers tells the man talking to “step over there”
-- A female officer starts telling the people spectating to stop loitering and move on
-- She tells them “If you don't get out the bus stop, you gon be going with em”
-- More officers enter the frame, along with a police car blocking part of the intersection
-- The female officer asks the people around for the mans name, and tells them that he is going to get an ambulance
-- A bystander mentions he got shot
+====Important Details====
+- Officers place an unresponsive or limp man into a police vehicle
+- Multiple officers secure the scene
+- Officers manage nearby bystanders
+- Officers state an ambulance will be called
+====Auxillary Details====
+- Takes place on 2019-11-28
+- Occurs during the day in an urban area with businesses and cars driving by
+- Bystanders verbally react to the arrest
+- A female officer orders people to leave the area
+- A bystander claims the man was shot
 """
+
 video_9_ground_truth = """
-- An officer stands behind a white vehicle
-- The officer has a gun drawn, pointing at the house
-- Officer moves attention to a vehicle, fires 11 rounds at the vehicle, likely containing the assailant
-- The assailant flees the car, and a chase ensues
-- Officer damages an external party vehicle during the chase, slamming the side mirror of a white van shut
-- An Officer, with the help of another officer, jumps a fence in pursuit of the assailant
-- Surrounding officers catch the assailant, and he is subsequently arrested
-- Surrounding officers say, 'The fuck you shoot at us!' giving us info that the assailant shot at officers, likely causing this pursuit. 
-- A surrounding officer is injured in this ordeal, with EMS being called for him. The officer is injured, but not shot. 
+====Important Details====
+- Officer aims a firearm at a vehicle believed to contain an assailant
+- Officer fires multiple shots at the vehicle
+- Assailant flees on foot
+- Officers pursue and arrest the assailant
+- An officer is injured and EMS is requested
+====Auxillary Details====
+- Takes place on 2016-07-29
+- Occurs in a residential area with houses and trees
+- Officer initially points weapon toward a nearby house
+- Officer damages a civilian vehicle during pursuit
+- Officers verbally accuse the suspect of shooting at them
+- Officer mentions that the assailant shot at them
 """
+
 video_10_ground_truth = """
-- The scene is in a dimly lit, nighttime urban street
-- Surrounding officers are wearing dark navy uniforms, with flashlights drawn. 
-- Lots of talking is going on, lots of people in the scene
-- An external person is seen talking to the officers, adamant of being friends with the people in the house
-- Officer says everyone is going home in a demanding, confident tone
-- An incomplicit person refuses to leave, gets put on the ground and arrested, and placed in 'the wagon' by the officers. 
+====Important Details====
+- Nighttime police response on an urban street
+- Officers order people to leave the area
+- One individual refuses to comply
+- Officers take the individual to the ground and arrest them
+====Auxillary Details====
+- Takes place on 2017-07-28
+- Nighttime, urban setting
+- Chaotic, crowded area
+- Officers stand infront of large police van
+- Officers use flashlights
+- Several bystanders are present
+- Arrestee claims to know people inside a house
 """
+
 video_11_ground_truth = """
-- The scene is in night-time in a residential neighborhood
-- An officer is stepping down the entry porch of a residential house, talking with a person
-- This person says he doesn't want a problem and just wants to look for his keys
-- The officer appears agitated and agrees with the request
-- The scene then goes to 3 people in frame, our previous person, a large bald guy, and another person, who is the translator for the large bald guy
-- Large bald guy says our person has been drinking, another is driving, and he should be arrested
-- Another person appears and finds the keys, says they were in another perp's truck. 
-- Our 3rd perpetrator then says that he's a friend of the fiedel? 
+====Important Details====
+- Nighttime police interaction outside a residence
+- Officer speaks with an intoxicated individual
+- Individual is looking around his house for his keys
+- Another person claims the individual should be arrested for drinking and driving
+- Keys are located, resolving the immediate issue
+====Auxillary Details====
+- Takes place on 2017-09-10
+- Takes place at night in a residential area
+- A translator assists one individual
+- The intoxicated individual states he does not want trouble
+- A bystander mentions the keys were in a truck
 """
+
 
 # Video ground truth dict
 copa_video_ground_truths = {
