@@ -11,7 +11,7 @@ if "HF_TOKEN" in os.environ:
 class distillation_ft_llm:
     def __init__(self):
         model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
-        adapter_path = "llama3-8b-instruct-police-questions-lora"
+        adapter_path = "llama3-8b-instruct-police-questions-lora-gemini-vlm"
         
         base_model = AutoModelForCausalLM.from_pretrained(
             model_name, 

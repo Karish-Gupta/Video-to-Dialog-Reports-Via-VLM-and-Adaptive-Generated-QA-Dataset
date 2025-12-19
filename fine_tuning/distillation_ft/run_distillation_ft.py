@@ -14,7 +14,7 @@ if __name__ == "__main__":
       login(token=os.environ["HF_TOKEN"])
    
    # Configs
-   original_dataset_path = "fine_tuning/distillation_results_full.jsonl"
+   original_dataset_path = "fine_tuning/distillation_results_gemini.jsonl"
    model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
    
    N_FOLDS = 5
