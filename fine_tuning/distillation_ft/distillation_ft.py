@@ -147,7 +147,7 @@ class distillation_ft:
             print(f"Epoch {epoch+1} Complete | Avg Loss: {epoch_loss:.4f} | Steps: {epoch_steps}")
 
         # Save Final LoRA adapters
-        adapter_dir = "./llama3-8b-instruct-police-questions-lora-gemini-vlm"
+        adapter_dir = "./llama3-70b-instruct-police-questions-lora-gemini-vlm"
         print(f"Saving adapter to {adapter_dir}...")
         self.model.save_pretrained(adapter_dir)
         self.tokenizer.save_pretrained(adapter_dir)

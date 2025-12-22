@@ -1,7 +1,6 @@
 import os
 from huggingface_hub import login
 from fine_tuning.distillation_ft.distillation_ft import distillation_ft
-from fine_tuning.model_utils.helpers import load_jsonl
 
 if __name__ == "__main__":
    
@@ -12,15 +11,11 @@ if __name__ == "__main__":
    # Configs
    dataset_path = "fine_tuning/distillation_results_gemini.jsonl"
    model_name = "meta-llama/Llama-3.3-70B-Instruct"
-   
-   # Load Full Data
-   full_dataset = load_jsonl(dataset_path)
-   print(f"Loaded {len(full_dataset)} examples from {dataset_path}")
 
    # Initialize Runner
    ft_runner = distillation_ft(
       model_name=model_name,
-      training_dataset=full_dataset,  
+      training_dataset=dataset_path,  
       testing_dataset=None,     
       train_batch_size=2,
       eval_batch_size=2,
