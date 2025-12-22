@@ -6,7 +6,7 @@
 #SBATCH -o gemini_non_vqa_pipeline%j.out         # name of the output file
 #SBATCH -e gemini_non_vqa_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
-#SBATCH -t 1:00:00                   # time limit of 12 hours
+#SBATCH -t 1:00:00                   # time limit of 1 hour
 
 cd $SLURM_SUBMIT_DIR/../..
 

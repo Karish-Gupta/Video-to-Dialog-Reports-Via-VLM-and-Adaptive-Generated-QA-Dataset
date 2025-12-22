@@ -21,8 +21,27 @@ def process_pair(video_path, transcript_text, index):
     # Step 1: VLM Summary with Gemini Model
     print("\n Generating VLM Summary...")
     prompt = f"""
-        This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific.
-        """
+        You are given a bodycam video transcript, and the video.
+        Generate a caption that gives visual details about the video. 
+        Include the following in caption: 
+
+        - Describe the setting (Time of day, vehicles, buildings, etc.)
+        - Objects in the frame (Weapons, items in hand, consumables, etc.)
+        - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+        - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+        - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+
+        Ensure captions are direct and formal.
+
+        Write in active voice as much as possible.
+        Be direct, concise, and concrete.
+        Use direct quotes only when needed.
+        Use a person's name if it is known.
+
+        Transcipt:
+        {transcript_text}
+      """
+
     vlm_summary = vlm_.vlm_invoke(video_path, prompt)
 
     # Step 2: LLM Extraction
