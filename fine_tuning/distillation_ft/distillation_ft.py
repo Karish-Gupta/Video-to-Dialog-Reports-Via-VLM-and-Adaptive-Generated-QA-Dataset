@@ -2,6 +2,7 @@ import gc
 import torch
 from peft import LoraConfig, get_peft_model, TaskType
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import BitsAndBytesConfig
 from fine_tuning.model_utils.eval_utils import *
 from fine_tuning.model_utils.preprocessing import * 
 
@@ -75,10 +76,18 @@ class distillation_ft:
         )
 
     def init_model(self):
+
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        ) 
+
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name, 
-            device_map="cuda:0",
-            torch_dtype=torch.float16
+            quantization_config=bnb_config,
+            device_map="cuda:0"
         )
         
         # Enable gradient checkpointing to save memory
