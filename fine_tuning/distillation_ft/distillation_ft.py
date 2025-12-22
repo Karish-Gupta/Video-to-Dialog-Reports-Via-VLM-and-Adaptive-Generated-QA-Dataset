@@ -77,7 +77,7 @@ class distillation_ft:
     def init_model(self):
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name, 
-            device_map="auto", # Changed to auto for better multi-gpu or generic support
+            device_map="cuda:0",
             torch_dtype=torch.float16
         )
         
