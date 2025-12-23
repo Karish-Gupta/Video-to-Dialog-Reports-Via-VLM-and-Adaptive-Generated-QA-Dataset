@@ -12,7 +12,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 llm_model = "meta-llama/Llama-3.3-70B-Instruct"
 vlm_model_name = "gemini-2.5-flash"
 llm_ = llm(llm_model)
-vlm_ = gemini_model(vlm_model_name)
+gemini = gemini_model(vlm_model_name)
 
 
 def process_pair(video_path, transcript_text, index):
@@ -40,9 +40,9 @@ def process_pair(video_path, transcript_text, index):
 
         Transcipt:
         {transcript_text}
-      """
+        """
 
-    vlm_summary = vlm_.vlm_invoke(video_path, prompt)
+    vlm_summary = gemini.vlm_invoke(video_path, prompt)
 
     # Step 2: LLM Extraction
     print("\n Extracting structured output...")
@@ -59,16 +59,70 @@ def process_pair(video_path, transcript_text, index):
     prompt = f"""
         This is a police bodycam video. You are given a set of questions, based on the video, answer these questions:\n {generated_qs}
         """
-    vlm_answers = vlm_.vlm_invoke(video_path, prompt)
+    vlm_answers = gemini.vlm_invoke(video_path, prompt)
 
     # Generate Captions
     print("→ Creating QA captions...")
-    qa_caption_prompt = llm_.qa_caption_chat_template(generated_qs, vlm_answers, transcript_text, vlm_summary)
-    qa_caption = llm_.invoke(qa_caption_prompt)
+    qa_caption_prompt = f"""
+        You are given a bodycam video transcript, visual summary, and question-answer pairs.
+        Generate a caption that gives visual details about the video. 
+        Ensure that you make use of the questions and answers to enhance the caption.
+        Include the following in caption: 
+
+        - Describe the setting (Time of day, vehicles, buildings, etc.)
+        - Objects in the frame (Weapons, items in hand, consumables, etc.)
+        - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+        - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+        - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+
+        Write in active voice as much as possible.
+        Be direct, concise, and concrete.
+        Use direct quotes only when needed.
+        Use a person's name if it is known.
+            
+        Transcript: 
+        {transcript_text}
+        
+        Visual Summary:
+        {vlm_summary}
+        
+        Questions:
+        {generated_qs}
+        
+        Answers:
+        {vlm_answers}
+        """
+    
+    qa_caption = gemini.invoke(qa_caption_prompt)
+
 
     print("→ Creating NON-QA captions...")
-    non_qa_caption_prompt = llm_.caption_chat_template(transcript_text, vlm_summary)
-    non_qa_caption = llm_.invoke(non_qa_caption_prompt)
+    non_qa_caption_prompt = f"""
+        You are given a bodycam video transcript, visual summary.
+        Generate a caption that gives visual details about the video. 
+        Include the following in caption: 
+
+        - Describe the setting (Time of day, vehicles, buildings, etc.)
+        - Objects in the frame (Weapons, items in hand, consumables, etc.)
+        - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+        - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+        - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+
+        Ensure captions are direct and formal.
+
+        Write in active voice as much as possible.
+        Be direct, concise, and concrete.
+        Use direct quotes only when needed.
+        Use a person's name if it is known.
+    
+        Transcript: 
+        {transcript_text}
+        
+        Visual Summary:
+        {vlm_summary}
+        """
+    non_qa_caption = gemini.invoke(non_qa_caption_prompt)
+    
 
     # ---- Save Results ----
     output_file = os.path.join(OUTPUT_DIR, f"Video{index}_results.txt")

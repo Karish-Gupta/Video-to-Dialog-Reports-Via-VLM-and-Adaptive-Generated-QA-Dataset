@@ -1,6 +1,6 @@
 import gc
 import torch
-from peft import LoraConfig, get_peft_model, TaskType
+from peft import LoraConfig, get_peft_model, TaskType, prepare_model_for_kbit_training
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import BitsAndBytesConfig
 from fine_tuning.model_utils.eval_utils import *
@@ -85,17 +85,21 @@ class distillation_ft:
         ) 
 
         self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_name, 
+            self.model_name,
             quantization_config=bnb_config,
-            device_map="cuda:0"
+            device_map="auto",
+            trust_remote_code=True,
         )
+        
+        self.model = prepare_model_for_kbit_training(self.model)
         
         # Enable gradient checkpointing to save memory
         self.model.gradient_checkpointing_enable()
+        self.model.config.use_cache = False
 
         # Llama 3 target modules
         if self.lora_target_modules is None:
-            target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+            target_modules = ["q_proj", "v_proj"]
         else:
             target_modules = self.lora_target_modules
 
