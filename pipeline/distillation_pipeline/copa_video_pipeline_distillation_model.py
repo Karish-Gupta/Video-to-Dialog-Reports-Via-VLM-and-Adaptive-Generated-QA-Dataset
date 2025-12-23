@@ -78,7 +78,7 @@ def process_pair(video_path, transcript_text, index):
         - Actions each individual made (Officer stating instructions, civilians complying, etc.)
 
         Write in active voice as much as possible.
-        Be direct, concise, and concrete.
+        Be as detailed as possible.
         Use direct quotes only when needed.
         Use a person's name if it is known.
             
@@ -113,7 +113,7 @@ def process_pair(video_path, transcript_text, index):
         Ensure captions are direct and formal.
 
         Write in active voice as much as possible.
-        Be direct, concise, and concrete.
+        Be as detailed as possible.
         Use direct quotes only when needed.
         Use a person's name if it is known.
     
