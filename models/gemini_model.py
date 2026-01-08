@@ -65,28 +65,161 @@ class gemini_model:
 
         return response.text
 
-    
-    def step_2_chat_template(self, structured_output):
+
+    def generate_vlm_summary(self, video_path, transcript):
         prompt = f"""
-         Based on the given structured information about a police bodycam video, generate specific questions based on key details:
-      
-         Questions to generate:
-         1. Scene Observations  
-         2. Items in Frame  
-         3. Descriptions of Idividuals in Frame
-         4. Actions 
+        You are given a bodycam video transcript, and the video.
+        Generate a caption that gives visual details about the video. 
+        Include the following in caption: 
 
-         Examples:
-         1. Why is the vehicle pulled over along the side of the road?
-         2. What items are in the suspect's car?
-         3. What is the age, ethnicity, and gender of the suspect?
-         4. Why is the officer yelling profanity at the suspect?
+        - Describe the setting (Time of day, vehicles, buildings, etc.)
+        - Objects in the frame (Weapons, items in hand, consumables, etc.)
+        - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+        - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+        - Actions each individual made (Officer stating instructions, civilians complying, etc.)
 
-         Structured Information:
-        {structured_output}
-      """
+        Ensure captions are direct and formal.
+
+        Write in active voice as much as possible.
+        Be direct, concise, and concrete.
+        Use direct quotes only when needed.
+        Use a person's name if it is known.
+
+        Transcipt:
+        {transcript}
+        """
+        response = self.vlm_invoke(video_path, prompt)
+        return response
+
+    def generate_structured_details(self, vlm_summary):
+
+        prompt = f"""
+        You analyze police body-worn camera recordings.
+        You will be given a visual summary of the video <summary>
+        Your task is to extract factual key details strictly grounded in what can be:
+        - Seen
+        - Heard
+        - Directly inferred from observable physical evidence
+        Do NOT speculate or invent missing details.
+        Return ONLY the JSON output structure—no commentary, no explanation.
+        
+        If a category has no evidence, return an empty string or empty list
+    
+        <summary>
+        {vlm_summary}
+        </summary>
+
+        Extract and output key details using the following structure:
+
+        {{
+        "Scene-Level": {{
+            "Environment": "",        // Indoors/outdoors, setting type, weather, lighting
+            "Location_Clues": "",     // Visible signage, street names, inferred setting only if visually grounded
+            "Scene_Changes": []       // Changes in environment or camera movement (entry/exit rooms, approach vehicle, etc.)
+        }},
+        
+        "Entity-Level": {{
+            "People": [
+                {{
+                "Description": "",     // Clothing, identifiers, notable appearance features
+                "Role_if_Clear": "",   // officer, civilian, suspect
+                "Position": ""         // relative spatial location (left/right/behind/near doorway/etc.)
+                }}
+            ],
+            "Animals": [],
+            "Objects": [
+                {{
+                "Type": "",
+                "Location": "",
+                "Attributes": ""       // visible characteristics: damaged, brand, color, shape
+                }}
+            ]
+        }},
+
+        "Action-Level": {{
+            "Primary_Actions": [],     // major events or movements observed in order
+            "Secondary_Actions": [],   // gestures, handling items, positioning, approach/retreat
+            "Interactions": []         // human-object, human-human, object-object
+        }},
+
+        "Semantic-Level": {{
+            "Intent_if_Visible": "",   // ONLY if visually clear (e.g., fleeing, surrendering, reaching for object)
+            "Emotional_State": "",     // body language, tone indicators (NOT speculation)
+            "Notable_Audio": []        // shouting, sirens, arguments, commands, unknown sounds
+        }}
+        }}
+        """
         response = self.client.models.generate_content(
             model=self.model_name,
-            contents=prompt,
+            contents=prompt
+        )
+        return response.text
+    
+
+
+    def generate_questions(self, structured_output):
+                
+        prompt = f"""
+        You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
+
+        Your task:
+        - Based on the provided structured details, generate a list of investigative questions.
+        - Every question must be something a human could answer by watching the video.
+        - The goal is to guide analysts toward visual clues, context, behavior, or environment details that may matter.
+
+        Rules for your output:
+        - Write a total of 4 meaningful questions that can extract the most visual information.
+        - Each question should pertain to one of the four categories (scene-level, entity-level, action-level, semantic-level).
+        - Do NOT repeat facts already stated.
+        - Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
+        - Use clear, concise, professional language.
+        - Format the output as a numbered list.
+
+        Structured information provided:
+        {structured_output}
+        """
+
+        response = self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
+        )
+        return response.text
+    
+    def answer_questions(self, video_path, generated_qs):
+        prompt = f"""
+        This is a police bodycam video. You are given a set of questions, based on the video, answer these questions:\n {generated_qs}
+        """
+        response = self.vlm_invoke(video_path, prompt)
+        return response
+    
+
+    def generate_qa_caption(self, vlm_summary, vlm_answers):
+        prompt = f"""
+        You are given a bodycam video transcript, visual summary, and question-answer pairs.
+        Generate a caption that gives visual details about the video. 
+        Ensure that you make use of the questions and answers to enhance the caption.
+        Include the following in caption: 
+
+        - Describe the setting (Time of day, vehicles, buildings, etc.)
+        - Objects in the frame (Weapons, items in hand, consumables, etc.)
+        - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
+        - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
+        - Actions each individual made (Officer stating instructions, civilians complying, etc.)
+
+        Write in active voice as much as possible.
+        Be as detailed as possible.
+        Use direct quotes only when needed.
+        Use a person's name if it is known.
+
+        Visual Summary:
+        {vlm_summary}
+
+        Answers:
+        {vlm_answers}
+        """
+
+        response = self.client.models.generate_content(
+            model=self.model_name,
+            contents=prompt
         )
         return response.text

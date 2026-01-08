@@ -1,7 +1,8 @@
+import json
 
-  # ┌──────────────────────────────┐
-  # │            RUBRIC            │
-  # └──────────────────────────────┘
+# ┌──────────────────────────────┐
+# │            RUBRIC            │
+# └──────────────────────────────┘
 factual_accuracy_rubric = """Factual Accuracy (0-5)
 Measures whether statements in the caption are true given the ground truth.
 
@@ -50,7 +51,7 @@ def evaluation_prompt_template_factual(caption, ground_truth):
   {factual_accuracy_rubric}
 
   Ground Truth:
-  {ground_truth}
+  {json.dumps(ground_truth, indent=2)}
 
   Generated caption:
   {caption}
@@ -74,7 +75,7 @@ def evaluation_prompt_template_complete(caption, ground_truth):
   {completeness_rubric}
 
   Ground Truth:
-  {ground_truth}
+  {json.dumps(ground_truth, indent=2)}
 
   Generated caption:
   {caption}
@@ -98,7 +99,7 @@ def evaluation_prompt_template_enrich(caption, ground_truth):
   {visual_enrichment_rubric}
 
   Ground Truth:
-  {ground_truth}
+  {json.dumps(ground_truth, indent=2)}
 
   Generated caption:
   {caption}

@@ -107,7 +107,7 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
         # Map video ID to ground truth, e.g., 'Video1_results.txt' -> 'video1'
         digits = re.findall(r"\d+", filename)
         video_key = f"video{digits[0]}" if digits else None
-        ground_truth = copa_video_ground_truths.get(video_key, "")
+        ground_truth = copa_video_ground_truths.get(video_key)
 
         if not ground_truth:
             print(f"WARNING: No ground truth found for {filename}; skipping")

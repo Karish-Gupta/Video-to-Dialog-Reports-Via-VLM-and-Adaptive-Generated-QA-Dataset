@@ -15,30 +15,9 @@ gemini = gemini_model()
 def process_pair(video_path, transcript_text, index):
     print(f"\nProcessing Video {index}...")
 
-    prompt = f"""
-        You are given a bodycam video transcript, and the video.
-        Generate a caption that gives visual details about the video. 
-        Include the following in caption: 
+    non_qa_caption = gemini.generate_vlm_summary(video_path, transcript_text)
 
-        - Describe the setting (Time of day, vehicles, buildings, etc.)
-        - Objects in the frame (Weapons, items in hand, consumables, etc.)
-        - Describe how items are being used (Is a weapon being fired, radio being held by officer, etc.)
-        - Describe individuals (What are people wearing, color of vehicles, accessory items worn such as hats or glasses, etc.)
-        - Actions each individual made (Officer stating instructions, civilians complying, etc.)
-
-        Ensure captions are direct and formal.
-
-        Write in active voice as much as possible.
-        Be as detailed as possible.
-        Use direct quotes only when needed.
-        Use a person's name if it is known.
-
-        Transcipt:
-        {transcript_text}
-      """
-
-    non_qa_caption = gemini.vlm_invoke(video_path, prompt)
-
+    # ---- Save Results ----
     output_file = os.path.join(OUTPUT_DIR, f"Video{index}_results.txt")
     with open(output_file, "w") as f:
         f.write(f"VIDEO: {video_path}\n\n")
