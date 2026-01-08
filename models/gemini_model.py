@@ -169,7 +169,6 @@ class gemini_model:
 
         Rules for your output:
         - Write a total of 4 meaningful questions that can extract the most visual information.
-        - Each question should pertain to one of the four categories (scene-level, entity-level, action-level, semantic-level).
         - Do NOT repeat facts already stated.
         - Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
         - Use clear, concise, professional language.
