@@ -42,7 +42,7 @@ def process_pair(video_path, transcript_text, index):
     output_file = os.path.join(OUTPUT_DIR, f"Video{index}_results.txt")
     with open(output_file, "w") as f:
         f.write(f"VIDEO: {video_path}\n\n")
-        f.write(f"=== NON-QA CAPTION ===\n{non_qa_caption.text}\n\n")
+        f.write(f"=== NON-QA CAPTION ===\n{non_qa_caption}\n\n")
 
     print(f"Finished Video {index} saved to {output_file}")
 
