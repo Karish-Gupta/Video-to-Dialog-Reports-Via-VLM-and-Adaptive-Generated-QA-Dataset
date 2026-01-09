@@ -1,3 +1,6 @@
+from pipeline.evaluation.eval_utils.transcripts import transcripts 
+
+
 copa_video_ground_truths = {
   "video1": {
     "important_details": [
@@ -9,21 +12,24 @@ copa_video_ground_truths = {
       "Group of police officers are on the scene at the start of the video",
       "A dark SUV with some officers around it is briefly shown in the background",
       "Sign with \"CUSTOMER PARKING\" is visible on a building in the back",
-      "Suspect wears a blue-and-yellow beanie, gray polkadot shirt, and black pants",
-      "Female officer is wearing a beanie and black jacket",
+      "Suspect wears a green-and-yellow beanie, gray polkadot shirt, and blue jeans",
+      "Female officer is wearing a brown beanie and black jacket",
       "White van has \"We serve and protect\" written on the side, along with numbers 6844, and is on the curb",
       "Inside of the van has a label reading \"Inmate Transport American Aluminum\"",
-      "An officer uses a flashlight",
-      "Suspect is physically uncooperative when recording officer attempts to secure him",
-      "End of the clip has the arrestee being secured in the van with the female officer fastening the seatbelt, door open"
+      "Both the bodycam officer and female officer use flashlights",
+      "Suspect is vocally uncooperative when recording officer attempts to secure his seatbelt",
+      "End of the clip has the arrestee being secured in the van on a bench/long seat with the female officer fastening the seatbelt, door open"
     ],
     "auxillary_details": [
       "Takes place on 2021-12-18",
       "A man yells \"Shut the fuck up\" in the background",
       "The suspect verbally struggles with officers",
-      "The suspect aggressively asks for female officer to fasten the seatbelt",
-      "Suspect seems to be cooperative with the officers once female officer finishes fastening the seatbelt"
-    ]
+      "The suspect aggressively asks for female officer to fasten the seatbelt instead of the bodycam officer who attempted it first",
+      "Suspect seems to be cooperative with the officers once female officer finishes fastening the seatbelt",
+      "Orange cones are visible on the sidewalk and road.",
+      "A police car with flashing lights is briefly visible behind the white van."
+    ],
+    "transcript": transcripts["video1"]
   },
   "video2": {
     "important_details": [
@@ -46,13 +52,15 @@ copa_video_ground_truths = {
       "Officer communicates over police radio with dispatch",
       "Dispatch directs \"all available units to 71st and Jeffery\"",
       "Taser sound can be heard",
-      "Another officer also mentions \"Drop the fucking gun\""
-    ]
+      "Another officer also mentions \"Drop the fucking gun\"",
+      "Lots of lens flare due to streetlights"
+    ],
+    "transcript": transcripts["video2"]
   },
   "video3": {
     "important_details": [
       "Starts with a traffic stop",
-      "Officer asks to see hands and the suspect reaches for something",
+      "Officer asks to see hands and the suspect reaches for something after another officer briefly reaches for him",
       "Officers back away and say \"Let me see your hands\", Officer weapons are drawn",
       "Officer fires, gun visible in frame, says \"Shots fired\", \"Shots fired by police\""
     ],
@@ -68,19 +76,26 @@ copa_video_ground_truths = {
       "Two suspects who were standing next to the vehicle drop to the ground when the shooting starts",
       "Bodycam officer fires multiple shots from behind the police SUV",
       "Police SUV is a white car with blue and white stripes, and POLICE and NON-EMERGENCY written on the side",
-      "Officer’s firearm is visible in frame",
-      "Clip ends still in stand off"
+      "Officer’s firearm is visible in frame, and is visible firing shots and reracking",
+      "Clip ends still in stand off",
+      "Bodycam officer is wearing black gloves and dark clothes",
+      "Most of the visible officers are wearing dark uniforms and masks covering the bottom half of their faces",
+      "A separate officer is shown holding a different blurred out suspect"
     ],
     "auxillary_details": [
       "Takes place on 2021-01-09",
-      "Suspect says \"All right, shit\" and \"I'm sitting on my coat\""
-    ]
+      "Suspect says \"All right, shit\" and \"I'm sitting on my coat\"",
+      "Other cars are visible on the street",
+      "Bodycam Officer shouts 'Put your hands up!' and 'Stick your hands out'",
+      "Multi story houses are visible in the background"
+    ],
+    "transcript": transcripts["video3"]
   },
   "video4": {
     "important_details": [
       "Officer speaks with a suspect in a vehicle",
       "Suspect suddenly flees",
-      "Officer pursues in a police cruiser",
+      "Officer pursues in a police cruiser after re-entering their vehicle",
       "Suspect crashes into a pole",
       "The vehicle is heavily damaged and smoking"
     ],
@@ -88,16 +103,22 @@ copa_video_ground_truths = {
       "Walkie visible in recording officers hand",
       "Suspect Vehicle is a blue SUV",
       "Multiple cars visible in the scene",
-      "Residential Neighborhood",
+      "Residential Neighborhood, The street is wet with snow on the ground",
       "Vehicle crashed into a curb and a pole, traffic light visible at the intersection",
       "Officer draws a gun while approaching the crashed vehicle",
-      "Officer holsters their firearm at the end of the scene"
+      "Officer holsters their firearm at the end of the scene",
+      "The other officer is wearing a dark jacket and baseball cap."
     ],
     "auxillary_details": [
-      "Takes place on 2019-02-14",
+      "Takes place on 2019-02-14 at nighttime",
+      "An officer is heard telling someone to 'get out the car' at night.",
       "Officer reports the incident over the radio \"63 David a car just took off on us\"",
-      "While investigating the vehicle, officers mention \"He's down\" and \"Got the keys under the seats\""
-    ]
+      "While investigating the vehicle, officers mention \"He's down\" and \"Got the keys under the seats\"",
+      "Blue lights illuminate the interior of the vehicle.",
+      "The officer states \"7359 White Sox plate.\""
+      "A grey sedan drives away from the intersection."
+    ],
+    "transcript": transcripts["video4"]
   },
   "video5": {
     "important_details": [
@@ -111,21 +132,23 @@ copa_video_ground_truths = {
     "visual_enrichment_details": [
       "Escalates into a shoving match, where a man in a green jacket separates the two",
       "Camera switches too a residential neighborhood with snow barren trees and cars visible",
-      "Bodycam officer and another visible officer standing on the street",
+      "Bodycam officer and another visible officer standing on the street, the other officer is near a brown fence",
       "Bodycam officer raises their arm defensively",
       "Body cam officer draws a pistol",
-      "The person on the ground is the individual in the black jacket"
+      "The person on the ground is the individual in the black jacket",
+      "Night time when the events take place",
     ],
     "auxillary_details": [
       "Takes place on 2020-02-09",
       "Unknown voice says \"Ey, my man, you got it\" and \"Watch yo words, bro\"",
       "Man in black parka responds with \"You gon kill me bro?\"",
-      "A unknown woman says \"Do you know how to move your mouth and not your body?\", and \"This is a police investigation\"",
+      "A police woman says \"Do you know how to move your mouth and not your body?\", and \"This is a police investigation\"",
       "The bodycam officer gives the description \"Black male, black jacket, about 6 foot tall, on Wayland.\"",
-      "Video cuts again to officer saying \"Another person shot\" and then asking where's his body",
+      "Video cuts again to officer saying \"Another person shot\" and then asking where's his buddy",
       "Dispatch says \"Marshfield and Wayland... you got the offender in custody at Wayland and Marshfield?\"",
       "Location is reported as Waveland and Marshfield"
-    ]
+    ],
+    "transcript": transcripts["video5"]
   },
   "video6": {
     "important_details": [
@@ -147,17 +170,19 @@ copa_video_ground_truths = {
       "Takes place on 2020-10-13",
       "Dispatch asks whether the individuals are compliant",
       "Officer tells the first individual \"How you doing\", to which the individual says he heard shots",
+      "First individual points at the second individual saying \"This is the guy that shot him\"",
       "The officer says \"I'm not going to shoot you\"",
       "The second individual identifies himself as a PO",
       "The second individual says \"he started attacking me\"",
       "The bodycam officer calls an ambulance for the PO"
-    ]
+    ],
+    "transcript": transcripts["video6"]
   },
   "video7": {
     "important_details": [
       "Officer conducts a traffic stop for vehicle violations",
       "Suspect disputes the reason for the stop",
-      "Officers order the suspect out of the vehicle",
+      "Officers order the suspect to lower the window then get out of the vehicle",
       "Suspect is taken to the ground and handcuffed"
     ],
     "visual_enrichment_details": [
@@ -177,7 +202,8 @@ copa_video_ground_truths = {
       "Officer tells him to keep his hands up as he gets out of the vehicle",
       "Suspect repeatedly says “Are you serious right now” and \"Somebody call my mama please\"",
       "Officer says \"How old are you?\" repeatedly to this while holding the suspect down"
-    ]
+    ],
+    "transcript": transcripts["video7"]
   },
   "video8": {
     "important_details": [
@@ -200,7 +226,8 @@ copa_video_ground_truths = {
       "A name \"Bernard\" is mentioned by a civilian in a dark jacket and grey sweatpants",
       "Mentions of a man being slammed on the floor",
       "A bystander claims the man was shot"
-    ]
+    ],
+    "transcript": transcripts["video8"]
   },
   "video9": {
     "important_details": [
@@ -224,12 +251,13 @@ copa_video_ground_truths = {
     ],
     "auxillary_details": [
       "Takes place on 2016-07-29",
-      "Officers mentioned \"Police!, Shots!, Shots fired!\" and \"Theres a Threat!\"",
+      "Officers mentioned \"Police!, Shots!, Shots fired by the police!\" and \"Theres a Threat!\"",
       "Officers also say \"He's shooting at us\"",
       "Another officer calls EMS for the suspect and an additional one for a P.O.",
       "Officers verbally accuse the suspect of shooting at them",
       "Officer mentions that the assailant shot at them"
-    ]
+    ],
+    "transcript": transcripts["video9"]
   },
   "video10": {
     "important_details": [
@@ -253,7 +281,8 @@ copa_video_ground_truths = {
       "Officers seem to be trying to clear people out",
       "The officer tells them to back up and \"Get your fucking hands off!\", and \"Lay down on your stomach\"",
       "At the end, the officer mentions putting the individual in the wagon."
-    ]
+    ],
+    "transcript": transcripts["video10"]
   },
   "video11": {
     "important_details": [
@@ -276,6 +305,9 @@ copa_video_ground_truths = {
       "The bearded man speaks in Spanish",
       "One bystander mentions the truck belongs to his father",
       "The individual searching for keys states someone locked the gate"
-    ]
+    ],
+    "transcript": transcripts["video11"]
   }
 }
+
+print(copa_video_ground_truths["video1"])
