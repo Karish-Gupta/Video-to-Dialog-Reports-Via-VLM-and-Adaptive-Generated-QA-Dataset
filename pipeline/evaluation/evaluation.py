@@ -121,14 +121,28 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
 
             # Try to extract numeric values from parsed responses
             def _get_numeric(parsed, key_aliases):
+                if not parsed:
+                    return 0.0
+                
+                # Check specific aliases
                 for alias in key_aliases:
-                    if alias in parsed and isinstance(parsed[alias], (int, float)):
-                        return int(parsed[alias])
-                # Some outputs may return different keys
+                    if alias in parsed:
+                        try:
+                            return float(parsed[alias])
+                        except (ValueError, TypeError):
+                            continue
+                
+                # Fallback: scan values if specific keys failed
                 for v in parsed.values() if isinstance(parsed, dict) else []:
                     if isinstance(v, (int, float)):
-                        return int(v)
-                return 0
+                        return float(v)
+                    # Handle case where LLM returns string "4.5"
+                    if isinstance(v, str):
+                        try:
+                            return float(v)
+                        except ValueError:
+                            continue
+                return 0.0
 
             factual = _get_numeric(eval_results.get("Factual Accuracy", {}), ["Factual Accuracy", "Factual"])
             completeness = _get_numeric(eval_results.get("Completeness", {}), ["Completeness"])
