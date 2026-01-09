@@ -170,6 +170,7 @@ copa_video_ground_truths = {
       "Takes place on 2020-10-13",
       "Dispatch asks whether the individuals are compliant",
       "Officer tells the first individual \"How you doing\", to which the individual says he heard shots",
+      "First individual points at the second individual saying \"This is the guy that shot him\"",
       "The officer says \"I'm not going to shoot you\"",
       "The second individual identifies himself as a PO",
       "The second individual says \"he started attacking me\"",
@@ -181,7 +182,7 @@ copa_video_ground_truths = {
     "important_details": [
       "Officer conducts a traffic stop for vehicle violations",
       "Suspect disputes the reason for the stop",
-      "Officers order the suspect out of the vehicle",
+      "Officers order the suspect to lower the window then get out of the vehicle",
       "Suspect is taken to the ground and handcuffed"
     ],
     "visual_enrichment_details": [
@@ -250,7 +251,7 @@ copa_video_ground_truths = {
     ],
     "auxillary_details": [
       "Takes place on 2016-07-29",
-      "Officers mentioned \"Police!, Shots!, Shots fired!\" and \"Theres a Threat!\"",
+      "Officers mentioned \"Police!, Shots!, Shots fired by the police!\" and \"Theres a Threat!\"",
       "Officers also say \"He's shooting at us\"",
       "Another officer calls EMS for the suspect and an additional one for a P.O.",
       "Officers verbally accuse the suspect of shooting at them",
