@@ -84,7 +84,7 @@ def _extract_caption_from_output_file_NQA(output_text: str) -> str:
     return ""
 
 
-def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER="pipeline/evaluation_results", NQA=False, QA=False, SUMMARY=False):
+def run_evaluation(TRANSCRIPT_DIR = "pipeline/whisper_transcripts", OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER="pipeline/evaluation_results", NQA=False, QA=False, SUMMARY=False):
     """
     Run evaluation over all files in OUTPUT_DIR. For each flag that is True
     (NQA, QA, SUMMARY), extract the corresponding caption section from the

@@ -125,7 +125,7 @@ copa_video_ground_truths = {
     "visual_enrichment_details": [
       "Escalates into a shoving match, where a man in a green jacket separates the two",
       "Camera switches too a residential neighborhood with snow barren trees and cars visible",
-      "Bodycam officer and another visible officer standing on the street",
+      "Bodycam officer and another visible officer standing on the street, the other officer is near a brown fence",
       "Bodycam officer raises their arm defensively",
       "Body cam officer draws a pistol",
       "The person on the ground is the individual in the black jacket",
