@@ -1,3 +1,6 @@
+from pipeline.evaluation.eval_utils.transcripts import transcripts 
+
+
 copa_video_ground_truths = {
   "video1": {
     "important_details": [
@@ -25,7 +28,8 @@ copa_video_ground_truths = {
       "Suspect seems to be cooperative with the officers once female officer finishes fastening the seatbelt",
       "Orange cones are visible on the sidewalk and road.",
       "A police car with flashing lights is briefly visible behind the white van."
-    ]
+    ],
+    "transcript": transcripts["video1"]
   },
   "video2": {
     "important_details": [
@@ -50,7 +54,8 @@ copa_video_ground_truths = {
       "Taser sound can be heard",
       "Another officer also mentions \"Drop the fucking gun\"",
       "Lots of lens flare due to streetlights"
-    ]
+    ],
+    "transcript": transcripts["video2"]
   },
   "video3": {
     "important_details": [
@@ -83,7 +88,8 @@ copa_video_ground_truths = {
       "Other cars are visible on the street",
       "Bodycam Officer shouts 'Put your hands up!' and 'Stick your hands out'",
       "Multi story houses are visible in the background"
-    ]
+    ],
+    "transcript": transcripts["video3"]
   },
   "video4": {
     "important_details": [
@@ -111,7 +117,8 @@ copa_video_ground_truths = {
       "Blue lights illuminate the interior of the vehicle.",
       "The officer states \"7359 White Sox plate.\""
       "A grey sedan drives away from the intersection."
-    ]
+    ],
+    "transcript": transcripts["video4"]
   },
   "video5": {
     "important_details": [
@@ -140,7 +147,8 @@ copa_video_ground_truths = {
       "Video cuts again to officer saying \"Another person shot\" and then asking where's his buddy",
       "Dispatch says \"Marshfield and Wayland... you got the offender in custody at Wayland and Marshfield?\"",
       "Location is reported as Waveland and Marshfield"
-    ]
+    ],
+    "transcript": transcripts["video5"]
   },
   "video6": {
     "important_details": [
@@ -166,7 +174,8 @@ copa_video_ground_truths = {
       "The second individual identifies himself as a PO",
       "The second individual says \"he started attacking me\"",
       "The bodycam officer calls an ambulance for the PO"
-    ]
+    ],
+    "transcript": transcripts["video6"]
   },
   "video7": {
     "important_details": [
@@ -192,7 +201,8 @@ copa_video_ground_truths = {
       "Officer tells him to keep his hands up as he gets out of the vehicle",
       "Suspect repeatedly says “Are you serious right now” and \"Somebody call my mama please\"",
       "Officer says \"How old are you?\" repeatedly to this while holding the suspect down"
-    ]
+    ],
+    "transcript": transcripts["video7"]
   },
   "video8": {
     "important_details": [
@@ -215,7 +225,8 @@ copa_video_ground_truths = {
       "A name \"Bernard\" is mentioned by a civilian in a dark jacket and grey sweatpants",
       "Mentions of a man being slammed on the floor",
       "A bystander claims the man was shot"
-    ]
+    ],
+    "transcript": transcripts["video8"]
   },
   "video9": {
     "important_details": [
@@ -244,7 +255,8 @@ copa_video_ground_truths = {
       "Another officer calls EMS for the suspect and an additional one for a P.O.",
       "Officers verbally accuse the suspect of shooting at them",
       "Officer mentions that the assailant shot at them"
-    ]
+    ],
+    "transcript": transcripts["video9"]
   },
   "video10": {
     "important_details": [
@@ -268,7 +280,8 @@ copa_video_ground_truths = {
       "Officers seem to be trying to clear people out",
       "The officer tells them to back up and \"Get your fucking hands off!\", and \"Lay down on your stomach\"",
       "At the end, the officer mentions putting the individual in the wagon."
-    ]
+    ],
+    "transcript": transcripts["video10"]
   },
   "video11": {
     "important_details": [
@@ -291,6 +304,9 @@ copa_video_ground_truths = {
       "The bearded man speaks in Spanish",
       "One bystander mentions the truck belongs to his father",
       "The individual searching for keys states someone locked the gate"
-    ]
+    ],
+    "transcript": transcripts["video11"]
   }
 }
+
+print(copa_video_ground_truths["video1"])

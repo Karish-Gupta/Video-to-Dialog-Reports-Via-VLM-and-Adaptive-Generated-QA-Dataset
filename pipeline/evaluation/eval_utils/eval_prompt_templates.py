@@ -9,6 +9,7 @@ Rules:
 - If the general idea is mentioned in the ground truth (any section), it is considered true. 
 - If extra details are added that contradict the ground truth, penalize the score.
 - Check sentence by sentence with the ground truth to verify accuracy.
+- Use the transcript to help verify audio information.
 - The final score should be the number of statements grounded in truth divided by the total number of statements multiplied by 5.
 - (e.g., if 4 out of 5 sentences are correct, the score would be 4/5 * 5 = 4)
 - Round to the nearest whole number.
