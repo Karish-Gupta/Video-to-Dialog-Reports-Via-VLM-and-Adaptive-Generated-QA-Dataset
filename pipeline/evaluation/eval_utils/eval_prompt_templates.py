@@ -55,7 +55,7 @@ def evaluation_prompt_template_factual(caption, ground_truth):
 
   Return output in the following JSON format:
   {{
-    "Factual Accuracy": <0-5>,
+    "Factual Accuracy": <0-1>,
     "Justification": "<For each sentence in the caption, indicate whether it is 'True' or 'False' based on the ground truth. Provide a brief explanation for each assessment.>"
   }}
   """
@@ -79,7 +79,7 @@ def evaluation_prompt_template_complete(caption, ground_truth):
 
   Return output in the following JSON format:
   {{
-    "Completeness": <0-5>,
+    "Completeness": <0-1>,
     "Justification": "<2-4 sentence explanation>"
   }}
   """
@@ -103,7 +103,7 @@ def evaluation_prompt_template_enrich(caption, ground_truth):
 
   Return output in the following JSON format:
   {{
-    "Visual Enrichment": <0-5>,
+    "Visual Enrichment": <0-1>,
     "Justification": "<2-4 sentence explanation>"
   }}
   """
