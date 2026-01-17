@@ -1,6 +1,7 @@
 from google import genai
 import os
 import time
+import json
 from dotenv import load_dotenv
 
 class gemini_model:
@@ -73,14 +74,20 @@ class gemini_model:
         Visual enrichment details: Any details that are not found in the transcript and can only be picked up visually 
         Auxiliary details: All other details
         
-        Ground truths should be in the following format extactly:
+        Rules: 
+        - RETURN STRICTLY VALID JSON ONLY.
+        - DO NOT include markdown fences or explanations.
+        - Ground truths should be in the following format extactly:
 
         {{  
             "important_details": ["...", "..."],
             "visual_enrichment_details": ["...", "..."],
             "auxiliary_details": ["...", "..."],
-            "transcript": {transcript}
+            "transcript": "<insert transcript text here as a JSON string>"
         }}    
+        
+        Transcript:
+        {json.dumps(transcript)}
         """
         return self.vlm_invoke(video_path, gt_prompt)
 

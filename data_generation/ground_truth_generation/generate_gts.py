@@ -23,7 +23,8 @@ for index, (t_path, v_path) in enumerate(zip(transcripts_path_list, videos_path_
     with open(t_path, "r", encoding="utf-8") as file:
         transcript_txt = file.read()
         
-    ground_truth = gemini.generate_ground_truths(transcript_txt, v_path)
+    ground_truth_str = gemini.generate_ground_truths(transcript_txt, v_path)
+    ground_truth = json.loads(ground_truth_str)
     output[f"video{index + 1}"] = ground_truth
     
 with open("generated_gts.json", "w", encoding="utf-8") as f:
