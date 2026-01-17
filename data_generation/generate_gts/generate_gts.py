@@ -1,12 +1,17 @@
 from models.gemini_model import gemini_model
 from pathlib import Path
 import json
+import re
+
+def extract_number(path):
+    match = re.search(r'(\d+)', path.stem)
+    return int(match.group(1)) if match else float('inf')
 
 transcript_dir = "data/transcripts"
 video_dir = "data/videos"
 
-transcripts_path_list = sorted(Path(transcript_dir).glob("*.txt"))
-videos_path_list = sorted(Path(video_dir).glob("*.mp4"))
+transcripts_path_list = sorted(Path(transcript_dir).glob("*.txt"), key=extract_number)
+videos_path_list = sorted(Path(video_dir).glob("*.mp4"), key=extract_number)
 
 
 gemini = gemini_model()
