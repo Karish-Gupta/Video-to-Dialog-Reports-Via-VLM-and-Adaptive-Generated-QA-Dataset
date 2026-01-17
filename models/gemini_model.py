@@ -64,6 +64,25 @@ class gemini_model:
         )
 
         return response.text
+    
+    def generate_ground_truths(self, transcript, video_path):
+        gt_prompt = f"""
+        Generate the ground truths of what is observed in the video and transcript
+        
+        Important details: Major events that occur in the video that sum up the main idea of the clip
+        Visual enrichment details: Any details that are not found in the transcript and can only be picked up visually 
+        Auxiliary details: All other details
+        
+        Ground truths should be in the following format extactly:
+
+        {{  
+            "important_details": ["...", "..."],
+            "visual_enrichment_details": ["...", "..."],
+            "auxiliary_details": ["...", "..."],
+            "transcript": {transcript}
+        }}    
+        """
+        return self.vlm_invoke(video_path, gt_prompt)
 
 
     def generate_vlm_summary(self, video_path, transcript):
