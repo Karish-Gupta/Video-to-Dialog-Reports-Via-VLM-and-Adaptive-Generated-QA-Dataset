@@ -28,6 +28,6 @@ pip install opencv-python Pillow transformers numpy scipy
 pip install -r requirements.txt
 
 # Run the transcription script on CPU
-python transribe.py
+python -m WhisperX.transcribe
 
 echo "Transcription completed!"
