@@ -9,7 +9,7 @@
 #SBATCH -t 04:00:00                   # time limit of 4 hours (CPU is slower)
 #SBATCH --cpus-per-task=8             # request 8 CPU cores
 
-cd $SLURM_SUBMIT_DIR/../..
+cd $SLURM_SUBMIT_DIR/..
 
 module load python/3.11.10
 module load ffmpeg/6.1.1
@@ -24,6 +24,8 @@ source ./whisper_env/bin/activate
 # Install dependencies
 pip install --upgrade pip
 pip install whisperx torch
+pip install opencv-python Pillow transformers numpy scipy
+pip install -r requirements.txt
 
 # Run the transcription script on CPU
 python -m WhisperX.transcribe
