@@ -25,7 +25,7 @@ source ./whisper_env/bin/activate
 pip install --upgrade pip
 pip install whisperx torch
 pip install opencv-python Pillow transformers numpy scipy
-pip install -r requirements.txt
+pip install ffmpeg-python pyannote.audio
 
 # Run the transcription script on CPU
 python -m WhisperX.transcribe
