@@ -4,7 +4,7 @@ import json
 import torch
 import glob
 import argparse
-from typing import  Optional
+from typing import Optional
 
 def transcribe_audio_with_diarization(audio_file, model_size="base", device="cuda", compute_type="float16",
                                       hf_token=None):
