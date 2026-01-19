@@ -195,17 +195,22 @@ def process_video_file(video_path: str, video_name: str, output_base_dir: str,
 
 def main():
     parser = argparse.ArgumentParser(description='Transcribe videos with diarization and timestamps')
-    parser.add_argument('--input_dir', type=str, default='output_segments',
-                        help='Input directory containing video files (default: output_segments)')
-    parser.add_argument('--output_dir', type=str, default='output',
+    parser.add_argument('--input_dir', type=str, default='data/videos',
+                        help='Input directory containing video files (default: data/videos)')
+    
+    parser.add_argument('--output_dir', type=str, default='output_transcripts',
                         help='Output directory for transcripts (default: output)')
+    
     parser.add_argument('--model_size', type=str, default='large-v3',
                         choices=['tiny', 'base', 'small', 'medium', 'large-v2', 'large-v3'],
                         help='WhisperX model size (default: large-v3)')
+    
     parser.add_argument('--pattern', type=str, default='video*.mp4',
                         help='File pattern to match (default: video*.mp4)')
+    
     parser.add_argument('--start_index', type=int, default=None,
                         help='Start processing from this video index (optional)')
+    
     parser.add_argument('--end_index', type=int, default=None,
                         help='End processing at this video index (optional)')
 
