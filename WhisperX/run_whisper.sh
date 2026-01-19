@@ -19,8 +19,17 @@ module load cuda/12.8.0
 # Export CUDA library path explicitly
 export LD_LIBRARY_PATH=/cm/shared/spack/opt/spack/linux-ubuntu20.04-x86_64/gcc-13.2.0/cuda-12.8.0-4fdo42oeq4exuxktvxhctgvdpvphvclf/lib64:$LD_LIBRARY_PATH
 
+
+python -m venv whisper_env
+
 # Activate the environment
 source ./whisper_env/bin/activate
+
+# Install dependencies
+pip install --upgrade pip
+pip install whisperx torch
+pip install opencv-python Pillow transformers numpy scipy
+pip install ffmpeg-python pyannote.audio
 
 # Set PyTorch to allow loading non-weights-only pickles (needed for VAD model)
 export TORCH_FORCE_WEIGHTS_ONLY_LOAD=0
