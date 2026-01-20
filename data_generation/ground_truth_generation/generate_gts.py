@@ -40,13 +40,14 @@ def generate_gts(transcript_dir, video_dir):
     transcripts_path_list = sorted(Path(transcript_dir).glob("*.txt"), key=extract_number)
     videos_path_list = sorted(Path(video_dir).glob("*.mp4"), key=extract_number)
 
-
     gemini = gemini_model()
-
     output = {}
 
-    for index, (t_path, v_path) in enumerate(zip(transcripts_path_list, videos_path_list)):
-        
+    for t_path, v_path in zip(transcripts_path_list, videos_path_list):
+
+        # Extract number from transcript filename
+        num = extract_number(t_path)
+
         with open(t_path, "r", encoding="utf-8") as file:
             transcript_txt = file.read()
             
@@ -54,7 +55,7 @@ def generate_gts(transcript_dir, video_dir):
         print(ground_truth_str)
         
         ground_truth = parse_gemini_output(ground_truth_str)
-        output[f"video{index + 1}"] = ground_truth
+        output[f"video{num}"] = ground_truth
         
     with open("generated_gts.json", "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
