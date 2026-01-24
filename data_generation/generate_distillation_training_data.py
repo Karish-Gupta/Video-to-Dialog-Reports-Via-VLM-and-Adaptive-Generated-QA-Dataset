@@ -13,8 +13,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 JSONL_PATH = os.path.join(OUTPUT_DIR, "distillation_results_gemini.jsonl")
 
 # Model Init
-llm_model = "meta-llama/Llama-3.3-70B-Instruct"
-llm_ = llm(llm_model)
+#llm_model = "meta-llama/Llama-3.3-70B-Instruct"
+#llm_ = llm(llm_model)
 vlm_ = gemini_model()
 
 def process_pair(video_path, transcript_text, index):
@@ -28,8 +28,7 @@ def process_pair(video_path, transcript_text, index):
     vlm_summary = vlm_.vlm_invoke(video_path, prompt)
 
     # Step 2: LLM Extraction
-    step_1_prompt = llm_.step_1_chat_template(transcript_text, vlm_summary)
-    structured_output = llm_.invoke(step_1_prompt)
+    structured_output = vlm_.generate_structured_details(vlm_summary)
 
     # Step 3: Generate questions
     question_generation_prompt = f"""
@@ -83,6 +82,7 @@ def main():
             transcript_text = t.read()
 
         process_pair(video_path, transcript_text, index)
+        break # Remove this break to process all videos
 
     print("\n All videos processed successfully! JSONL saved at:", JSONL_PATH)
 
