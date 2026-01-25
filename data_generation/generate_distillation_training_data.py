@@ -71,7 +71,6 @@ def main():
 
     print("\n Starting processing pipeline...\n")
     print(f"\nTotal video-transcript pairs to process: {len(video_files)}")
-    print(f"path to video dir: {os.path(VIDEO_DIR)}")
     for video_file, transcript_file in pairs:
         index = ''.join(filter(str.isdigit, os.path.splitext(video_file)[0]))
         video_path = os.path.join(VIDEO_DIR, video_file)
