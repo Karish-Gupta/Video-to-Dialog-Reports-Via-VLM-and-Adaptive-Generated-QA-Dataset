@@ -3,8 +3,8 @@ from models.llm import *
 from models.gemini_model import *
 
 # CONFIG
-VIDEO_DIR = "pipeline/copa_videos"
-TRANSCRIPT_DIR = "pipeline/whisper_transcripts_diarize"
+VIDEO_DIR = "data/eval_videos"
+TRANSCRIPT_DIR = "data/eval_transcripts"
 OUTPUT_DIR = "pipeline/baseline_captions"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
