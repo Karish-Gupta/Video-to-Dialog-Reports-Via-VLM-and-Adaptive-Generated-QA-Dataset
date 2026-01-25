@@ -22,10 +22,8 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 1: VLM Summary Gemini Model
     print("\n Generating VLM Summary...")
-    prompt = f"""
-        This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific.
-        """
-    vlm_summary = vlm_.vlm_invoke(video_path, prompt)
+
+    vlm_summary = vlm_.generate_vlm_summary(video_path, transcript_text)
 
     # Step 2: LLM Extraction
     structured_output = vlm_.generate_structured_details(vlm_summary)
@@ -77,7 +75,7 @@ def main():
         index = ''.join(filter(str.isdigit, os.path.splitext(video_file)[0]))
         video_path = os.path.join(VIDEO_DIR, video_file)
         transcript_path = os.path.join(TRANSCRIPT_DIR, transcript_file)
-
+        print(f"Processing pair: {video_path} & {transcript_path}")
         with open(transcript_path, "r") as t:
             transcript_text = t.read()
 
