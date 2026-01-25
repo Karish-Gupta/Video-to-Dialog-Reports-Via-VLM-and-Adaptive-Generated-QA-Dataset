@@ -65,7 +65,10 @@ def process_pair(video_path, transcript_text, index):
 
 def main():
     video_files = sorted([f for f in os.listdir(VIDEO_DIR) if f.lower().startswith("video")])
-    transcript_files = sorted([f for f in os.listdir(TRANSCRIPT_DIR) if f.lower().startswith("transcript")])
+    transcript_files = sorted([f for f in os.listdir(TRANSCRIPT_DIR) if f.lower().startswith("video")])
+
+    if len(video_files) != len(transcript_files):
+        raise ValueError(f"Mismatch in file counts: {len(video_files)} videos, {len(transcript_files)} transcripts")
 
     pairs = zip(video_files, transcript_files)
 
