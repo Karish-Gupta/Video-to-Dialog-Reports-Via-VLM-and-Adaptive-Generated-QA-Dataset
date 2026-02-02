@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 class DeepSeekModel:
-    def __init__(self, model_name: str = "deepseek-chat"):
+    def __init__(self, model_name: str = "deepseek-reasoner"):
         """Initialize DeepSeek model client."""
         # Load API key from env
         load_dotenv()
