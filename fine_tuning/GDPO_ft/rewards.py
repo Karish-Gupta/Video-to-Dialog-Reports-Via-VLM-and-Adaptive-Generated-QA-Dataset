@@ -48,7 +48,7 @@ def complexity_reward(completions, length_cap=20):
 
 similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-def cot_similarity_reward(completions, gold_CoT, **kwargs):
+def cot_similarity_reward(completions, gold_CoT):
     """
     Reward for reasoning similarity: Compares generated <think> content vs. Gold 'CoT' column
     """
@@ -71,7 +71,7 @@ def cot_similarity_reward(completions, gold_CoT, **kwargs):
     return [max(0.0, score.item()) for score in scores]
 
 
-def question_similarity_reward(completions, gold_questions, **kwargs):
+def question_similarity_reward(completions, gold_questions):
     """
     Reward for answer accuracy: Compares generated <question> content vs. Gold 'questions' column
     """

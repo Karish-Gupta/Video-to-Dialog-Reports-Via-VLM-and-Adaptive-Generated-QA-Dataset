@@ -3,6 +3,7 @@ from datasets import load_dataset
 from trl import GRPOTrainer, GRPOConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from fine_tuning.GDPO_ft.rewards import complexity_reward, question_similarity_reward, cot_similarity_reward, format_reward
+from fine_tuning.GDPO_ft.llm_judge import judge_reward
 from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
 # Model and dataset paths
@@ -46,7 +47,7 @@ training_args = GRPOConfig(
 # Initialize Trainer
 trainer = GRPOTrainer(
     model=model,
-    reward_funcs=[complexity_reward, question_similarity_reward, cot_similarity_reward, format_reward],
+    reward_funcs=[complexity_reward, question_similarity_reward, cot_similarity_reward, format_reward, judge_reward],
     args=training_args,
     train_dataset=dataset,
     processing_class=tokenizer,
