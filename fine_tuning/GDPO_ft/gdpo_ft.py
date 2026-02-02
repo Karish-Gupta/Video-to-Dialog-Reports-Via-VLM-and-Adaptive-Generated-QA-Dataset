@@ -1,31 +1,52 @@
 import torch
 from datasets import load_dataset
 from trl import GRPOTrainer, GRPOConfig
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from rewards import *
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from fine_tuning.GDPO_ft.rewards import complexity_reward, question_similarity_reward, cot_similarity_reward, format_reward
+from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
-model_name = "Qwen/Qwen2.5-1.5B-Instruct"
+# Model and dataset paths
+model_name = "Qwen/Qwen3-30B-A3B-Thinking-2507"
+dataset_name = "rl_train_data"
+
+# Quantization config
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16, # Half precision
+    bnb_4bit_quant_type="nf4",             # Normal Float 4
+    bnb_4bit_use_double_quant=True,
+)
+# Load model and tokenizer
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    quantization_config=bnb_config,
+    device_map="cuda:0",
+    trust_remote_code=True,
+    )
+
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-# Configure Training
-# Note: You can tune the weights of your rewards here
-# GDPO Specific: Ensure you are using the fork, or these will just run as standard GRPO
+# Load and preprocess dataset
+dataset = load_dataset(dataset_name)
+dataset = dataset.map(lambda x: apply_prompt_template(x, tokenizer))
+
+# For GDPO ensure you are using the fork, or these will just run as standard GRPO
 training_args = GRPOConfig(
     output_dir="gdpo_output",
     learning_rate=1e-6,
     num_train_epochs=1,
     per_device_train_batch_size=4,
     gradient_accumulation_steps=2,
-    max_prompt_length=256,
-    max_completion_length=256,
+    max_prompt_length=512,
+    max_completion_length=1024,
     num_generations=4,      # Number of samples per prompt (Group size)
     logging_steps=10,
 )
 
-# 4. Initialize Trainer with Multiple Rewards
+# Initialize Trainer
 trainer = GRPOTrainer(
-    model=model_name,
-    reward_funcs=[accuracy_reward, format_reward, len_penalty_reward], # Pass list of funcs
+    model=model,
+    reward_funcs=[complexity_reward, question_similarity_reward, cot_similarity_reward, format_reward],
     args=training_args,
     train_dataset=dataset,
     processing_class=tokenizer,
