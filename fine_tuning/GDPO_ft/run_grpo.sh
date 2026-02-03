@@ -21,6 +21,7 @@ pip install --upgrade pip
 
 # Install dependencies
 pip install vllm --torch-backend=auto
+pip install trl
 pip install numpy
 pip install peft
 pip install torch
