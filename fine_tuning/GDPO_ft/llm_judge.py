@@ -1,99 +1,83 @@
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import re
+import os
+from vllm import LLM, SamplingParams
+from fine_tuning.GDPO_ft.utils import JUDGE_PROMPT_TEMPLATE
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "1" # Set to available GPU to 1
+
+# Initialize vLLM Judge
 judge_model_name = "Qwen/Qwen2.5-1.5B-Instruct" # Using very small model 
 
-judge_tokenizer = AutoTokenizer.from_pretrained(judge_model_name)
-judge_model = AutoModelForCausalLM.from_pretrained(
-   judge_model_name,
-   torch_dtype=torch.float16,
-   device_map="cuda:0",
-   trust_remote_code=True
+llm_judge = LLM(
+   model=judge_model_name,
+   trust_remote_code=True,
+   dtype="float16",
+   tensor_parallel_size=1,
+   gpu_memory_utilization=0.9
    )
 
+judge_sampling_params = SamplingParams(
+   temperature=0, 
+   max_tokens=10,
+   top_p=1.0
+   )
 
-JUDGE_PROMPT_TEMPLATE = """
-CONTEXT (Video Details):
-{context}
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1" # Reset for main training
 
-STUDENT QUESTIONS:
-{questions}
 
-GRADING CRITERIA:
-1. Relevance: Do the questions target specific details mentioned in the context?
-2. Specificity: Are they specific (e.g., "What color is the hoodie?") rather than vague ("What does he look like?")?
-3. Utility: Would the answers to these questions actually help an investigation?
-4. Logic: Do the questions make sense given the sequence of events?
-
-TASK:
-Rate the set of questions on a scale from 1 to 5.
-Output ONLY the integer score. Do not explain.
-"""
-
-def judge_reward(completions, structured_details):
+# Judge reward function
+def judge_reward(completions, questions, **kwargs):
    """
-   Uses a separate LLM to grade the generated questions 1-5.
-   Normalizes score to 0.0 - 1.0.
+   vLLM Version: Batched evaluation of questions.
    """
-   rewards = []
-   judge_inputs = []
+   prompts = []
    valid_indices = []
 
-   # Prepare Prompts for the Judge
-   for i, (completion, context) in enumerate(zip(completions, structured_details)):
-      # Extract questions
+   for i, (completion, gold_qs) in enumerate(zip(completions, questions)):
       match = re.search(r"<question>(.*?)</question>", completion, re.DOTALL)
       
       if not match:
-         rewards.append(0.0) 
          continue
          
-      questions_text = match.group(1).strip()
+      generated_qs = match.group(1).strip()
       
-      # Format the prompt for the Judge
       user_content = JUDGE_PROMPT_TEMPLATE.format(
-         context=context, 
-         questions=questions_text
+         gold_questions=gold_qs, 
+         questions=generated_qs
       )
       
+      # Use the vLLM tokenizer wrapper
       messages = [{"role": "user", "content": user_content}]
-      input_text = judge_tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-      judge_inputs.append(input_text)
+      input_text = llm_judge.get_tokenizer().apply_chat_template(
+         messages, 
+         tokenize=False, 
+         add_generation_prompt=True
+      )
+      
+      prompts.append(input_text)
       valid_indices.append(i)
 
-   if not judge_inputs:
-      return rewards
+   # Exit if no valid prompts
+   if not prompts:
+      print("LLM Judge Failed: No valid completions for judge reward.")
+      return [0.0] * len(completions)
 
-   # Batch Inference
-   inputs = judge_tokenizer(judge_inputs, return_tensors="pt", padding=True, truncation=True).to(judge_model.device)
-   
-   with torch.no_grad():
-      # Generate only 2 tokens (we just want the number)
-      outputs = judge_model.generate(**inputs, max_new_tokens=2, temperature=0.1)
-      generated_responses = judge_tokenizer.batch_decode(outputs[:, inputs.input_ids.shape[1]:], skip_special_tokens=True)
+   # vLLM Batch Inference
+   outputs = llm_judge.generate(prompts, judge_sampling_params, use_tqdm=False)
 
-   # Parse Scores
-   current_valid_idx = 0
+   # Parse Results
+   final_rewards = [0.0] * len(completions)
    
-   # Reconstruct the full rewards list
-   final_rewards = []
-   
-   for i in range(len(completions)):
-      if i not in valid_indices:
-         final_rewards.append(0.0)
+   for idx_in_valid, output_obj in enumerate(outputs):
+      original_idx = valid_indices[idx_in_valid]
+      response = output_obj.outputs[0].text.strip()
+      
+      # Parse "1 0 1 1" pattern
+      matches = re.search(r"([01])\D*([01])\D*([01])\D*([01])", response)
+      if matches:
+         scores = [int(matches.group(k)) for k in range(1, 5)]
+         final_rewards[original_idx] = sum(scores) / 4.0
       else:
-         response = generated_responses[current_valid_idx].strip()
-         current_valid_idx += 1
-         
-         # Attempt to find a digit 1-5 in the response
-         score_match = re.search(r"[1-5]", response)
-         if score_match:
-               score = int(score_match.group(0))
-               # Normalize 1-5 range (1=0.0, 2=0.25, 3=0.5, 4=0.75, 5=1.0)
-               normalized_score = (score - 1) / 4.0 
-               final_rewards.append(normalized_score)
-         else:
-               final_rewards.append(0.0)
+         final_rewards[original_idx] = 0.0
 
    return final_rewards

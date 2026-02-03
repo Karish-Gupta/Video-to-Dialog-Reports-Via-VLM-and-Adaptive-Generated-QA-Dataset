@@ -1,4 +1,4 @@
-# Prompt Formatting
+# System prompt for generating questions
 system_prompt = """
 You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
 
@@ -31,6 +31,7 @@ Example Output:
 </question>   
 """
 
+# Utility to apply prompt template for Qwen model
 def apply_prompt_template(example, tokenizer):
    messages = [
          {
@@ -44,3 +45,22 @@ def apply_prompt_template(example, tokenizer):
    return {
       "prompt": tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
    }
+
+# LLM Judge prompt template
+JUDGE_PROMPT_TEMPLATE = """
+GOLD STANDARD QUESTIONS (High Quality Reference):
+{gold_questions}
+
+STUDENT GENERATED QUESTIONS:
+{questions}
+
+TASK:
+Compare the "Student Generated Questions" against the "Gold Standard Questions" quality.
+For each of the 4 student questions, assign a binary score:
+- 1: The question is high-quality, relevant, and as useful as the Gold Standard.
+- 0: The question is vague, irrelevant, repetitive, or logically flawed.
+
+OUTPUT FORMAT:
+Return ONLY a sequence of four 0s or 1s separated by spaces. Do not explain.
+Example: 1 1 0 1
+"""

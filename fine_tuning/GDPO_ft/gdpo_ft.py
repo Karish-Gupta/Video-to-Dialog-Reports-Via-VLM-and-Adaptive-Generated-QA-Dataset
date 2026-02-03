@@ -2,12 +2,12 @@ import torch
 from datasets import load_dataset
 from trl import GRPOTrainer, GRPOConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-from fine_tuning.GDPO_ft.rewards import complexity_reward, question_similarity_reward, cot_similarity_reward, format_reward
+from fine_tuning.GDPO_ft.rewards import format_complexity_reward
 from fine_tuning.GDPO_ft.llm_judge import judge_reward
 from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
 # Model and dataset paths
-model_name = "Qwen/Qwen3-30B-A3B-Thinking-2507"
+model_name = "Qwen/Qwen3-4B-Thinking-2507"
 dataset_name = "rl_train_data"
 
 # Quantization config
@@ -33,7 +33,7 @@ dataset = dataset.map(lambda x: apply_prompt_template(x, tokenizer))
 
 # For GDPO ensure you are using the fork, or these will just run as standard GRPO
 training_args = GRPOConfig(
-    output_dir="gdpo_output",
+    output_dir="grpo_output",
     learning_rate=1e-6,
     num_train_epochs=1,
     per_device_train_batch_size=4,
@@ -47,7 +47,7 @@ training_args = GRPOConfig(
 # Initialize Trainer
 trainer = GRPOTrainer(
     model=model,
-    reward_funcs=[complexity_reward, question_similarity_reward, cot_similarity_reward, format_reward, judge_reward],
+    reward_funcs=[format_complexity_reward, judge_reward],
     args=training_args,
     train_dataset=dataset,
     processing_class=tokenizer,
