@@ -3,7 +3,7 @@ from datasets import load_dataset
 from trl import GRPOTrainer, GRPOConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from fine_tuning.GDPO_ft.rewards import format_complexity_reward
-from fine_tuning.GDPO_ft.llm_judge import judge_reward
+from fine_tuning.GDPO_ft.llm_judge import LLMJudgeReward
 from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
 # Model and dataset paths
@@ -29,6 +29,9 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 # Load and preprocess dataset
 dataset = load_dataset(dataset_name)
 dataset = dataset.map(lambda x: apply_prompt_template(x, tokenizer))
+
+# Initialize LLM Judge Reward
+judge_reward = LLMJudgeReward(model_name="Qwen/Qwen2.5-1.5B-Instruct", gpu_id="1")
 
 # For GDPO ensure you are using the fork, or these will just run as standard GRPO
 training_args = GRPOConfig(
