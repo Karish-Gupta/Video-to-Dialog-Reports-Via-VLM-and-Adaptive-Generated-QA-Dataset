@@ -20,7 +20,7 @@ source grpo_env/bin/activate
 pip install --upgrade pip
 
 # Install dependencies
-pip install vllm --torch-backend=auto
+pip install vllm
 pip install trl
 pip install numpy
 pip install peft
@@ -28,6 +28,5 @@ pip install torch
 pip install transformers
 pip install datasets
 pip install tqdm
-pip install scikit-learn
 
 python -m fine_tuning.GDPO_ft.gdpo_ft
