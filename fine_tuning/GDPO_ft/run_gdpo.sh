@@ -32,6 +32,7 @@ cd GDPO/trl-GDPO/trl-0.18.0-gdpo
 pip install -e .
 
 pip install numpy
+pip install bitsandbytes
 pip install peft
 pip install torch
 pip install transformers

@@ -21,8 +21,7 @@ bnb_config = BitsAndBytesConfig(
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
-    device_map="cuda:0",
-    trust_remote_code=True,
+    device_map="cuda:0"
     )
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)

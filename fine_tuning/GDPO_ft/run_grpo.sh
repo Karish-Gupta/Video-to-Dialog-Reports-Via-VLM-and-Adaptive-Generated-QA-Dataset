@@ -23,6 +23,7 @@ pip install --upgrade pip
 pip install vllm
 pip install trl
 pip install numpy
+pip install bitsandbytes
 pip install peft
 pip install torch
 pip install transformers
