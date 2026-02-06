@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from sklearn.model_selection import KFold
 from huggingface_hub import login
-from fine_tuning.distillation_ft.distillation_ft import distillation_ft
+from fine_tuning.SFT.distillation_ft import distillation_ft
 from fine_tuning.model_utils.helpers import load_jsonl, save_jsonl
 
 if __name__ == "__main__":

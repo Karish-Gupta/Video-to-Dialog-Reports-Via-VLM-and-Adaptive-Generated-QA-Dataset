@@ -1,6 +1,6 @@
 import os
 from huggingface_hub import login
-from fine_tuning.distillation_ft.distillation_ft import distillation_ft
+from fine_tuning.SFT.distillation_ft import distillation_ft
 
 if __name__ == "__main__":
    
