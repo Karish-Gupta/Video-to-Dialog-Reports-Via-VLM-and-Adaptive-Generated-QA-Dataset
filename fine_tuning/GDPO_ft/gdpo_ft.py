@@ -8,7 +8,7 @@ from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
 # Model and dataset paths
 model_name = "Qwen/Qwen3-4B-Thinking-2507"
-dataset_name = "fine_tuning/GDPO_ft/rl_train_data.jsonl"
+dataset_name = "fine_tuning/GDPO_ft/rl_training_data.jsonl"
 
 # Quantization config
 bnb_config = BitsAndBytesConfig(
