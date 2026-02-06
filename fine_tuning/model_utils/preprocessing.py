@@ -30,7 +30,8 @@ def preprocess_dataset(
    eval_batch_size,
 ):
    """
-   Preprocess dataset for Llama 3 instruction fine-tuning.
+   Preprocess dataset for instruction fine-tuning (Qwen3 / Llama 3 compatible).
+   Uses the model's native chat template via apply_chat_template().
    Returns train_loader, val_loader.
    """
    
@@ -60,10 +61,13 @@ def preprocess_dataset(
    - Use clear, concise, professional language.
    - Format the output as a numbered list.
    """
+   
+   # Note: apply_chat_template() is compatible with both Qwen3 and Llama 3
+   # as long as the tokenizer is loaded from the correct model
 
    # Tokenize Function for Training
    def tokenize_train(example):
-      # Construct the conversation for Llama 3
+      # Construct the conversation (Qwen3 and Llama 3 compatible)
       messages = [
          {"role": "system", "content": system_prompt},
          {"role": "user", "content": f"Structured information provided:\n {example['structured_details']}"}

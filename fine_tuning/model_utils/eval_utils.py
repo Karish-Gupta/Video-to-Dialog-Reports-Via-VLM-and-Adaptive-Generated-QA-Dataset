@@ -37,10 +37,9 @@ def evaluate_model(model, val_loader, device, tokenizer, max_gen_length=256, sho
     """
     model.eval()
        
-    # Llama 3 specific terminators
+    # Qwen3 specific terminators
     terminators = [
-        tokenizer.eos_token_id,
-        tokenizer.convert_tokens_to_ids("<|eot_id|>")
+        tokenizer.eos_token_id
     ]
     
     preds, refs = [], []
