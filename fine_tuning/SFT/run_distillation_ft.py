@@ -15,7 +15,7 @@ if __name__ == "__main__":
    
    # Configs
    original_dataset_path = "fine_tuning/distillation_results_gemini.jsonl"
-   model_name = "Qwen/Qwen3-72B-Instruct"
+   model_name = "Qwen/Qwen3-4B-Thinking-2507"
    
    N_FOLDS = 5
    results = {

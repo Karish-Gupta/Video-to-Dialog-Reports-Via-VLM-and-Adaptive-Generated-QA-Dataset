@@ -10,7 +10,7 @@ if __name__ == "__main__":
    
    # Configs
    dataset_path = "fine_tuning/distillation_results_gemini.jsonl"
-   model_name = "Qwen/Qwen3-72B-Instruct"
+   model_name = "Qwen/Qwen3-4B-Thinking-2507"
 
    # Initialize Runner
    ft_runner = distillation_ft(
