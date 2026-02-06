@@ -8,7 +8,7 @@ from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
 # Model and dataset paths
 model_name = "Qwen/Qwen3-4B-Thinking-2507"
-dataset_name = "rl_train_data"
+dataset_name = "fine_tuning/GDPO_ft/rl_train_data.jsonl"
 
 # Quantization config
 bnb_config = BitsAndBytesConfig(
@@ -27,7 +27,7 @@ model = AutoModelForCausalLM.from_pretrained(
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # Load and preprocess dataset
-dataset = load_dataset(dataset_name)
+dataset = load_dataset("json", data_files=dataset_name)
 dataset = dataset.map(lambda x: apply_prompt_template(x, tokenizer))
 
 # Initialize LLM Judge Reward
