@@ -52,7 +52,9 @@ training_args = GRPOConfig(
     num_generations=4,      # Number of samples per prompt (Group size)
     logging_steps=10,
     gradient_checkpointing=True,
-    bf16=True
+    bf16=True,
+    save_strategy="steps",  
+    save_steps=50,          # Save a checkpoint every 50 steps
 )
 
 # Initialize Trainer
@@ -66,3 +68,8 @@ trainer = GRPOTrainer(
 )
 
 trainer.train()
+
+# Save fine-tuned model and tokenizer
+trainer.save_model("grpo_saved_model")
+tokenizer.save_pretrained("grpo_saved_model")
+print("Model and tokenizer saved to grpo_saved_model/")
