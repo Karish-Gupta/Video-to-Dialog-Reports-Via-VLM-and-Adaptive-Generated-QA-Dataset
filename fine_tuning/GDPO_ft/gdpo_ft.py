@@ -17,7 +17,7 @@ bnb_config = BitsAndBytesConfig(
     bnb_4bit_quant_type="nf4",            # Normal Float 4
     bnb_4bit_use_double_quant=True,
 )
-# Load model and tokenizer
+# Load model
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
@@ -32,7 +32,13 @@ peft_config = LoraConfig(
    lora_dropout=0.05
 )
 
+# Tokenizer setup
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+
+model.config.pad_token_id = tokenizer.pad_token_id # Ensure model and tokenizer are aligned on padding token
+
 print("Model and tokenizer loaded successfully")
 
 # Load and preprocess dataset
