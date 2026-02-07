@@ -1,5 +1,10 @@
 import re
 import numpy as np
+import time
+import concurrent.futures
+from fine_tuning.GDPO_ft.utils import JUDGE_PROMPT_TEMPLATE
+from models.gemini_model import gemini_model
+
 # from sentence_transformers import SentenceTransformer, util
 
 # similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -103,3 +108,93 @@ def format_complexity_reward(completions, length_cap=20, **kwargs):
         rewards.append(total_score)
         
     return rewards
+
+
+# Parallel execution helper
+def call_api(index, prompt_text):
+    """
+    Helper function to call Gemini API with retries for rate limits
+    """
+    retry_attempts = 3
+    for attempt in range(retry_attempts):
+        try:
+            # This calls your .invoke() method
+            response_text = gemini_model.invoke(prompt_text)
+            return index, response_text
+        except Exception as e:
+            # Check for rate limit error codes (usually 429)
+            if "429" in str(e) or "ResourceExhausted" in str(e):
+                wait_time = 2 ** attempt
+                print(f"Rate limited on index {index}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                # Actual error
+                print(f"Gemini API Error on index {index}: {e}")
+                return index, None
+    print(f"Failed to get response for index {index} after {retry_attempts} attempts.")
+    return index, None
+
+
+def gemini_judge_reward(completions, questions, **kwargs):
+    """
+    Gemini API Judge: Parallel evaluation of questions
+    """
+    # Prepare all prompts first
+    prompts_map = {} # Maps index -> prompt_string
+    
+    for i, (completion, gold_qs) in enumerate(zip(completions, questions)):
+        match = re.search(r"<question>(.*?)</question>", completion, re.DOTALL)
+        
+        if not match:
+            # Format error = 0.0 immediately, no wasting API call
+            continue
+            
+        generated_qs = match.group(1).strip()
+
+        prompt = JUDGE_PROMPT_TEMPLATE.format(
+            gold_questions=gold_qs, 
+            questions=generated_qs
+        )
+        prompts_map[i] = prompt
+
+    # If no valid prompts, return zeros
+    if not prompts_map:
+        return [0.0] * len(completions)
+
+    # Parallel Execution
+    results = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        # Submit all tasks
+        future_to_idx = {}
+        for idx, prompt in prompts_map.items():
+            time.sleep(0.1) # Small delay to avoid hitting rate limits
+            future_to_idx[executor.submit(call_api, idx, prompt)] = idx
+        
+        # Collect results as they finish
+        for future in concurrent.futures.as_completed(future_to_idx):
+            idx, response_text = future.result()
+            if response_text:
+                results[idx] = response_text
+            else:
+                print(f"Failed response for index {idx}")
+                results[idx] = None
+
+    # Parse Results
+    final_rewards = [0.0] * len(completions)
+    
+    for idx, response in results.items():
+        if response is None:
+            final_rewards[idx] = 0.0
+            continue
+
+        clean_response = response.strip()
+        
+        # Parse "1 0 1 1" pattern
+        matches = re.search(r"([01])\D*([01])\D*([01])\D*([01])", clean_response)
+        if matches:
+            scores = [int(matches.group(k)) for k in range(1, 5)]
+            final_rewards[idx] = sum(scores) / 4.0
+        else:
+            final_rewards[idx] = 0.0
+
+    return final_rewards

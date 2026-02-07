@@ -6,8 +6,8 @@
 #SBATCH -o grpo_ft%j.out          # name of the output file
 #SBATCH -e grpo_ft%j.err          # name of the error file
 #SBATCH -p short                      # partition to submit to
-#SBATCH -t 12:00:00                   # time limit of 12 hours
-#SBATCH --gres=gpu:H100:2             # request 2 H100 GPUs
+#SBATCH -t 24:00:00                   # time limit of 12 hours
+#SBATCH --gres=gpu:H100:1             # request 1 H100 GPU
 
 cd $SLURM_SUBMIT_DIR/../..
 
@@ -20,7 +20,11 @@ source grpo_env/bin/activate
 pip install --upgrade pip
 
 # Install dependencies
-pip install vllm
+pip install google-genai
+pip install python-dotenv
+pip install flash-attn --no-build-isolation
+pip install accelerate
+pip install tensorboard
 pip install trl
 pip install numpy
 pip install bitsandbytes
