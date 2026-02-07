@@ -21,8 +21,7 @@ bnb_config = BitsAndBytesConfig(
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
     quantization_config=bnb_config,
-    device_map="auto",
-    attn_implementation="flash_attention_2"
+    device_map="auto"
     )
 
 peft_config = LoraConfig(

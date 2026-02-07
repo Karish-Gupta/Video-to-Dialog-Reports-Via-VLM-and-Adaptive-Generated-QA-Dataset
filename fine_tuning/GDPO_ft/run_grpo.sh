@@ -22,7 +22,6 @@ pip install --upgrade pip
 # Install dependencies
 pip install google-genai
 pip install python-dotenv
-pip install flash-attn --no-build-isolation
 pip install accelerate
 pip install tensorboard
 pip install trl
