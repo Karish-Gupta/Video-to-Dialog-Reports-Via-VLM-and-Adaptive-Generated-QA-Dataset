@@ -58,7 +58,7 @@ for i, idx in enumerate(indices):
     with torch.no_grad():
         outputs = model.generate(
             **inputs, 
-            max_new_tokens=512,
+            max_new_tokens=1024,
             temperature=0.1,    # Deterministic 
             top_p=0.9,
             do_sample=True,
