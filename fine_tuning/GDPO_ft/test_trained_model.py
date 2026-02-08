@@ -59,7 +59,7 @@ for i, idx in enumerate(indices):
         outputs = model.generate(
             **inputs, 
             max_new_tokens=512,
-            temperature=0.0,    # Deterministic 
+            temperature=0.1,    # Deterministic 
             top_p=0.9,
             do_sample=True,
             pad_token_id=tokenizer.pad_token_id
