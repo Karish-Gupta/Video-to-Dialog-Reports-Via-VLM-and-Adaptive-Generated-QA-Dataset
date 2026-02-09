@@ -62,7 +62,7 @@ def format_complexity_reward(completions, length_cap=20, **kwargs):
     rewards = []
     
     # Enforce regex pattern for the structure
-    format_pattern = r"^<think>(?s:.*?)</think>\s*<question>(?s:.*?)</question>\s*$"
+    format_pattern = r"</think>.*?<question>(.+?)</question>"    
 
     for completion in completions:
         c = completion.strip()
