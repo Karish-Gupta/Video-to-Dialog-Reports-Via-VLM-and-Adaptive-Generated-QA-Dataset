@@ -1,9 +1,8 @@
-import torch
+from unsloth import FastLanguageModel, PatchFastRL
 from datasets import load_dataset
 from trl import GRPOTrainer, GRPOConfig
 from peft import LoraConfig
 from transformers import AutoTokenizer
-from unsloth import FastLanguageModel, PatchFastRL
 from fine_tuning.GDPO_ft.rewards import format_complexity_reward, gemini_judge_reward
 from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
