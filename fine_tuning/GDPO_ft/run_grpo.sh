@@ -20,6 +20,7 @@ source grpo_env/bin/activate
 pip install --upgrade pip
 
 # Install dependencies
+pip install unsloth
 pip install google-genai
 pip install python-dotenv
 pip install accelerate

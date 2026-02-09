@@ -2,34 +2,38 @@ import torch
 from datasets import load_dataset
 from trl import GRPOTrainer, GRPOConfig
 from peft import LoraConfig
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoTokenizer
+from unsloth import FastLanguageModel, PatchFastRL
 from fine_tuning.GDPO_ft.rewards import format_complexity_reward, gemini_judge_reward
 from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
-# Model and dataset paths
+PatchFastRL("GRPO", FastLanguageModel) # Required to patch TRL for Unsloth
+
+# Configuration
 model_name = "Qwen/Qwen3-30B-A3B-Thinking-2507"
 dataset_name = "fine_tuning/GDPO_ft/rl_training_data.jsonl"
+max_seq_length = 2048 # Unsloth supports long context easily
+lora_rank = 16
 
-# Quantization config
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_compute_dtype=torch.bfloat16, # Half precision
-    bnb_4bit_quant_type="nf4",            # Normal Float 4
-    bnb_4bit_use_double_quant=True,
+# Unsloth handles 4-bit loading internally
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name = model_name,
+    max_seq_length = max_seq_length,
+    dtype = None, # Auto-detects (bfloat16 for H100)
+    load_in_4bit = True,
+    gpu_memory_utilization = 0.90, # Use 90% of GPU memory
 )
-# Load model
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    quantization_config=bnb_config,
-    device_map="auto"
-    )
 
-peft_config = LoraConfig(
-   r=16,
-   lora_alpha=32,
-   target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-   task_type="CAUSAL_LM",
-   lora_dropout=0.05
+# Apply LoRA directly to the model
+model = FastLanguageModel.get_peft_model(
+    model,
+    r = lora_rank,
+    target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+    lora_alpha = 32,
+    lora_dropout = 0,
+    bias = "none",
+    use_gradient_checkpointing = "unsloth",
+    random_state = 101,
 )
 
 # Tokenizer setup
@@ -50,17 +54,18 @@ print("Dataset loaded and preprocessed successfully")
 training_args = GRPOConfig(
     output_dir="grpo_output",
     learning_rate=5e-6,
-    num_train_epochs=3,
-    per_device_train_batch_size=1,
-    gradient_accumulation_steps=16,
+    num_train_epochs=1,
+    per_device_train_batch_size=4,
+    gradient_accumulation_steps=4,
     max_prompt_length=1024,
     max_completion_length=1024,
-    num_generations=4,      # Number of samples per prompt (Group size)
-    logging_steps=10,
+    num_generations=4,
+    logging_steps=10,             
     gradient_checkpointing=True,
     bf16=True,
-    save_strategy="epoch",
-    save_total_limit=3  
+    save_strategy="steps",
+    save_steps=50,
+    save_total_limit=2
 )
 
 # Initialize Trainer
@@ -69,13 +74,12 @@ trainer = GRPOTrainer(
     reward_funcs=[format_complexity_reward, gemini_judge_reward],
     args=training_args,
     train_dataset=dataset,
-    processing_class=tokenizer,
-    peft_config=peft_config
-)
+    processing_class=tokenizer
+    )
 
 trainer.train()
 
 # Save fine-tuned model and tokenizer
-trainer.save_model("grpo_saved_model")
+model.save_lora("grpo_saved_model")
 tokenizer.save_pretrained("grpo_saved_model")
 print("Model and tokenizer saved to grpo_saved_model/")
