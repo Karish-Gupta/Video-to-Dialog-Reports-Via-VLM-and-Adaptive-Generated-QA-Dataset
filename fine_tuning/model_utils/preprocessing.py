@@ -6,32 +6,48 @@ def collate_train(batch, pad_token_id):
    """
    Collate function for training that properly pads sequences to max length in batch.
    """
-   max_seq_len = max(len(b["input_ids"]) for b in batch)
-   
+   # Convert all sequences to lists (handle numpy arrays, tensors, etc.)
    input_ids_list = []
    attention_mask_list = []
    labels_list = []
    
    for b in batch:
-      seq_len = len(b["input_ids"])
-      padding_len = max_seq_len - seq_len
+      # Convert to list if necessary
+      input_ids = b["input_ids"]
+      if not isinstance(input_ids, list):
+         input_ids = input_ids.tolist() if hasattr(input_ids, 'tolist') else list(input_ids)
       
-      # Pad input_ids
-      padded_input_ids = b["input_ids"] + [pad_token_id] * padding_len
-      input_ids_list.append(padded_input_ids)
+      attention_mask = b["attention_mask"]
+      if not isinstance(attention_mask, list):
+         attention_mask = attention_mask.tolist() if hasattr(attention_mask, 'tolist') else list(attention_mask)
       
-      # Pad attention_mask
-      padded_attention_mask = b["attention_mask"] + [0] * padding_len
-      attention_mask_list.append(padded_attention_mask)
+      labels = b["labels"]
+      if not isinstance(labels, list):
+         labels = labels.tolist() if hasattr(labels, 'tolist') else list(labels)
       
-      # Pad labels
-      padded_labels = b["labels"] + [-100] * padding_len
-      labels_list.append(padded_labels)
+      input_ids_list.append(input_ids)
+      attention_mask_list.append(attention_mask)
+      labels_list.append(labels)
+   
+   # Find max sequence length after conversion
+   max_seq_len = max(len(seq) for seq in input_ids_list)
+   
+   # Pad all sequences to max length
+   padded_input_ids = []
+   padded_attention_mask = []
+   padded_labels = []
+   
+   for i in range(len(input_ids_list)):
+      padding_len = max_seq_len - len(input_ids_list[i])
+      
+      padded_input_ids.append(input_ids_list[i] + [pad_token_id] * padding_len)
+      padded_attention_mask.append(attention_mask_list[i] + [0] * padding_len)
+      padded_labels.append(labels_list[i] + [-100] * padding_len)
    
    return {
-      "input_ids": torch.tensor(input_ids_list),
-      "attention_mask": torch.tensor(attention_mask_list),
-      "labels": torch.tensor(labels_list),
+      "input_ids": torch.tensor(padded_input_ids),
+      "attention_mask": torch.tensor(padded_attention_mask),
+      "labels": torch.tensor(padded_labels),
    }
 
 def collate_eval(batch):
