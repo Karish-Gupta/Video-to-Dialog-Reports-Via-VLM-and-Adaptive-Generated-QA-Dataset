@@ -55,57 +55,62 @@ from models.gemini_model import gemini_model
 
 def format_complexity_reward(completions, length_cap=20, **kwargs):
     """
-    Merged Reward: 
-    - 50% score for perfect XML structure <think>...</think><question>...</question>
-    - 50% score for the complexity of the questions inside
+    Tiered Reward:
+    1.  Base: Finds <question>...</question> tags (Essential).
+    2.  Bonus: Finds </think> tag (Encourages thinking).
+    3.  Quality: Complexity of the question text.
     """
     rewards = []
-    
-    # Enforce regex pattern for the structure
-    format_pattern = r"</think>.*?<question>(.+?)</question>"    
 
     for completion in completions:
         c = completion.strip()
+        total_score = 0.0
         
-        # Calculate format Score
-        if re.match(format_pattern, c):
-            format_score = 1.0
-        else:
-            format_score = 0.0
-
-        # Calculate complexity Score
-        complexity_score = 0.0
+        # First check for Question Tags
+        question_match = re.search(r"<question>(.*?)</question>", c, re.DOTALL)
         
-        # Extract content inside <question> tags
-        match = re.search(r"<question>(.*?)</question>", c, re.DOTALL)
-        
-        if match:
-            content = match.group(1).strip()
+        if question_match:
+            total_score += 0.3
             
-            # Split based on numbered list
-            questions_list = re.split(r'(?:^|\n)\d+\.\s*', content)
-            questions_list = [q.strip() for q in questions_list if q.strip()]
+            content = question_match.group(1).strip()
             
-            if questions_list:
-                item_scores = []
-                for q in questions_list:
-                    q_lower = q.lower()
-                    
-                    # Length Score
-                    l_score = min(len(q_lower.split()) / length_cap, 1.0)
-                    
-                    # Keyword Score
-                    if any(w in q_lower for w in ["why", "how", "describe", "explain", "compare", "context"]):
-                        k_score = 1.0
-                    else:
-                        k_score = 0.5
-                    
-                    item_scores.append((l_score + k_score) / 2)
+            # The Complexity Score (Up to 0.4)
+            if content:
+                # Split based on numbered list
+                questions_list = re.split(r'(?:^|\n)\d+\.\s*', content)
+                questions_list = [q.strip() for q in questions_list if q.strip()]
                 
-                complexity_score = np.mean(item_scores)
+                if questions_list:
+                    item_scores = []
+                    for q in questions_list:
+                        q_lower = q.lower()
+                        # Length Score
+                        l_score = min(len(q_lower.split()) / length_cap, 1.0)
+                        # Keyword Score
+                        if any(w in q_lower for w in ["why", "how", "describe", "explain", "compare", "context"]):
+                            k_score = 1.0
+                        else:
+                            k_score = 0.5
+                        item_scores.append((l_score + k_score) / 2)
+                    
+                    if item_scores:
+                        # Add up to 0.4 based on quality
+                        total_score += (np.mean(item_scores) * 0.4)
+
+            # Thinking Bonus (Up to 0.3)
+            # We look for </think> because Qwen often skips the opening tag
+            if "</think>" in c:
+                total_score += 0.3
         
-        total_score = (format_score * 0.5) + (complexity_score * 0.5)
-        rewards.append(total_score)
+        else:
+            # If it failed to output question tags, push in right direction
+            if "<think>" in c or "</think>" in c or "<question>" in c:
+                total_score = 0.1  # Tiny reward to keep gradients flowing
+            else:
+                total_score = 0.0
+
+        # Hard cap at 1.0 just in case
+        rewards.append(min(total_score, 1.0))
         
     return rewards
 

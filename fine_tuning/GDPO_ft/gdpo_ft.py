@@ -1,15 +1,13 @@
 from unsloth import FastLanguageModel, PatchFastRL
 from datasets import load_dataset
 from trl import GRPOTrainer, GRPOConfig
-from peft import LoraConfig
-from transformers import AutoTokenizer
 from fine_tuning.GDPO_ft.rewards import format_complexity_reward, gemini_judge_reward
 from fine_tuning.GDPO_ft.utils import apply_prompt_template
 
 PatchFastRL("GRPO", FastLanguageModel) # Required to patch TRL for Unsloth
 
 # Configuration
-model_name = "Qwen/Qwen3-30B-A3B-Thinking-2507"
+model_name = "Qwen/Qwen3-4B-Thinking-2507"
 dataset_name = "fine_tuning/GDPO_ft/rl_training_data.jsonl"
 max_seq_length = 2048 # Unsloth supports long context easily
 lora_rank = 16
@@ -35,8 +33,7 @@ model = FastLanguageModel.get_peft_model(
     random_state = 101,
 )
 
-# Tokenizer setup
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer.padding_side = "left" 
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
@@ -53,12 +50,12 @@ print("Dataset loaded and preprocessed successfully")
 training_args = GRPOConfig(
     output_dir="grpo_output",
     learning_rate=5e-6,
-    num_train_epochs=1,
+    num_train_epochs=3,
     per_device_train_batch_size=4,
     gradient_accumulation_steps=4,
     max_prompt_length=1024,
-    max_completion_length=1024,
-    num_generations=4,
+    max_completion_length=2048,
+    num_generations=8,
     logging_steps=10,             
     gradient_checkpointing=True,
     bf16=True,
@@ -79,6 +76,6 @@ trainer = GRPOTrainer(
 trainer.train()
 
 # Save fine-tuned model and tokenizer
-model.save_lora("grpo_saved_model")
+model.save_pretrained("grpo_saved_model")
 tokenizer.save_pretrained("grpo_saved_model")
 print("Model and tokenizer saved to grpo_saved_model/")
