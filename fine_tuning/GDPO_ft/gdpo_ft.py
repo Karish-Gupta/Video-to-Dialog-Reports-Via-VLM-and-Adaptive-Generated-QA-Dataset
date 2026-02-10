@@ -9,8 +9,7 @@ PatchFastRL("GRPO", FastLanguageModel) # Required to patch TRL for Unsloth
 # Configuration
 model_name = "Qwen/Qwen3-4B-Thinking-2507"
 dataset_name = "fine_tuning/GDPO_ft/rl_training_data.jsonl"
-max_seq_length = 2048 # Unsloth supports long context easily
-lora_rank = 16
+max_seq_length = 4096 # Unsloth supports long context easily
 
 # Unsloth handles 4-bit loading internally
 model, tokenizer = FastLanguageModel.from_pretrained(
@@ -24,7 +23,7 @@ model, tokenizer = FastLanguageModel.from_pretrained(
 # Apply LoRA directly to the model
 model = FastLanguageModel.get_peft_model(
     model,
-    r = lora_rank,
+    r = 16,
     target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
     lora_alpha = 32,
     lora_dropout = 0,
