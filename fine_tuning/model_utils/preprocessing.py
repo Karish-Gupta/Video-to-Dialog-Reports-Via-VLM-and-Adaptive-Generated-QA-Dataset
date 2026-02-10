@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from datasets import load_dataset
 from torch.utils.data import DataLoader
 
@@ -6,10 +7,81 @@ def collate_train(batch, pad_token_id):
    """
    Collate function for training that properly pads sequences to max length in batch.
    """
-   # Convert all sequences to lists (handle numpy arrays, tensors, etc.)
    input_ids_list = []
    attention_mask_list = []
    labels_list = []
+   
+   # First pass: convert all to lists and collect lengths
+   for b in batch:
+      # Robust conversion to list
+      input_ids = b["input_ids"]
+      if isinstance(input_ids, torch.Tensor):
+         input_ids = input_ids.tolist()
+      elif isinstance(input_ids, np.ndarray):
+         input_ids = input_ids.tolist()
+      elif not isinstance(input_ids, list):
+         input_ids = list(input_ids)
+      
+      attention_mask = b["attention_mask"]
+      if isinstance(attention_mask, torch.Tensor):
+         attention_mask = attention_mask.tolist()
+      elif isinstance(attention_mask, np.ndarray):
+         attention_mask = attention_mask.tolist()
+      elif not isinstance(attention_mask, list):
+         attention_mask = list(attention_mask)
+      
+      labels = b["labels"]
+      if isinstance(labels, torch.Tensor):
+         labels = labels.tolist()
+      elif isinstance(labels, np.ndarray):
+         labels = labels.tolist()
+      elif not isinstance(labels, list):
+         labels = list(labels)
+      
+      input_ids_list.append(input_ids)
+      attention_mask_list.append(attention_mask)
+      labels_list.append(labels)
+   
+   # Find max sequence length
+   max_seq_len = max(len(seq) for seq in input_ids_list)
+   
+   # Pad all sequences to max length
+   padded_input_ids = []
+   padded_attention_mask = []
+   padded_labels = []
+   
+   for input_ids, attention_mask, labels in zip(input_ids_list, attention_mask_list, labels_list):
+      pad_len = max_seq_len - len(input_ids)
+      
+      padded_input_ids.append(input_ids + [pad_token_id] * pad_len)
+      padded_attention_mask.append(attention_mask + [0] * pad_len)
+      padded_labels.append(labels + [-100] * pad_len)
+   
+   # Verify all sequences have same length before converting to tensor
+   assert all(len(seq) == max_seq_len for seq in padded_input_ids), \
+      f"Input IDs have mismatched lengths: {[len(seq) for seq in padded_input_ids]}"
+   assert all(len(seq) == max_seq_len for seq in padded_attention_mask), \
+      f"Attention masks have mismatched lengths: {[len(seq) for seq in padded_attention_mask]}"
+   assert all(len(seq) == max_seq_len for seq in padded_labels), \
+      f"Labels have mismatched lengths: {[len(seq) for seq in padded_labels]}"
+   
+   return {
+      "input_ids": torch.tensor(padded_input_ids, dtype=torch.long),
+      "attention_mask": torch.tensor(padded_attention_mask, dtype=torch.long),
+      "labels": torch.tensor(padded_labels, dtype=torch.long),
+   }
+
+def collate_eval(batch):
+   """
+   Collate function that keeps the target_text as a list for metric computation,
+   while batching input_ids/attention_mask for the model.
+   """
+   pad_token_id = 0  # Default padding token ID
+   
+   # Convert all sequences to lists (handle numpy arrays, tensors, etc.)
+   input_ids_list = []
+   attention_mask_list = []
+   target_texts = []
    
    for b in batch:
       # Convert to list if necessary
@@ -21,13 +93,9 @@ def collate_train(batch, pad_token_id):
       if not isinstance(attention_mask, list):
          attention_mask = attention_mask.tolist() if hasattr(attention_mask, 'tolist') else list(attention_mask)
       
-      labels = b["labels"]
-      if not isinstance(labels, list):
-         labels = labels.tolist() if hasattr(labels, 'tolist') else list(labels)
-      
       input_ids_list.append(input_ids)
       attention_mask_list.append(attention_mask)
-      labels_list.append(labels)
+      target_texts.append(b["target_text"])
    
    # Find max sequence length after conversion
    max_seq_len = max(len(seq) for seq in input_ids_list)
@@ -35,50 +103,16 @@ def collate_train(batch, pad_token_id):
    # Pad all sequences to max length
    padded_input_ids = []
    padded_attention_mask = []
-   padded_labels = []
    
    for i in range(len(input_ids_list)):
       padding_len = max_seq_len - len(input_ids_list[i])
       
       padded_input_ids.append(input_ids_list[i] + [pad_token_id] * padding_len)
       padded_attention_mask.append(attention_mask_list[i] + [0] * padding_len)
-      padded_labels.append(labels_list[i] + [-100] * padding_len)
    
    return {
       "input_ids": torch.tensor(padded_input_ids),
       "attention_mask": torch.tensor(padded_attention_mask),
-      "labels": torch.tensor(padded_labels),
-   }
-
-def collate_eval(batch):
-   """
-   Collate function that keeps the target_text as a list for metric computation,
-   while batching input_ids/attention_mask for the model.
-   """
-   max_seq_len = max(len(b["input_ids"]) for b in batch)
-   pad_token_id = 0  # Default padding token ID
-   
-   input_ids_list = []
-   attention_mask_list = []
-   target_texts = []
-   
-   for b in batch:
-      seq_len = len(b["input_ids"])
-      padding_len = max_seq_len - seq_len
-      
-      # Pad input_ids
-      padded_input_ids = b["input_ids"] + [pad_token_id] * padding_len
-      input_ids_list.append(padded_input_ids)
-      
-      # Pad attention_mask
-      padded_attention_mask = b["attention_mask"] + [0] * padding_len
-      attention_mask_list.append(padded_attention_mask)
-      
-      target_texts.append(b["target_text"])
-   
-   return {
-      "input_ids": torch.tensor(input_ids_list),
-      "attention_mask": torch.tensor(attention_mask_list),
       "target_text": target_texts,
    }
 
