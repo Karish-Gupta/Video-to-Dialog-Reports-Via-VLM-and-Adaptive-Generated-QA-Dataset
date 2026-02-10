@@ -1,22 +1,68 @@
 import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader
-from transformers import default_data_collator
+
+def collate_train(batch, pad_token_id):
+   """
+   Collate function for training that properly pads sequences to max length in batch.
+   """
+   max_seq_len = max(len(b["input_ids"]) for b in batch)
+   
+   input_ids_list = []
+   attention_mask_list = []
+   labels_list = []
+   
+   for b in batch:
+      seq_len = len(b["input_ids"])
+      padding_len = max_seq_len - seq_len
+      
+      # Pad input_ids
+      padded_input_ids = b["input_ids"] + [pad_token_id] * padding_len
+      input_ids_list.append(padded_input_ids)
+      
+      # Pad attention_mask
+      padded_attention_mask = b["attention_mask"] + [0] * padding_len
+      attention_mask_list.append(padded_attention_mask)
+      
+      # Pad labels
+      padded_labels = b["labels"] + [-100] * padding_len
+      labels_list.append(padded_labels)
+   
+   return {
+      "input_ids": torch.tensor(input_ids_list),
+      "attention_mask": torch.tensor(attention_mask_list),
+      "labels": torch.tensor(labels_list),
+   }
 
 def collate_eval(batch):
    """
    Collate function that keeps the target_text as a list for metric computation,
    while batching input_ids/attention_mask for the model.
    """
-   input_ids = torch.stack([torch.tensor(b["input_ids"]) for b in batch])
-   attention_mask = torch.stack([torch.tensor(b["attention_mask"]) for b in batch])
+   max_seq_len = max(len(b["input_ids"]) for b in batch)
+   pad_token_id = 0  # Default padding token ID
    
-   # Keep target_text raw for pure text comparison (BLEU/ROUGE/BERTScore)
-   target_texts = [b["target_text"] for b in batch]
-
+   input_ids_list = []
+   attention_mask_list = []
+   target_texts = []
+   
+   for b in batch:
+      seq_len = len(b["input_ids"])
+      padding_len = max_seq_len - seq_len
+      
+      # Pad input_ids
+      padded_input_ids = b["input_ids"] + [pad_token_id] * padding_len
+      input_ids_list.append(padded_input_ids)
+      
+      # Pad attention_mask
+      padded_attention_mask = b["attention_mask"] + [0] * padding_len
+      attention_mask_list.append(padded_attention_mask)
+      
+      target_texts.append(b["target_text"])
+   
    return {
-      "input_ids": input_ids,
-      "attention_mask": attention_mask,
+      "input_ids": torch.tensor(input_ids_list),
+      "attention_mask": torch.tensor(attention_mask_list),
       "target_text": target_texts,
    }
 
@@ -166,7 +212,7 @@ def preprocess_dataset(
       train_dataset, 
       batch_size=train_batch_size, 
       shuffle=True, 
-      collate_fn=default_data_collator
+      collate_fn=lambda batch: collate_train(batch, tokenizer.pad_token_id)
    )
 
    val_loader = None
