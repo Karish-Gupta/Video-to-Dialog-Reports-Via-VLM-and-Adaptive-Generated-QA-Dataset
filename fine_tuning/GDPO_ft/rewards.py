@@ -5,53 +5,7 @@ import concurrent.futures
 from fine_tuning.GDPO_ft.utils import JUDGE_PROMPT_TEMPLATE
 from models.gemini_model import gemini_model
 
-# from sentence_transformers import SentenceTransformer, util
-
-# similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
-
-# def cot_similarity_reward(completions, gold_CoT):
-#     """
-#     Reward for reasoning similarity: Compares generated <think> content vs. Gold 'CoT' column
-#     """
-#     clean_generations = []
-    
-#     for completion in completions:
-#         # Extract thinking block
-#         match = re.search(r"<think>(.*?)</think>", completion, re.DOTALL)
-#         if match:
-#             clean_generations.append(match.group(1).strip())
-#         else:
-#             clean_generations.append("") 
-            
-#     # Encode and compare
-#     gen_embeddings = similarity_model.encode(clean_generations, convert_to_tensor=True)
-#     gold_embeddings = similarity_model.encode(gold_CoT, convert_to_tensor=True)
-    
-#     scores = util.paired_cosine_similarities(gen_embeddings, gold_embeddings)
-    
-#     return [max(0.0, score.item()) for score in scores]
-
-
-# def question_similarity_reward(completions, gold_questions):
-#     """
-#     Reward for answer accuracy: Compares generated <question> content vs. Gold 'questions' column
-#     """
-#     clean_generations = []
-    
-#     for completion in completions:
-#         # Extract the question block
-#         match = re.search(r"<question>(.*?)</question>", completion, re.DOTALL)
-#         if match:
-#             clean_generations.append(match.group(1).strip())
-#         else:
-#             clean_generations.append("")
-            
-#     gen_embeddings = similarity_model.encode(clean_generations, convert_to_tensor=True)
-#     gold_embeddings = similarity_model.encode(gold_questions, convert_to_tensor=True)
-    
-#     scores = util.paired_cosine_similarities(gen_embeddings, gold_embeddings)
-#     return [max(0.0, score.item()) for score in scores]
-
+gemini = gemini_model()
 
 def format_complexity_reward(completions, length_cap=20, **kwargs):
     """
@@ -123,8 +77,8 @@ def call_api(index, prompt_text):
     retry_attempts = 3
     for attempt in range(retry_attempts):
         try:
-            # This calls your .invoke() method
-            response_text = gemini_model.invoke(prompt_text)
+            # This calls .invoke() method
+            response_text = gemini.invoke(prompt_text)
             return index, response_text
         except Exception as e:
             # Check for rate limit error codes (usually 429)
