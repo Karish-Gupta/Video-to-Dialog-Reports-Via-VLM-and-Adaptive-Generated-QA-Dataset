@@ -11,23 +11,28 @@
 
 cd $SLURM_SUBMIT_DIR/../..
 
-module load python/3.10.2/mqmlxcf
+module load python/3.11.10
 module load cuda/12.4.0/3mdaov5
 
-python -m venv env
-source env/bin/activate
+python -m venv grpo_env
+source grpo_env/bin/activate
 
 pip install --upgrade pip
+
+# Install dependencies
 pip install unsloth
-pip install --upgrade -q accelerate bitsandbytes
+pip install google-genai
+pip install python-dotenv
+pip install accelerate
+pip install tensorboard
+pip install trl
+pip install numpy
+pip install bitsandbytes
+pip install peft
+pip install torch
 pip install transformers
-pip install huggingface-hub
-pip install -q av
-pip install pillow
-pip install torchvision
-pip install protobuf
-pip install sentencepiece
-pip install torchcodec
-pip install decord==0.6.0
+pip install datasets
+pip install tqdm
+
 
 python -m pipeline.baseline_pipeline.copa_video_pipeline
