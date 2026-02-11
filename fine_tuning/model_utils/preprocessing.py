@@ -42,8 +42,10 @@ def collate_train(batch, pad_token_id):
       attention_mask_list.append(attention_mask)
       labels_list.append(labels)
    
-   # Find max sequence length
-   max_seq_len = max(len(seq) for seq in input_ids_list)
+   # Find max sequence length across input_ids, attention_mask, and labels
+   max_seq_len = 0
+   for inp, att, lab in zip(input_ids_list, attention_mask_list, labels_list):
+      max_seq_len = max(max_seq_len, len(inp), len(att), len(lab))
    
    # Pad all sequences to max length
    padded_input_ids = []
@@ -52,10 +54,16 @@ def collate_train(batch, pad_token_id):
    
    for input_ids, attention_mask, labels in zip(input_ids_list, attention_mask_list, labels_list):
       pad_len = max_seq_len - len(input_ids)
-      
+
       padded_input_ids.append(input_ids + [pad_token_id] * pad_len)
       padded_attention_mask.append(attention_mask + [0] * pad_len)
-      padded_labels.append(labels + [-100] * pad_len)
+      # If labels are longer than input_ids, pad labels to max_seq_len as well
+      labels_pad_len = max_seq_len - len(labels)
+      if labels_pad_len >= 0:
+         padded_labels.append(labels + [-100] * labels_pad_len)
+      else:
+         # Truncate labels if they're longer than max_seq_len (should be rare)
+         padded_labels.append(labels[:max_seq_len])
    
    # Verify all sequences have same length before converting to tensor
    assert all(len(seq) == max_seq_len for seq in padded_input_ids), \
