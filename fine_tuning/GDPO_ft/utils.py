@@ -48,17 +48,22 @@ def apply_prompt_template(example, tokenizer):
 
 # LLM Judge prompt template
 JUDGE_PROMPT_TEMPLATE = """
+TASK:
+You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
+
+Compare the "Student Generated Questions" against the Context and the "Gold Standard Questions"
+For each of the 4 student questions, assign a binary score:
+- 1: The question is high-quality, relevant, and useful for extracting more visual detail about the scene based on the video context.
+- 0: The question is vague, irrelevant, repetitive, or logically flawed.
+
+VIDEO CONTEXT: 
+{structured_details}
+
 GOLD STANDARD QUESTIONS (High Quality Reference):
 {gold_questions}
 
 STUDENT GENERATED QUESTIONS:
 {questions}
-
-TASK:
-Compare the "Student Generated Questions" against the "Gold Standard Questions" quality.
-For each of the 4 student questions, assign a binary score:
-- 1: The question is high-quality, relevant, and as useful as the Gold Standard.
-- 0: The question is vague, irrelevant, repetitive, or logically flawed.
 
 OUTPUT FORMAT:
 Return ONLY a sequence of four 0s or 1s separated by spaces. Do not explain.
