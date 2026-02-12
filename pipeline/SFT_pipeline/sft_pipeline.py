@@ -38,26 +38,24 @@ def load_model_and_tokenizer():
 
 def generate_response(model, tokenizer, vlm_summary, structured_details):
     """Generate investigative questions for a single example."""
-    prompt = f"""
-        You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
+    prompt = f"""You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
 
-        Your task:
-        - Based on the provided structured details, generate a list of investigative questions.
-        - Every question must be something a human could answer by watching the video.
-        - The goal is to guide analysts toward visual clues, context, behavior, or environment details that may matter.
+Your task: Based on the provided structured details, generate a list of investigative questions.
 
-        Rules for your output:
-        - Write a total of 4 meaningful questions that can extract the most visual information.
-        - Do NOT repeat facts already stated.
-        - Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
-        - Use clear, concise, professional language.
-        - Format the output as a numbered list.
+Rules for your output:
+- Write a total of 4 meaningful questions that can extract the most visual information.
+- Do NOT repeat facts already stated.
+- Focus areas include: body language, environment, timeline, objects, threat indicators, interaction dynamics, or visual anomalies.
+- Use clear, concise, professional language.
+- Format the output as a numbered list.
 
-        Structured information provided:
-        {structured_details}
-        """
+Structured information provided:
+{structured_details}
+
+Generated questions:"""
 
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048).to(model.device)
+    num_input_tokens = inputs['input_ids'].shape[1]
     
     with torch.no_grad():
         outputs = model.generate(
@@ -68,7 +66,8 @@ def generate_response(model, tokenizer, vlm_summary, structured_details):
             pad_token_id=tokenizer.pad_token_id,
         )
     
-    generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Decode only the newly generated tokens (skip the input prompt)
+    generated = tokenizer.decode(outputs[0][num_input_tokens:], skip_special_tokens=True).strip()
     return generated
 
 
