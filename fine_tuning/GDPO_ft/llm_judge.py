@@ -1,7 +1,7 @@
 import re
 import os
 from vllm import LLM, SamplingParams
-from fine_tuning.GDPO_ft.utils import JUDGE_PROMPT_TEMPLATE
+from fine_tuning.GDPO_ft.utils import judge_prompt_template
 
 class LLMJudgeReward:
 
@@ -17,9 +17,6 @@ class LLMJudgeReward:
          max_tokens=10,
          top_p=1.0
       )
-
-      self.prompt = JUDGE_PROMPT_TEMPLATE
-
    
    def _get_engine(self):
       if LLMJudgeReward._engine is None:
@@ -59,7 +56,7 @@ class LLMJudgeReward:
       prompts = []
       valid_indices = []
 
-      for i, (completion, gold_qs, contexts) in enumerate(zip(completions, questions, structured_details)):
+      for i, (completion, gold_qs, context) in enumerate(zip(completions, questions, structured_details)):
          match = re.search(r"<question>(.*?)</question>", completion, re.DOTALL)
          
          if not match:
@@ -67,11 +64,7 @@ class LLMJudgeReward:
             
          generated_qs = match.group(1).strip()
          
-         user_content = self.prompt.format(
-            context=contexts,
-            gold_questions=gold_qs, 
-            questions=generated_qs
-         )
+         user_content = judge_prompt_template(context, gold_qs, generated_qs)
          
          # Use the vLLM tokenizer wrapper
          messages = [{"role": "user", "content": user_content}]
