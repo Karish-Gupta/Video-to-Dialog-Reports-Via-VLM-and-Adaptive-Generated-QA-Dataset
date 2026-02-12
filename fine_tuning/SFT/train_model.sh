@@ -27,4 +27,4 @@ pip install tqdm
 pip install accelerate
 pip install bert-score
 
-python -m fine_tuning.distillation_ft.train_model
+python -m fine_tuning.SFT.train_model
