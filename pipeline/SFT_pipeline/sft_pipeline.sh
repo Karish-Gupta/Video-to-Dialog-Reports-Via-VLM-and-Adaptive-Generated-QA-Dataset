@@ -7,6 +7,8 @@
 #SBATCH -e sft_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
 #SBATCH -t 1:00:00                   # time limit of 1 hour
+#SBATCH --gres=gpu:H200:1             # request 1 H200 GPU
+
 
 cd $SLURM_SUBMIT_DIR/../..
 
