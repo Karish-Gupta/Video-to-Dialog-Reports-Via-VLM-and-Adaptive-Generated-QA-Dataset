@@ -57,7 +57,7 @@ For each of the 4 student questions, assign a binary score:
 - 0: The question is vague, irrelevant, repetitive, or logically flawed.
 
 VIDEO CONTEXT: 
-{structured_details}
+{context}
 
 GOLD STANDARD QUESTIONS (High Quality Reference):
 {gold_questions}

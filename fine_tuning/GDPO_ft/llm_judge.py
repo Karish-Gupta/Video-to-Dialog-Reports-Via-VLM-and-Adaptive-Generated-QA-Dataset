@@ -50,7 +50,7 @@ class LLMJudgeReward:
 
 
    # Judge reward function
-   def __call__(self, completions, questions, **kwargs):
+   def __call__(self, completions, questions, structured_details, **kwargs):
       """
       vLLM Version: Batched evaluation of questions.
       """
@@ -59,7 +59,7 @@ class LLMJudgeReward:
       prompts = []
       valid_indices = []
 
-      for i, (completion, gold_qs) in enumerate(zip(completions, questions)):
+      for i, (completion, gold_qs, contexts) in enumerate(zip(completions, questions, structured_details)):
          match = re.search(r"<question>(.*?)</question>", completion, re.DOTALL)
          
          if not match:
@@ -68,6 +68,7 @@ class LLMJudgeReward:
          generated_qs = match.group(1).strip()
          
          user_content = self.prompt.format(
+            context=contexts,
             gold_questions=gold_qs, 
             questions=generated_qs
          )
