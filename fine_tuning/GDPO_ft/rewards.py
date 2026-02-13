@@ -2,7 +2,7 @@ import re
 import numpy as np
 import time
 import concurrent.futures
-from fine_tuning.GDPO_ft.utils import JUDGE_PROMPT_TEMPLATE
+from fine_tuning.GDPO_ft.utils import judge_prompt_template
 from models.gemini_model import gemini_model
 
 gemini = gemini_model()
@@ -94,14 +94,14 @@ def call_api(index, prompt_text):
     return index, None
 
 
-def gemini_judge_reward(completions, questions, **kwargs):
+def gemini_judge_reward(completions, questions, structured_details, **kwargs):
     """
     Gemini API Judge: Parallel evaluation of questions
     """
     # Prepare all prompts first
     prompts_map = {} # Maps index -> prompt_string
     
-    for i, (completion, gold_qs) in enumerate(zip(completions, questions)):
+    for i, (completion, gold_qs, context) in enumerate(zip(completions, questions, structured_details)):
         match = re.search(r"<question>(.*?)</question>", completion, re.DOTALL)
         
         if not match:
@@ -110,7 +110,8 @@ def gemini_judge_reward(completions, questions, **kwargs):
             
         generated_qs = match.group(1).strip()
 
-        prompt = JUDGE_PROMPT_TEMPLATE.format(
+        prompt = judge_prompt_template(
+            context=context,
             gold_questions=gold_qs, 
             questions=generated_qs
         )
