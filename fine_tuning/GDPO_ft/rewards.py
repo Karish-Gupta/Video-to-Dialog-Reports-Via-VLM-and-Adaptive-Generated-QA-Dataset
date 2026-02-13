@@ -113,7 +113,7 @@ def gemini_judge_reward(completions, questions, structured_details, **kwargs):
         prompt = judge_prompt_template(
             context=context,
             gold_questions=gold_qs, 
-            questions=generated_qs
+            generated_questions=generated_qs
         )
         prompts_map[i] = prompt
 
