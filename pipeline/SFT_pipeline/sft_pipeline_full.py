@@ -192,7 +192,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process JSONL file with SFT pipeline")
     parser.add_argument('--input', type=str, default='./distillation_results_gemini.jsonl', help='Input JSONL file path')
     parser.add_argument('--output', type=str, default='output_sft.jsonl', help='Output JSONL file path')
-    parser.add_argument('--num_examples', type=int, default=5, help='Number of examples to process')
+    parser.add_argument('--num_examples', type=int, default=100, help='Number of examples to process')
     
     args = parser.parse_args()
     
