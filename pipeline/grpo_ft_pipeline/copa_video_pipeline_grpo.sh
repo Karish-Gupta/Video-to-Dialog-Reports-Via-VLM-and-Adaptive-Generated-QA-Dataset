@@ -35,4 +35,4 @@ pip install datasets
 pip install tqdm
 
 
-python -m pipeline.baseline_pipeline.copa_video_pipeline
+python -m pipeline.baseline_pipeline.copa_video_pipeline_grpo
