@@ -4,10 +4,15 @@ import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, StoppingCriteria, StoppingCriteriaList
 from peft import PeftModel
 from pathlib import Path
+from models.gemini_model import gemini_model
 
 BASE_MODEL = "Qwen/Qwen3-30B-A3B-Thinking-2507"  
 ADAPTER_DIR = "./qwen3-30b-instruct-police-questions-lora-gemini-vlm"
+VIDEO_DIR = "pipeline/train_videos"  # Directory where videos are stored
 
+
+vlm_model_name = "gemini-2.5-flash"
+gemini = gemini_model(vlm_model_name)
 
 def load_model_and_tokenizer():
     bnb_config = BitsAndBytesConfig(
@@ -145,13 +150,26 @@ def process_jsonl_file(input_file, output_file, num_examples=5):
                 # Generate questions using the model
                 generated_questions = generate_response(model, tokenizer, vlm_summary, structured_details)
                 
-                # Create output entry
+                video_file = f"video{video_index}.mp4"
+                video_path = os.path.join(VIDEO_DIR, video_file)
+
+
+                # Step 4: Ask VLM to Answer
+                print("\n Getting VLM answers to generated questions...")
+                vlm_answers = gemini.answer_questions(video_path, generated_questions)
+
+                # Generate Captions
+                print("→ Creating QA captions...")
+                qa_caption = gemini.generate_qa_caption(vlm_summary, vlm_answers)
+
                 output_entry = {
                     'video_index': video_index,
                     'vlm_summary': vlm_summary,
                     'structured_details': structured_details,
                     'original_questions': original_questions,
                     'generated_questions': generated_questions,
+                    'vlm_answers': vlm_answers,
+                    'qa_caption': qa_caption
                 }
                 
                 results.append(output_entry)

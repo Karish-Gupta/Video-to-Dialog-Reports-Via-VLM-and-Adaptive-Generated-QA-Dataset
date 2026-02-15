@@ -38,7 +38,6 @@ def load_model_and_tokenizer():
 
 def generate_response(model, tokenizer, vlm_summary, structured_details):
     """Generate investigative questions for a single example."""
-    # stop marker — model should put this single line after the 4th question
     stop_marker = "<END_OF_QUESTIONS>"
 
     prompt = f"""You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
@@ -62,7 +61,6 @@ Generated questions:
     inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048).to(model.device)
     num_input_tokens = inputs['input_ids'].shape[1]
 
-    # prepare stopping criteria that halts when tokenizer emits the stop marker sequence
     stop_ids = tokenizer.encode(stop_marker, add_special_tokens=False)
 
     class StopOnSequence(StoppingCriteria):
@@ -88,28 +86,22 @@ Generated questions:
             stopping_criteria=stopping_criteria,
         )
 
-    # decode only the newly generated tokens (skip the input prompt)
     gen_tokens = outputs[0][num_input_tokens:]
     generated_raw = tokenizer.decode(gen_tokens, skip_special_tokens=True)
 
-    # remove the explicit stop marker if present
     if stop_marker in generated_raw:
         generated = generated_raw.split(stop_marker)[0].strip()
     else:
         generated = generated_raw.strip()
 
-    # fallback: extract the first numbered 1.-4. list if model still echoed instructions
     import re
-    # find a block starting with '1.' and containing through '4.'
     m = re.search(r"(1\.[\s\S]*?4\.[\s\S]*?)(?=\n\s*\d+\.|\Z)", generated)
     if m:
         extracted = m.group(1).strip()
         return extracted
 
-    # final fallback: attempt to collect lines beginning with '1.'..'4.'
     lines = [l for l in generated.splitlines() if re.match(r"^\s*\d+\.", l)]
     if lines:
-        # keep first 4 numbered lines (or groups if multi-line, naive)
         numbered = []
         for l in lines:
             if len(numbered) >= 4:
