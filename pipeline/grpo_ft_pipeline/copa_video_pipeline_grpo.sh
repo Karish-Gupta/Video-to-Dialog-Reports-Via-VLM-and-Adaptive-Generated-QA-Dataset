@@ -31,4 +31,4 @@ pip install torchcodec
 pip install decord==0.6.0
 
 
-python -m pipeline.baseline_pipeline.copa_video_pipeline_grpo
+python -m pipeline.grpo_ft_pipeline.copa_video_pipeline_grpo
