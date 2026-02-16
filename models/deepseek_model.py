@@ -1,12 +1,11 @@
 import os
 import json
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 from openai import OpenAI
 
 class DeepSeekModel:
     def __init__(self, model_name: str = "deepseek-reasoner"):
-        """Initialize DeepSeek model client."""
         # Load API key from env
         load_dotenv()
         api_key = os.getenv("DEEPSEEK_API_KEY")
@@ -21,12 +20,7 @@ class DeepSeekModel:
         self.model_name = model_name
         self.max_tokens = 4096  # Adjust based on model limits
 
-    def invoke(self, 
-               prompt: str, 
-               system_message: Optional[str] = None,
-               temperature: float = 0.1,
-               json_mode: bool = False) -> str:
-        """Basic text generation with optional system message."""
+    def invoke(self, prompt: str, system_message: Optional[str] = None, temperature: float = 0.1, json_mode: bool = False) -> str:
         messages = []
         
         if system_message:
@@ -40,16 +34,12 @@ class DeepSeekModel:
             temperature=temperature,
             max_tokens=self.max_tokens,
             response_format={"type": "json_object"} if json_mode else None,
-            extra_body={"thinking": {"type": "enabled"}}
+            # extra_body={"thinking": {"type": "enabled"}}
         )
         
         return response.choices[0].message.content
 
-    def eval(self, 
-             caption_text: str, 
-             ground_truth: str, 
-             evaluation_prompt_template: str) -> str:
-        """Evaluate caption against ground truth."""
+    def eval(self, caption_text: str, ground_truth: str, evaluation_prompt_template: str) -> str:
         prompt = evaluation_prompt_template.format(
             caption_text=caption_text,
             ground_truth=ground_truth
@@ -58,7 +48,6 @@ class DeepSeekModel:
         return self.invoke(prompt)
 
     def generate_structured_details(self, vlm_summary: str) -> Dict[str, Any]:
-        """Generate structured details from visual summary."""
         prompt = f"""
         You analyze police body-worn camera recordings or similar content.
         You will be given a visual summary of the content <summary>
@@ -124,7 +113,6 @@ class DeepSeekModel:
             return {}
 
     def generate_questions(self, structured_output: Dict[str, Any]) -> str:
-        """Generate investigative questions from structured details."""
         prompt = f"""
         You are an AI assistant aiding law enforcement analysts reviewing content.
 
@@ -145,19 +133,3 @@ class DeepSeekModel:
         """
 
         return self.invoke(prompt)
-
-
-    def generate_with_retry(self, 
-                           prompt: str, 
-                           max_retries: int = 3, 
-                           **kwargs) -> str:
-        """Generate with retry logic for robustness."""
-        for attempt in range(max_retries):
-            try:
-                return self.invoke(prompt, **kwargs)
-            except Exception as e:
-                if attempt == max_retries - 1:
-                    raise e
-                print(f"Attempt {attempt + 1} failed, retrying...")
-                import time
-                time.sleep(1)  # Brief delay before retry
