@@ -73,12 +73,19 @@ class grpo_question_generation_model:
         
         raw_response = self.invoke(prompt)
         
-        match = re.search(r"<question>(.*?)</question>", raw_response, re.DOTALL)
+        # Isolate the actual response from the thought process
+        if "</think>" in raw_response:
+            # We take everything after the first occurrence of </think>
+            actual_output = raw_response.split("</think>", 1)[1].strip()
+        else:
+            actual_output = raw_response.strip()
+
+        # Try to extract from <question> tags within that clean output
+        match = re.search(r"<question>(.*?)</question>", actual_output, re.DOTALL | re.IGNORECASE)
         
         if match:
-            content = match.group(1).strip()
-            return content
-        else:
-            # If tags are missing, return the whole raw response 
-            print("Warning: <question> tags not found. Returning raw output.")
-            return raw_response
+            return match.group(1).strip()
+        
+        # Fallback - return the clean output without the "think" block
+        print("Warning: <question> tags not found in final response.")
+        return actual_output
