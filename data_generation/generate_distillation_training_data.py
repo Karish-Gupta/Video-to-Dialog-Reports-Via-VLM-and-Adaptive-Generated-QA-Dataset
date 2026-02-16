@@ -13,8 +13,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 JSONL_PATH = os.path.join(OUTPUT_DIR, "distillation_results_gemini.jsonl")
 
 # Model Init
-llm_model = "meta-llama/Llama-3.3-70B-Instruct"
-llm_ = llm(llm_model)
+#llm_model = "meta-llama/Llama-3.3-70B-Instruct"
+#llm_ = llm(llm_model)
 vlm_ = gemini_model()
 
 def process_pair(video_path, transcript_text, index):
@@ -22,14 +22,11 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 1: VLM Summary Gemini Model
     print("\n Generating VLM Summary...")
-    prompt = f"""
-        This is a police bodycam video. Describe what happens in this video in detail, focus on actions, reponses, details about people and the surroundings. Be specific.
-        """
-    vlm_summary = vlm_.vlm_invoke(video_path, prompt)
+
+    vlm_summary = vlm_.generate_vlm_summary(video_path, transcript_text)
 
     # Step 2: LLM Extraction
-    step_1_prompt = llm_.step_1_chat_template(transcript_text, vlm_summary)
-    structured_output = llm_.invoke(step_1_prompt)
+    structured_output = vlm_.generate_structured_details(vlm_summary)
 
     # Step 3: Generate questions
     question_generation_prompt = f"""
@@ -68,21 +65,25 @@ def process_pair(video_path, transcript_text, index):
 
 def main():
     video_files = sorted([f for f in os.listdir(VIDEO_DIR) if f.lower().startswith("video")])
-    transcript_files = sorted([f for f in os.listdir(TRANSCRIPT_DIR) if f.lower().startswith("transcript")])
+    transcript_files = sorted([f for f in os.listdir(TRANSCRIPT_DIR) if f.lower().startswith("video")])
+
+    if len(video_files) != len(transcript_files):
+        raise ValueError(f"Mismatch in file counts: {len(video_files)} videos, {len(transcript_files)} transcripts")
 
     pairs = zip(video_files, transcript_files)
 
     print("\n Starting processing pipeline...\n")
-
+    print(f"\nTotal video-transcript pairs to process: {len(video_files)}")
     for video_file, transcript_file in pairs:
         index = ''.join(filter(str.isdigit, os.path.splitext(video_file)[0]))
         video_path = os.path.join(VIDEO_DIR, video_file)
         transcript_path = os.path.join(TRANSCRIPT_DIR, transcript_file)
-
+        print(f"Processing pair: {video_path} & {transcript_path}")
         with open(transcript_path, "r") as t:
             transcript_text = t.read()
 
         process_pair(video_path, transcript_text, index)
+        break # Remove this break to process all videos
 
     print("\n All videos processed successfully! JSONL saved at:", JSONL_PATH)
 
