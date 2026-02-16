@@ -4,7 +4,9 @@ import argparse
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, StoppingCriteria, StoppingCriteriaList
 from peft import PeftModel
 from pathlib import Path
-from models.gemini_model import gemini_model
+from models.gemini_model import *
+import os
+
 
 BASE_MODEL = "Qwen/Qwen3-30B-A3B-Thinking-2507"  
 ADAPTER_DIR = "./qwen3-30b-instruct-police-questions-lora-gemini-vlm"
