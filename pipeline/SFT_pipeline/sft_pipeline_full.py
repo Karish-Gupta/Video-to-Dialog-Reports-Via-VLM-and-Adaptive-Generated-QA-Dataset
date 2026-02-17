@@ -10,7 +10,7 @@ import os
 
 BASE_MODEL = "Qwen/Qwen3-30B-A3B-Thinking-2507"  
 ADAPTER_DIR = "./qwen3-30b-instruct-police-questions-lora-gemini-vlm"
-VIDEO_DIR = "pipeline/train_videos"  # Directory where videos are stored
+VIDEO_DIR = "pipeline/eval_videos"  # Directory where videos are stored
 
 
 vlm_model_name = "gemini-2.5-flash"
@@ -133,6 +133,8 @@ def process_jsonl_file(input_file, output_file, num_examples=5):
     
     results = []
     count = 0
+    captions_dir = "pipeline/baseline_captions"
+    os.makedirs(captions_dir, exist_ok=True)
     
     with open(input_file, 'r') as f:
         for line in f:
@@ -154,7 +156,10 @@ def process_jsonl_file(input_file, output_file, num_examples=5):
                 
                 video_file = f"video{video_index}.mp4"
                 video_path = os.path.join(VIDEO_DIR, video_file)
-
+                # If the referenced video file doesn't exist, skip this example
+                if not os.path.exists(video_path):
+                    print(f"Warning: Video file not found: {video_path}. Skipping this example.")
+                    continue
 
                 # Step 4: Ask VLM to Answer
                 print("\n Getting VLM answers to generated questions...")
@@ -163,6 +168,20 @@ def process_jsonl_file(input_file, output_file, num_examples=5):
                 # Generate Captions
                 print("→ Creating QA captions...")
                 qa_caption = gemini.generate_qa_caption(vlm_summary, vlm_answers)
+
+                # Write per-video caption file compatible with evaluation.py
+                try:
+                    captions_filename = f"video{video_index}_results.txt"
+                    captions_path = os.path.join(captions_dir, captions_filename)
+                    with open(captions_path, 'w', encoding='utf-8') as cf:
+                        cf.write("=== VLM SUMMARY ===\n")
+                        cf.write((vlm_summary or "").strip() + "\n\n")
+                        cf.write("=== QA CAPTION ===\n")
+                        cf.write((qa_caption or "").strip() + "\n\n")
+                        cf.write("=== NON-QA CAPTION ===\n")
+                        cf.write("\n")
+                except Exception as e:
+                    print(f"Warning: Failed to write caption file for video{video_index}: {e}")
 
                 output_entry = {
                     'video_index': video_index,
