@@ -180,17 +180,14 @@ def process_json_file(input_file, output_file, num_examples=5):
         
         print(f"Processing example {count + 1}/{num_examples} (video_index: {video_index})...")
         
-        # Generate questions using the model
         generated_questions = generate_response(model, tokenizer, vlm_summary, structured_details)
         
         video_file = f"video{video_index}.mp4"
         video_path = os.path.join(VIDEO_DIR, video_file)
-        # If the referenced video file doesn't exist, skip this example
         if not os.path.exists(video_path):
             print(f"Warning: Video file not found: {video_path}. Skipping this example.")
             continue
 
-        # Step 4: Ask VLM to Answer
         print("\n Getting VLM answers to generated questions...")
         try:
             vlm_answers = gemini.answer_questions(video_path, generated_questions)
@@ -200,7 +197,6 @@ def process_json_file(input_file, output_file, num_examples=5):
             qa_caption = ""
             continue
 
-        # Generate Captions
         print("→ Creating QA captions...")
         try:
             qa_caption = gemini.generate_qa_caption(vlm_summary, vlm_answers)
@@ -209,7 +205,6 @@ def process_json_file(input_file, output_file, num_examples=5):
             qa_caption = ""
             continue
 
-        # Write per-video caption file compatible with evaluation.py
         try:
             captions_filename = f"video{video_index}_results.txt"
             captions_path = os.path.join(captions_dir, captions_filename)
