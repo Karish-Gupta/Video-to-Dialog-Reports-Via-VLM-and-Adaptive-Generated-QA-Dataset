@@ -144,8 +144,25 @@ def process_json_file(input_file, output_file, num_examples=5):
             print(f"Failed to load JSON file {input_file}: {e}")
             return
 
-    if not isinstance(examples, list):
-        print(f"Expected JSON file to contain a list of examples, got {type(examples)}")
+    # support either a list of examples or a dict mapping keys -> example objects
+    if isinstance(examples, dict):
+        new_examples = []
+        import re
+        for k, v in examples.items():
+            if not isinstance(v, dict):
+                continue
+            entry = v.copy()
+            # If entry doesn't include a video_index, try to derive it from the dict key (e.g., 'video116')
+            if not entry.get('video_index'):
+                m = re.search(r"\d+", str(k))
+                entry['video_index'] = m.group(0) if m else str(k)
+            # If vlm_summary is missing, fall back to 'caption' if present
+            if not entry.get('vlm_summary') and entry.get('caption'):
+                entry['vlm_summary'] = entry.get('caption')
+            new_examples.append(entry)
+        examples = new_examples
+    elif not isinstance(examples, list):
+        print(f"Expected JSON file to contain a list of examples or a dict, got {type(examples)}")
         return
 
     for example in examples:
@@ -219,10 +236,9 @@ def process_json_file(input_file, output_file, num_examples=5):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process JSON file (array of examples) with SFT pipeline")
-    parser.add_argument('--input', type=str, default='./distillation_results_gemini.json', help='Input JSON file path')
+    parser.add_argument('--input', type=str, default='evaluation_NQA_results.json', help='Input JSON file path')
     parser.add_argument('--output', type=str, default='output_sft.jsonl', help='Output JSONL file path')
     parser.add_argument('--num_examples', type=int, default=100, help='Number of examples to process')
-    
     args = parser.parse_args()
     
     # Verify input file exists
