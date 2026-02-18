@@ -127,8 +127,8 @@ Generated questions:
     return generated
 
 
-def process_jsonl_file(input_file, output_file, num_examples=5):
-    """Process a JSONL file and generate outputs."""
+def process_json_file(input_file, output_file, num_examples=5):
+    """Process a JSON file (array of examples) and generate outputs."""
     model, tokenizer = load_model_and_tokenizer()
     
     results = []
@@ -136,69 +136,77 @@ def process_jsonl_file(input_file, output_file, num_examples=5):
     captions_dir = "pipeline/baseline_captions"
     os.makedirs(captions_dir, exist_ok=True)
     
-    with open(input_file, 'r') as f:
-        for line in f:
-            if count >= num_examples:
-                break
-            
-            try:
-                example = json.loads(line.strip())
-                
-                video_index = example.get('video_index', '')
-                vlm_summary = example.get('vlm_summary', '')
-                structured_details = example.get('structured_details', '')
-                original_questions = example.get('questions', '')
-                
-                print(f"Processing example {count + 1}/{num_examples} (video_index: {video_index})...")
-                
-                # Generate questions using the model
-                generated_questions = generate_response(model, tokenizer, vlm_summary, structured_details)
-                
-                video_file = f"video{video_index}.mp4"
-                video_path = os.path.join(VIDEO_DIR, video_file)
-                # If the referenced video file doesn't exist, skip this example
-                if not os.path.exists(video_path):
-                    print(f"Warning: Video file not found: {video_path}. Skipping this example.")
-                    continue
+    # load entire JSON array
+    with open(input_file, 'r', encoding='utf-8') as f:
+        try:
+            examples = json.load(f)
+        except Exception as e:
+            print(f"Failed to load JSON file {input_file}: {e}")
+            return
 
-                # Step 4: Ask VLM to Answer
-                print("\n Getting VLM answers to generated questions...")
-                vlm_answers = gemini.answer_questions(video_path, generated_questions)
+    if not isinstance(examples, list):
+        print(f"Expected JSON file to contain a list of examples, got {type(examples)}")
+        return
 
-                # Generate Captions
-                print("→ Creating QA captions...")
-                qa_caption = gemini.generate_qa_caption(vlm_summary, vlm_answers)
+    for example in examples:
+        if count >= num_examples:
+            break
+        
+        # allow missing/invalid entries to be skipped
+        if not isinstance(example, dict):
+            continue
 
-                # Write per-video caption file compatible with evaluation.py
-                try:
-                    captions_filename = f"video{video_index}_results.txt"
-                    captions_path = os.path.join(captions_dir, captions_filename)
-                    with open(captions_path, 'w', encoding='utf-8') as cf:
-                        cf.write("=== VLM SUMMARY ===\n")
-                        cf.write((vlm_summary or "").strip() + "\n\n")
-                        cf.write("=== QA CAPTION ===\n")
-                        cf.write((qa_caption or "").strip() + "\n\n")
-                        cf.write("=== NON-QA CAPTION ===\n")
-                        cf.write("\n")
-                except Exception as e:
-                    print(f"Warning: Failed to write caption file for video{video_index}: {e}")
+        video_index = example.get('video_index', '')
+        vlm_summary = example.get('vlm_summary', '')
+        structured_details = example.get('structured_details', '')
+        original_questions = example.get('questions', '')
+        
+        print(f"Processing example {count + 1}/{num_examples} (video_index: {video_index})...")
+        
+        # Generate questions using the model
+        generated_questions = generate_response(model, tokenizer, vlm_summary, structured_details)
+        
+        video_file = f"video{video_index}.mp4"
+        video_path = os.path.join(VIDEO_DIR, video_file)
+        # If the referenced video file doesn't exist, skip this example
+        if not os.path.exists(video_path):
+            print(f"Warning: Video file not found: {video_path}. Skipping this example.")
+            continue
 
-                output_entry = {
-                    'video_index': video_index,
-                    'vlm_summary': vlm_summary,
-                    'structured_details': structured_details,
-                    'original_questions': original_questions,
-                    'generated_questions': generated_questions,
-                    'vlm_answers': vlm_answers,
-                    'qa_caption': qa_caption
-                }
-                
-                results.append(output_entry)
-                count += 1
-                
-            except json.JSONDecodeError as e:
-                print(f"Error parsing JSON line {count + 1}: {e}")
-                continue
+        # Step 4: Ask VLM to Answer
+        print("\n Getting VLM answers to generated questions...")
+        vlm_answers = gemini.answer_questions(video_path, generated_questions)
+
+        # Generate Captions
+        print("→ Creating QA captions...")
+        qa_caption = gemini.generate_qa_caption(vlm_summary, vlm_answers)
+
+        # Write per-video caption file compatible with evaluation.py
+        try:
+            captions_filename = f"video{video_index}_results.txt"
+            captions_path = os.path.join(captions_dir, captions_filename)
+            with open(captions_path, 'w', encoding='utf-8') as cf:
+                cf.write("=== VLM SUMMARY ===\n")
+                cf.write((vlm_summary or "").strip() + "\n\n")
+                cf.write("=== QA CAPTION ===\n")
+                cf.write((qa_caption or "").strip() + "\n\n")
+                cf.write("=== NON-QA CAPTION ===\n")
+                cf.write("\n")
+        except Exception as e:
+            print(f"Warning: Failed to write caption file for video{video_index}: {e}")
+
+        output_entry = {
+            'video_index': video_index,
+            'vlm_summary': vlm_summary,
+            'structured_details': structured_details,
+            'original_questions': original_questions,
+            'generated_questions': generated_questions,
+            'vlm_answers': vlm_answers,
+            'qa_caption': qa_caption
+        }
+        
+        results.append(output_entry)
+        count += 1
     
     # Write results to output JSONL file
     with open(output_file, 'w') as f:
@@ -210,8 +218,8 @@ def process_jsonl_file(input_file, output_file, num_examples=5):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Process JSONL file with SFT pipeline")
-    parser.add_argument('--input', type=str, default='./distillation_results_gemini.jsonl', help='Input JSONL file path')
+    parser = argparse.ArgumentParser(description="Process JSON file (array of examples) with SFT pipeline")
+    parser.add_argument('--input', type=str, default='./distillation_results_gemini.json', help='Input JSON file path')
     parser.add_argument('--output', type=str, default='output_sft.jsonl', help='Output JSONL file path')
     parser.add_argument('--num_examples', type=int, default=100, help='Number of examples to process')
     
