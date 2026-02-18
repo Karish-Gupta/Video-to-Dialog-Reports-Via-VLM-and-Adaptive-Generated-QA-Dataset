@@ -192,11 +192,22 @@ def process_json_file(input_file, output_file, num_examples=5):
 
         # Step 4: Ask VLM to Answer
         print("\n Getting VLM answers to generated questions...")
-        vlm_answers = gemini.answer_questions(video_path, generated_questions)
+        try:
+            vlm_answers = gemini.answer_questions(video_path, generated_questions)
+        except Exception as e:
+            print(f"Warning: Failed to get VLM answers for video{video_index}: {e}")
+            vlm_answers = ""
+            qa_caption = ""
+            continue
 
         # Generate Captions
         print("→ Creating QA captions...")
-        qa_caption = gemini.generate_qa_caption(vlm_summary, vlm_answers)
+        try:
+            qa_caption = gemini.generate_qa_caption(vlm_summary, vlm_answers)
+        except Exception as e:
+            print(f"Warning: Failed to generate QA caption for video{video_index}: {e}")
+            qa_caption = ""
+            continue
 
         # Write per-video caption file compatible with evaluation.py
         try:
@@ -246,4 +257,4 @@ if __name__ == "__main__":
         print(f"Error: Input file '{args.input}' not found.")
         exit(1)
     
-    process_jsonl_file(args.input, args.output, args.num_examples)
+    process_json_file(args.input, args.output, args.num_examples)
