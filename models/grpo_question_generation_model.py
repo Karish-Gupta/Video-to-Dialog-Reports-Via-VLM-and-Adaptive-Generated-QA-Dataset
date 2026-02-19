@@ -8,7 +8,7 @@ import re
 if "HF_TOKEN" in os.environ:
    login(token=os.environ["HF_TOKEN"])
    
-class grpo_question_generation_model:
+class QuestionGenerationModelGRPO:
     def __init__(self, model_path="grpo_saved_model"):
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
             model_name = model_path,

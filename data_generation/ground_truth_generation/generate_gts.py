@@ -1,4 +1,4 @@
-from models.gemini_model import gemini_model
+from models.gemini_model import GeminiModel
 from pathlib import Path
 import json
 import re
@@ -42,7 +42,7 @@ def generate_gts(transcript_dir, video_dir):
     videos_path_list = sorted(Path(video_dir).glob("*.mp4"), key=extract_number)
     
     # Initialize Model
-    gemini = gemini_model()
+    gemini = GeminiModel()
     
     # Load existing progress
     output = load_existing_data(OUTPUT_FILE)

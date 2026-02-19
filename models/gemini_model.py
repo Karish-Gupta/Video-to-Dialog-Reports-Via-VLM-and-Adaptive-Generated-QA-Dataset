@@ -4,7 +4,7 @@ import time
 import json
 from dotenv import load_dotenv
 
-class gemini_model:
+class GeminiModel:
     def __init__(self, model_name: str = "gemini-2.5-flash"):
         # Load API key from env
         load_dotenv()

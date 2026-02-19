@@ -1,5 +1,5 @@
 import os
-from models.gemini_model import gemini_model
+from models.gemini_model import GeminiModel
 from models.deepseek_model import DeepSeekModel
 import re
 
@@ -11,7 +11,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
 vlm_model_name = "gemini-2.5-flash"
-gemini = gemini_model(vlm_model_name)
+gemini = GeminiModel(vlm_model_name)
 deepseek = DeepSeekModel()
 
 def process_pair(video_path, transcript_text, index):

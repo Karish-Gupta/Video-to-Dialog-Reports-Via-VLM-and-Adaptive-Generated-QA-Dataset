@@ -10,7 +10,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
 vlm_model_name = "gemini-2.5-flash"
-gemini = gemini_model(vlm_model_name)
+gemini = GeminiModel(vlm_model_name)
 
 
 def process_pair(video_path, transcript_text, index):

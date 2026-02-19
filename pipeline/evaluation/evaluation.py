@@ -10,7 +10,7 @@ from models.open_ai import *
 from pipeline.evaluation.eval_utils.eval_prompt_templates import *
 from pipeline.evaluation.eval_utils.calculate_averages import calculate_averages
 
-gemini = gemini_model()
+gemini = GeminiModel()
 # gpt = openai_model()
 
 def _extract_json_from_text(text: str) -> Any:

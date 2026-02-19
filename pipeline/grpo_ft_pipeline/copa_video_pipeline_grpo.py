@@ -1,7 +1,7 @@
 import os
 from models.gemini_model import *
 import re
-from models.grpo_question_generation_model import grpo_question_generation_model
+from models.grpo_question_generation_model import QuestionGenerationModelGRPO
 # CONFIG
 VIDEO_DIR = "data/eval_videos"
 TRANSCRIPT_DIR = "data/eval_transcripts"
@@ -10,8 +10,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
 vlm_model_name = "gemini-2.5-flash"
-gemini = gemini_model(vlm_model_name)
-question_generation_model = grpo_question_generation_model()
+gemini = GeminiModel(vlm_model_name)
+question_generation_model = QuestionGenerationModelGRPO()
 
 
 def process_pair(video_path, transcript_text, index):

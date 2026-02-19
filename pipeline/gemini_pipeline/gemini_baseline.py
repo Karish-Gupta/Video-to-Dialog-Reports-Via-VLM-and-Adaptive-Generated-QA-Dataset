@@ -10,7 +10,7 @@ TRANSCRIPT_DIR = "data/eval_transcripts"
 OUTPUT_DIR = "pipeline/gemini_vlm_captions"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-gemini = gemini_model()
+gemini = GeminiModel()
 
 
 def process_pair(video_path, transcript_text, index):

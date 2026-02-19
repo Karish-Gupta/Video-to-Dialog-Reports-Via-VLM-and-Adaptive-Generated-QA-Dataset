@@ -15,7 +15,7 @@ JSONL_PATH = os.path.join(OUTPUT_DIR, "distillation_results_gemini.jsonl")
 # Model Init
 #llm_model = "meta-llama/Llama-3.3-70B-Instruct"
 #llm_ = llm(llm_model)
-vlm_ = gemini_model()
+vlm_ = GeminiModel()
 
 def process_pair(video_path, transcript_text, index):
     print(f"\nProcessing Video {index}...")
