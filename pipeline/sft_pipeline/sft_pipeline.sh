@@ -2,12 +2,13 @@
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
 #SBATCH --mem=128g                     # allocate 128 GB of memory
-#SBATCH -J "copa_video_pipeline"              # name of the job
-#SBATCH -o copa_video_pipeline%j.out         # name of the output file
-#SBATCH -e copa_video_pipeline%j.err         # name of the error file
+#SBATCH -J "sft_pipeline"              # name of the job
+#SBATCH -o sft_pipeline%j.out         # name of the output file
+#SBATCH -e sft_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
-#SBATCH -t 20:00:00                   # time limit of 12 hours
+#SBATCH -t 1:00:00                   # time limit of 1 hour
 #SBATCH --gres=gpu:H200:1             # request 1 H200 GPU
+
 
 cd $SLURM_SUBMIT_DIR/../..
 
@@ -28,5 +29,9 @@ pip install protobuf
 pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
+pip install decord==0.6.0
+pip install google-genai
+pip install torch
+pip install peft
 
-python -m pipeline.distillation_pipeline.copa_video_pipeline_distillation_model
+python -m pipeline.sft_pipeline.sft_pipeline

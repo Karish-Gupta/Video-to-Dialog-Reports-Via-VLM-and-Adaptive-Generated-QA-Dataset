@@ -29,4 +29,4 @@ pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
 
-python -m pipeline.baseline_pipeline.copa_video_pipeline
+python -m pipeline.qa_pipeline.copa_video_pipeline

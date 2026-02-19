@@ -1,4 +1,4 @@
-from models.gemini_model import *
+from models.gemini_model import GeminiModel
 from pipeline.evaluation.eval_utils.ground_truths import copa_video_ground_truths
 import json
 import re
@@ -258,5 +258,3 @@ if __name__ == "__main__":
 
     # args = parser.parse_args()
     run_evaluation(OUTPUT_DIR="pipeline/baseline_captions", RESULTS_FOLDER="pipeline/evaluation_results_baseline", NQA=True, QA=True, SUMMARY=False)
-
-
