@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
 from huggingface_hub import login
 import os
@@ -10,11 +10,20 @@ if "HF_TOKEN" in os.environ:
    
 class distillation_ft_llm:
     def __init__(self):
-        model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
-        adapter_path = "llama3-8b-instruct-police-questions-lora"
+        model_name = "meta-llama/Llama-3.3-70B-Instruct"
+        adapter_path = "llama3-70b-instruct-police-questions-lora-gemini-vlm"
+        
+        # Quantization config: load in 4-bit to save VRAM
+        quant_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=False,
+            bnb_4bit_quant_type="nf4"
+        )
         
         base_model = AutoModelForCausalLM.from_pretrained(
             model_name, 
+            quantization_config=quant_config,
             device_map="cuda:0"
         )
         

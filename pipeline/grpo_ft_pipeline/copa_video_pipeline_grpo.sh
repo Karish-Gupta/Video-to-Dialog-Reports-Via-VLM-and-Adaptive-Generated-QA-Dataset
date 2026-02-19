@@ -2,11 +2,12 @@
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
 #SBATCH --mem=128g                     # allocate 128 GB of memory
-#SBATCH -J "gemini_non_vqa_pipeline"              # name of the job
-#SBATCH -o gemini_non_vqa_pipeline%j.out         # name of the output file
-#SBATCH -e gemini_non_vqa_pipeline%j.err         # name of the error file
+#SBATCH -J "copa_video_pipeline"              # name of the job
+#SBATCH -o copa_video_pipeline%j.out         # name of the output file
+#SBATCH -e copa_video_pipeline%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
-#SBATCH -t 1:00:00                   # time limit of 1 hour
+#SBATCH -t 20:00:00                   # time limit of 12 hours
+#SBATCH --gres=gpu:H200:1             # request 1 H200 GPU
 
 cd $SLURM_SUBMIT_DIR/../..
 
@@ -17,6 +18,7 @@ python -m venv env
 source env/bin/activate
 
 pip install --upgrade pip
+pip install unsloth
 pip install --upgrade -q accelerate bitsandbytes
 pip install transformers
 pip install huggingface-hub
@@ -27,7 +29,6 @@ pip install protobuf
 pip install sentencepiece
 pip install torchcodec
 pip install decord==0.6.0
-pip install decord==0.6.0
-pip install google-genai
 
-python -m pipeline.gemini_pipeline.gemini_baseline
+
+python -m pipeline.grpo_ft_pipeline.copa_video_pipeline_grpo

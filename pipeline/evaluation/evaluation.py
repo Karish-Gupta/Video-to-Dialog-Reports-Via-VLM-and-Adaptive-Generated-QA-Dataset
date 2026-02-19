@@ -1,4 +1,3 @@
-from models.llm import *
 from models.gemini_model import *
 from pipeline.evaluation.eval_utils.ground_truths import copa_video_ground_truths
 import json
@@ -10,8 +9,8 @@ from models.open_ai import *
 from pipeline.evaluation.eval_utils.eval_prompt_templates import *
 from pipeline.evaluation.eval_utils.calculate_averages import calculate_averages
 
-gemini = gemini_model()
-gpt = openai_model()
+gemini = GeminiModel()
+# gpt = openai_model()
 
 def _extract_json_from_text(text: str) -> Any:
     # Try to find outermost {...}
@@ -33,7 +32,7 @@ def _extract_json_from_text(text: str) -> Any:
         return {"raw": text}
     
 
-def evaluate_caption(caption, ground_truth, model="OPENAI"):
+def evaluate_caption(caption, ground_truth, model="GEMINI"):
     prompts = {
         "Factual Accuracy": evaluation_prompt_template_factual(caption, ground_truth),
         "Completeness": evaluation_prompt_template_complete(caption, ground_truth),
@@ -42,15 +41,14 @@ def evaluate_caption(caption, ground_truth, model="OPENAI"):
     results = {}
     for metric_name, prompt in prompts.items():
         
-        if model == "OPENAI":
-            resp = gpt.invoke(prompt)
-            raw_text = resp.output_text
+        # if model == "OPENAI":
+        #     resp = gpt.invoke(prompt)
+        #     raw_text = resp.output_text
         
         if model == "GEMINI":
             resp = gemini.invoke(prompt)
-            raw_text = resp.text
         
-        parsed = _extract_json_from_text(raw_text)
+        parsed = _extract_json_from_text(resp)
         results[metric_name] = parsed
 
     return results
@@ -108,7 +106,7 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
         # Map video ID to ground truth, e.g., 'Video1_results.txt' -> 'video1'
         digits = re.findall(r"\d+", filename)
         video_key = f"video{digits[0]}" if digits else None
-        ground_truth = copa_video_ground_truths.get(video_key, "")
+        ground_truth = copa_video_ground_truths.get(video_key)
 
         if not ground_truth:
             print(f"WARNING: No ground truth found for {filename}; skipping")
@@ -122,14 +120,28 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
 
             # Try to extract numeric values from parsed responses
             def _get_numeric(parsed, key_aliases):
+                if not parsed:
+                    return 0.0
+                
+                # Check specific aliases
                 for alias in key_aliases:
-                    if alias in parsed and isinstance(parsed[alias], (int, float)):
-                        return int(parsed[alias])
-                # Some outputs may return different keys
+                    if alias in parsed:
+                        try:
+                            return float(parsed[alias])
+                        except (ValueError, TypeError):
+                            continue
+                
+                # Fallback: scan values if specific keys failed
                 for v in parsed.values() if isinstance(parsed, dict) else []:
                     if isinstance(v, (int, float)):
-                        return int(v)
-                return 0
+                        return float(v)
+                    # Handle case where LLM returns string "4.5"
+                    if isinstance(v, str):
+                        try:
+                            return float(v)
+                        except ValueError:
+                            continue
+                return 0.0
 
             factual = _get_numeric(eval_results.get("Factual Accuracy", {}), ["Factual Accuracy", "Factual"])
             completeness = _get_numeric(eval_results.get("Completeness", {}), ["Completeness"])
@@ -236,15 +248,15 @@ def calculate_score(factual_accuracy, completeness, visual_enrichment):
     }
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Evaluate captions in OUTPUT_DIR and save per-flag results.")
-    parser.add_argument("--nqa", dest="nqa", action="store_true", help="Evaluate NON-QA captions")
-    parser.add_argument("--qa", dest="qa", action="store_true", help="Evaluate QA captions")
-    parser.add_argument("--summary", dest="summary", action="store_true", help="Evaluate VLM summary captions")
-    parser.add_argument("--all", dest="all_flags", action="store_true", help="Evaluate all caption types")
-    parser.add_argument("--output-dir", dest="output_dir", default="pipeline/output_results_whisper", help="Directory containing pipeline output files")
-    parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
+    # parser = argparse.ArgumentParser(description="Evaluate captions in OUTPUT_DIR and save per-flag results.")
+    # parser.add_argument("--nqa", dest="nqa", action="store_true", help="Evaluate NON-QA captions")
+    # parser.add_argument("--qa", dest="qa", action="store_true", help="Evaluate QA captions")
+    # parser.add_argument("--summary", dest="summary", action="store_true", help="Evaluate VLM summary captions")
+    # parser.add_argument("--all", dest="all_flags", action="store_true", help="Evaluate all caption types")
+    # parser.add_argument("--output-dir", dest="output_dir", default="pipeline/output_results_whisper", help="Directory containing pipeline output files")
+    # parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
 
-    args = parser.parse_args()
-    run_evaluation(OUTPUT_DIR=args.output_dir, RESULTS_FOLDER=args.results_folder, NQA=args.nqa, QA=args.qa, SUMMARY=args.summary)
+    # args = parser.parse_args()
+    run_evaluation(OUTPUT_DIR="pipeline/baseline_captions", RESULTS_FOLDER="pipeline/evaluation_results_baseline", NQA=True, QA=True, SUMMARY=False)
 
 

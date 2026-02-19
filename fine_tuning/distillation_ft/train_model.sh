@@ -24,8 +24,7 @@ pip install torch
 pip install transformers
 pip install datasets
 pip install tqdm
-pip install scikit-learn
 pip install accelerate
 pip install bert-score
 
-python -m fine_tuning.distillation_ft.run_distillation_ft
+python -m fine_tuning.distillation_ft.train_model

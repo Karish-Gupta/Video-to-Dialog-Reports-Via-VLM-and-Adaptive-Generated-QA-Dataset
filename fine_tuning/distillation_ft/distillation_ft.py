@@ -1,7 +1,8 @@
 import gc
 import torch
-from peft import LoraConfig, get_peft_model, TaskType
+from peft import LoraConfig, get_peft_model, TaskType, prepare_model_for_kbit_training
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import BitsAndBytesConfig
 from fine_tuning.model_utils.eval_utils import *
 from fine_tuning.model_utils.preprocessing import * 
 
@@ -75,18 +76,30 @@ class distillation_ft:
         )
 
     def init_model(self):
+
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        ) 
+
         self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_name, 
-            device_map="auto", # Changed to auto for better multi-gpu or generic support
-            torch_dtype=torch.float16
+            self.model_name,
+            quantization_config=bnb_config,
+            device_map="auto",
+            trust_remote_code=True,
         )
+        
+        self.model = prepare_model_for_kbit_training(self.model)
         
         # Enable gradient checkpointing to save memory
         self.model.gradient_checkpointing_enable()
+        self.model.config.use_cache = False
 
         # Llama 3 target modules
         if self.lora_target_modules is None:
-            target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
+            target_modules = ["q_proj", "v_proj"]
         else:
             target_modules = self.lora_target_modules
 
@@ -147,7 +160,7 @@ class distillation_ft:
             print(f"Epoch {epoch+1} Complete | Avg Loss: {epoch_loss:.4f} | Steps: {epoch_steps}")
 
         # Save Final LoRA adapters
-        adapter_dir = "./llama3-8b-instruct-police-questions-lora"
+        adapter_dir = "./llama3-70b-instruct-police-questions-lora-gemini-vlm"
         print(f"Saving adapter to {adapter_dir}...")
         self.model.save_pretrained(adapter_dir)
         self.tokenizer.save_pretrained(adapter_dir)

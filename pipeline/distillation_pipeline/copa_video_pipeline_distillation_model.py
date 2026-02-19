@@ -1,30 +1,17 @@
 import os
-from models.llm import *
-from models.vlm import *
+from models.gemini_model import *
 from models.distillation_ft_llm import *
-
-def extract_generated_text_vlm(raw_output: str):
-    """VLM output includes input as well, this slices out only generated tokens."""
-    raw_output = raw_output.strip()
-
-    if "assistant" in raw_output:
-        idx = raw_output.index("assistant") + len("assistant")
-        return raw_output[idx:].strip()
-
-    return raw_output
 
 
 # CONFIG
 VIDEO_DIR = "pipeline/copa_videos"
 TRANSCRIPT_DIR = "pipeline/whisper_transcripts_diarize"
-OUTPUT_DIR = "pipeline/output_distillation_model"
+OUTPUT_DIR = "pipeline/distillation_captions"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
-llm_model = "meta-llama/Llama-3.3-70B-Instruct"
-vlm_model_name = "llava-hf/LLaVA-NeXT-Video-34B-hf"
-llm_ = llm(llm_model)
-vlm_ = vlm(vlm_model_name)
+vlm_model_name = "gemini-2.5-flash"
+gemini = GeminiModel(vlm_model_name)
 question_generation_model = distillation_ft_llm()
 
 def process_pair(video_path, transcript_text, index):
@@ -32,34 +19,24 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 1: VLM Summary
     print("\n Generating VLM Summary...")
-    vlm_conversation = vlm_.build_conversation()
-    vlm_summary = vlm_.invoke(video_path, vlm_conversation)
-    vlm_summary = extract_generated_text_vlm(vlm_summary)
+    vlm_summary = gemini.generate_vlm_summary(video_path, transcript_text)
 
     # Step 2: LLM Extraction
     print("\n Extracting structured output...")
-    step_1_prompt = llm_.step_1_chat_template(transcript_text, vlm_summary)
-    structured_output = llm_.invoke(step_1_prompt)
+    structured_output = gemini.generate_structured_details(vlm_summary)
 
-    # Step 3: Generate Questions
+    # Step 3: Generate Questions with question generation model
     print("\n Generating questions...")
     step_2_prompt = question_generation_model.step_2_chat_template(structured_output)
     generated_qs = question_generation_model.invoke(step_2_prompt)
 
     # Step 4: Ask VLM to Answer
     print("\n Getting VLM answers to generated questions...")
-    qa_conversation = vlm_.build_qa_conversation(generated_qs)
-    vlm_answers = vlm_.invoke(video_path, qa_conversation)
-    vlm_answers = extract_generated_text_vlm(vlm_answers)
+    vlm_answers = gemini.answer_questions(video_path, generated_qs)
 
     # Generate Captions
     print("→ Creating QA captions...")
-    qa_caption_prompt = llm_.qa_caption_chat_template(generated_qs, vlm_answers, transcript_text, vlm_summary)
-    qa_caption = llm_.invoke(qa_caption_prompt)
-
-    print("→ Creating NON-QA captions...")
-    non_qa_caption_prompt = llm_.caption_chat_template(transcript_text, vlm_summary)
-    non_qa_caption = llm_.invoke(non_qa_caption_prompt)
+    qa_caption = gemini.generate_qa_caption(vlm_summary, vlm_answers)
 
     # ---- Save Results ----
     output_file = os.path.join(OUTPUT_DIR, f"Video{index}_results.txt")
@@ -70,7 +47,6 @@ def process_pair(video_path, transcript_text, index):
         f.write(f"=== GENERATED QUESTIONS ===\n{generated_qs}\n\n")
         f.write(f"=== VLM ANSWERS ===\n{vlm_answers}\n\n")
         f.write(f"=== QA CAPTION ===\n{qa_caption}\n\n")
-        f.write(f"=== NON-QA CAPTION ===\n{non_qa_caption}\n\n")
 
     print(f"Finished Video {index} saved to {output_file}")
 

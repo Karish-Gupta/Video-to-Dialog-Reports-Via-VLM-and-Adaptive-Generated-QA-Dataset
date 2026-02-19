@@ -1,41 +1,38 @@
+import json
 
-  # ┌──────────────────────────────┐
-  # │            RUBRIC            │
-  # └──────────────────────────────┘
-factual_accuracy_rubric = """Factual Accuracy (0-5)
-Measures whether statements in the caption are true given the ground truth. 
-
-Rules:
-- If the general idea is mentioned in the ground truth, it is considered true. If extra details are added, they are not considered in the score. 
-- Check sentence by sentence with the ground truth to verify accuracy of the presented information.
-- The final score should be the number of statements grounded in truth divided by the total number of statements multiplied by 5.  
-- (e.g., if 4 out of 5 sentences are correct, the score would be 4/5 * 5 = 4)              
-- Round to the nearest whole number.
-"""
-
-coverage_completeness_rubric = """Coverage & Completeness (0-5)
-Does the caption capture all relevant and important events?
+# ┌──────────────────────────────┐
+# │            RUBRIC            │
+# └──────────────────────────────┘
+factual_accuracy_rubric = """Factual Accuracy (0-1)
+Measures whether statements in the caption are true given the ground truth.
 
 Rules:
-- Check if any events in the Important Details section of the ground truth are missing in the caption, with the final score reflecting the proportion of events included.
-- Anything missing from Auxillary Details should not impact the score.
-- (e.g., if 4 out of 5 key events are included, the score would be 4/5 * 5 = 4)
-- Round to the nearest whole number.
+- If the general idea is mentioned in the ground truth (any section), it is considered true. 
+- If extra details are added that contradict the ground truth, penalize the score.
+- Check sentence by sentence with the ground truth to verify accuracy.
+- The final score should be the number of statements grounded in truth divided by the total number of statements.
+- (e.g., if 4 out of 5 sentences are correct, the score would be 4/5 = 0.8)
 """
 
-visual_enrichment_rubric = """Visual Enrichment (Non-Transcript Information) (0-5)
-Measures how well the caption adds useful visual details that are not present in the transcript.
+completeness_rubric = """Completeness (0-1)
+Does the caption capture all relevant and important events listed in 'important_details'?
 
-| Score | Criteria                                                         |
-| ----- | ---------------------------------------------------------------- |
-| **5** | Adds highly relevant visual context that improves understanding. |
-| **4** | Adds useful visual details but limited variety.                  |
-| **3** | Some visual context, but sparse.                                 |
-| **2** | Minimal relevant visual additions.                               |
-| **1** | Tries to add visual info but inaccurate or irrelevant.           |
-| **0** | No visual context added.                                         |
+Rules:
+- Retrieve the list of events from the 'important_details' section of the ground truth.
+- Check if each event from that list is present in the generated caption.
+- The final score is the number of included events divided by the total number of 'important_details' events.
+- (e.g., if the JSON lists 5 important details and the caption includes 3 of them, the score is 3/5 = 0.6)
 """
 
+visual_enrichment_rubric = """Visual Enrichment (0-1)
+Measures the proportion of specific visual details captured in the caption.
+
+Rules:
+- Retrieve the list of items from the 'visual_enrichment_details' section of the ground truth.
+- Check if each specific visual detail from that list is described in the generated caption.
+- The final score is the number of included visual details divided by the total number of 'visual_enrichment_details' items.
+- (e.g., if the JSON lists 8 visual details and the caption includes 4 of them, the score is 4/8 = 0.5)
+"""
 
 
 # ┌───────────────────────────────────────────────┐
@@ -51,14 +48,14 @@ def evaluation_prompt_template_factual(caption, ground_truth):
   {factual_accuracy_rubric}
 
   Ground Truth:
-  {ground_truth}
+  {json.dumps(ground_truth, indent=2)}
 
   Generated caption:
   {caption}
 
   Return output in the following JSON format:
   {{
-    "Factual Accuracy": <0-5>,
+    "Factual Accuracy": <0-1>,
     "Justification": "<For each sentence in the caption, indicate whether it is 'True' or 'False' based on the ground truth. Provide a brief explanation for each assessment.>"
   }}
   """
@@ -72,17 +69,17 @@ def evaluation_prompt_template_complete(caption, ground_truth):
   Use the rubric below and give only a JSON response with numerical scores and a short justification.
 
   Rubric:
-  {coverage_completeness_rubric}
+  {completeness_rubric}
 
   Ground Truth:
-  {ground_truth}
+  {json.dumps(ground_truth, indent=2)}
 
   Generated caption:
   {caption}
 
   Return output in the following JSON format:
   {{
-    "Completeness": <0-5>,
+    "Completeness": <0-1>,
     "Justification": "<2-4 sentence explanation>"
   }}
   """
@@ -99,14 +96,14 @@ def evaluation_prompt_template_enrich(caption, ground_truth):
   {visual_enrichment_rubric}
 
   Ground Truth:
-  {ground_truth}
+  {json.dumps(ground_truth, indent=2)}
 
   Generated caption:
   {caption}
 
   Return output in the following JSON format:
   {{
-    "Visual Enrichment": <0-5>,
+    "Visual Enrichment": <0-1>,
     "Justification": "<2-4 sentence explanation>"
   }}
   """

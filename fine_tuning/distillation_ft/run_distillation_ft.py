@@ -14,8 +14,8 @@ if __name__ == "__main__":
       login(token=os.environ["HF_TOKEN"])
    
    # Configs
-   original_dataset_path = "fine_tuning/distillation_results_full.jsonl"
-   model_name = "meta-llama/Meta-Llama-3-8B-Instruct"
+   original_dataset_path = "fine_tuning/distillation_results_gemini.jsonl"
+   model_name = "meta-llama/Llama-3.3-70B-Instruct"
    
    N_FOLDS = 5
    results = {
@@ -65,7 +65,6 @@ if __name__ == "__main__":
       try:
          ft_runner.preprocess_dataset()
          ft_runner.init_model()
-         ft_runner.train()
          ft_runner.train()
          
          # Store results

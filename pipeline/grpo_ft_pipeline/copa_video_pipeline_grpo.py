@@ -1,16 +1,17 @@
 import os
 from models.gemini_model import *
 import re
-
+from models.grpo_question_generation_model import QuestionGenerationModelGRPO
 # CONFIG
 VIDEO_DIR = "data/eval_videos"
 TRANSCRIPT_DIR = "data/eval_transcripts"
-OUTPUT_DIR = "pipeline/baseline_captions"
+OUTPUT_DIR = "pipeline/grpo_captions"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Model Init (done once)
 vlm_model_name = "gemini-2.5-flash"
 gemini = GeminiModel(vlm_model_name)
+question_generation_model = QuestionGenerationModelGRPO()
 
 
 def process_pair(video_path, transcript_text, index):
@@ -26,7 +27,7 @@ def process_pair(video_path, transcript_text, index):
 
     # Step 3: Generate Questions
     print("\n Generating questions...")
-    generated_qs = gemini.generate_questions(structured_output)
+    generated_qs = question_generation_model.generate_questions(structured_output)
 
     # Step 4: Ask VLM to Answer
     print("\n Getting VLM answers to generated questions...")
