@@ -4,7 +4,7 @@ import os
 import re
 from pathlib import Path
 from models.gemini_model import *
-from models.qwenLLM import qwenLLM
+from models.sft_question_generation_model import QuestionGenerationModelSFT
 
 
 BASE_MODEL = "Qwen/Qwen3-30B-A3B-Thinking-2507"  
@@ -15,7 +15,7 @@ VIDEO_DIR = "pipeline/eval_videos"  # Directory where videos are stored
 vlm_model_name = "gemini-2.5-flash"
 gemini = gemini_model(vlm_model_name)
 # question generation model (Qwen-based)
-qwen_model = qwenLLM(BASE_MODEL, ADAPTER_DIR)
+qwen_model = QuestionGenerationModelSFT(BASE_MODEL, ADAPTER_DIR)
 
 
 

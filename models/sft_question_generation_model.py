@@ -5,8 +5,8 @@ from peft import PeftModel
 from models.llm import *
 
 
-class qwenLLM(llm):
-    def __init__(self, model_name=BASE_MODEL, adapter_dir=ADAPTER_DIR):
+class QuestionGenerationModelSFT(llm):
+    def __init__(self, model_name, adapter_dir):
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.float16,
