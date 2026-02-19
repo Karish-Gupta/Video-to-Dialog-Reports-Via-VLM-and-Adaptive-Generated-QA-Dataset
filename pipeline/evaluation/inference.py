@@ -1,20 +1,15 @@
-from transformers import AutoProcessor, AutoModelForVision2Seq
+from transformers import AutoProcessor, AutoModelForVision2Seq, AutoModelForCausalLM, BitsAndBytesConfig
 from qwen_vl_utils import process_vision_info
-import warnings
-import os 
-import dashscope
-import torch
-import numpy as np
-from decord import VideoReader, cpu
-from PIL import Image
-import math, hashlib, requests
-from IPython.display import Markdown, display
+
+# only the above imports are needed for qwen-32b-vl inference;
+# other utilities were not used and have been removed
 
 
 class Qwen32bVL:
-    """Lightweight wrapper for qwen-32b-vl multimodal inference."""
     def __init__(self, model_name: str = "Qwen/Qwen3-VL-32B-Instruct"):
-        # load processor and model just like the generic inference above
+        # processor used to prepare text/video inputs
+        self.processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
+        # apply optional 4-bit quantization for the large model
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_compute_dtype=torch.float16,
@@ -22,12 +17,14 @@ class Qwen32bVL:
             bnb_4bit_quant_type="nf4",
         )
 
-        self.model = AutoModelForCausalLM.from_pretrained(
+        self.model = AutoModelForVision2Seq.from_pretrained(
             model_name,
             quantization_config=bnb_config,
+            torch_dtype="auto",
             device_map="auto",
             trust_remote_code=True,
         )
+        self.model.eval()
 
     def infer(self,
               video,
@@ -77,11 +74,10 @@ class Qwen32bVL:
         output_text = self.processor.batch_decode(generated_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)
         return output_text[0]
 
+# convenience global using default qwen-32b-vl
+qwen_vl_instance = Qwen32bVL()
+
 def qwen_vl_inference(video, prompt, **kwargs):
     return qwen_vl_instance.infer(video, prompt, **kwargs)
 
-
-# convenience global using default qwen-32b-vl
-qwen_vl_instance = Qwen32bVL()
-qwen_vl_instance.qwen_vl_inference("path/to/video.mp4", "Describe the video in detail, focusing on actions, responses, details about people and the surroundings. Be specific.") 
-
+qwen_vl_instance.infer("path/to/video.mp4", "Describe the video in detail, focusing on actions, responses, details about people and the surroundings. Be specific.")
