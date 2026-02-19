@@ -1,11 +1,10 @@
-import torch
 import json
 import argparse
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, StoppingCriteria, StoppingCriteriaList
-from peft import PeftModel
+import os
+import re
 from pathlib import Path
 from models.gemini_model import *
-import os
+from models.qwenLLM import qwenLLM
 
 
 BASE_MODEL = "Qwen/Qwen3-30B-A3B-Thinking-2507"  
@@ -15,122 +14,14 @@ VIDEO_DIR = "pipeline/eval_videos"  # Directory where videos are stored
 
 vlm_model_name = "gemini-2.5-flash"
 gemini = gemini_model(vlm_model_name)
+# question generation model (Qwen-based)
+qwen_model = qwenLLM(BASE_MODEL, ADAPTER_DIR)
 
-def load_model_and_tokenizer():
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-    )
-
-    base = AutoModelForCausalLM.from_pretrained(
-        BASE_MODEL,
-        quantization_config=bnb_config,
-        device_map="auto",
-        trust_remote_code=True,
-    )
-
-    model = PeftModel.from_pretrained(base, ADAPTER_DIR, torch_dtype=torch.float16)
-    model.eval()
-
-    tokenizer = AutoTokenizer.from_pretrained(ADAPTER_DIR)
-    tokenizer.padding_side = "left"
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-        tokenizer.pad_token_id = tokenizer.eos_token_id
-
-    return model, tokenizer
-
-
-def generate_response(model, tokenizer, vlm_summary, structured_details):
-    """Generate investigative questions for a single example."""
-    # stop marker — model should put this single line after the 4th question
-    stop_marker = "<END_OF_QUESTIONS>"
-
-    prompt = f"""You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
-
-Your task: Based on the provided structured details, generate exactly 4 investigative questions.
-
-Rules for your output:
-- Write exactly 4 numbered questions (1.-4.) formatted as a numbered list.
-- Do NOT repeat facts already stated.
-- Use clear, concise, professional language.
-
-Structured information provided:
-{structured_details}
-
-End the output by placing the following stop marker on its own line after question 4:
-{stop_marker}
-
-Generated questions:
-"""
-
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048).to(model.device)
-    num_input_tokens = inputs['input_ids'].shape[1]
-
-    # prepare stopping criteria that halts when tokenizer emits the stop marker sequence
-    stop_ids = tokenizer.encode(stop_marker, add_special_tokens=False)
-
-    class StopOnSequence(StoppingCriteria):
-        def __init__(self, stop_ids):
-            self.stop_ids = stop_ids
-        def __call__(self, input_ids, scores, **kwargs):
-            # only check the last len(stop_ids) tokens
-            seq = input_ids[0].tolist()
-            n = len(self.stop_ids)
-            if n == 0 or len(seq) < n:
-                return False
-            return seq[-n:] == self.stop_ids
-
-    stopping_criteria = StoppingCriteriaList([StopOnSequence(stop_ids)])
-
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=512,
-            do_sample=False,
-            eos_token_id=tokenizer.eos_token_id,
-            pad_token_id=tokenizer.pad_token_id,
-            stopping_criteria=stopping_criteria,
-        )
-
-    # decode only the newly generated tokens (skip the input prompt)
-    gen_tokens = outputs[0][num_input_tokens:]
-    generated_raw = tokenizer.decode(gen_tokens, skip_special_tokens=True)
-
-    # remove the explicit stop marker if present
-    if stop_marker in generated_raw:
-        generated = generated_raw.split(stop_marker)[0].strip()
-    else:
-        generated = generated_raw.strip()
-
-    # fallback: extract the first numbered 1.-4. list if model still echoed instructions
-    import re
-    # find a block starting with '1.' and containing through '4.'
-    m = re.search(r"(1\.[\s\S]*?4\.[\s\S]*?)(?=\n\s*\d+\.|\Z)", generated)
-    if m:
-        extracted = m.group(1).strip()
-        return extracted
-
-    # final fallback: attempt to collect lines beginning with '1.'..'4.'
-    lines = [l for l in generated.splitlines() if re.match(r"^\s*\d+\.", l)]
-    if lines:
-        # keep first 4 numbered lines (or groups if multi-line, naive)
-        numbered = []
-        for l in lines:
-            if len(numbered) >= 4:
-                break
-            numbered.append(l.strip())
-        return "\n".join(numbered)
-
-    return generated
 
 
 def process_json_file(input_file, output_file, num_examples=5):
     """Process a JSON file (array of examples) and generate outputs."""
-    model, tokenizer = load_model_and_tokenizer()
-    
+    # qwen_model is initialized globally
     results = []
     count = 0
     captions_dir = "pipeline/baseline_captions"
@@ -139,30 +30,15 @@ def process_json_file(input_file, output_file, num_examples=5):
     # load entire JSON array
     with open(input_file, 'r', encoding='utf-8') as f:
         try:
-            examples = json.load(f)
+            raw = json.load(f)
         except Exception as e:
             print(f"Failed to load JSON file {input_file}: {e}")
             return
 
-    # support either a list of examples or a dict mapping keys -> example objects
-    if isinstance(examples, dict):
-        new_examples = []
-        import re
-        for k, v in examples.items():
-            if not isinstance(v, dict):
-                continue
-            entry = v.copy()
-            # If entry doesn't include a video_index, try to derive it from the dict key (e.g., 'video116')
-            if not entry.get('video_index'):
-                m = re.search(r"\d+", str(k))
-                entry['video_index'] = m.group(0) if m else str(k)
-            # If vlm_summary is missing, fall back to 'caption' if present
-            if not entry.get('vlm_summary') and entry.get('caption'):
-                entry['vlm_summary'] = entry.get('caption')
-            new_examples.append(entry)
-        examples = new_examples
-    elif not isinstance(examples, list):
-        print(f"Expected JSON file to contain a list of examples or a dict, got {type(examples)}")
+    try:
+        examples = qwen_model.normalize_examples(raw, max_examples=num_examples)
+    except Exception as e:
+        print(f"Error normalizing input examples: {e}")
         return
 
     for example in examples:
@@ -180,7 +56,7 @@ def process_json_file(input_file, output_file, num_examples=5):
         
         print(f"Processing example {count + 1}/{num_examples} (video_index: {video_index})...")
         
-        generated_questions = generate_response(model, tokenizer, vlm_summary, structured_details)
+        generated_questions = qwen_model.generate_questions(vlm_summary, structured_details)
         
         video_file = f"video{video_index}.mp4"
         video_path = os.path.join(VIDEO_DIR, video_file)
