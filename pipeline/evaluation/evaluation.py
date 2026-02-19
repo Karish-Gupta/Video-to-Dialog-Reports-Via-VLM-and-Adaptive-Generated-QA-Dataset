@@ -1,4 +1,5 @@
-from models.gemini_model import *
+from models.gemini_model import GeminiModel
+from pipeline.evaluation.eval_utils.ground_truths import copa_video_ground_truths
 import json
 import re
 import os
@@ -81,7 +82,7 @@ def _extract_caption_from_output_file_NQA(output_text: str) -> str:
     return ""
 
 
-def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER="pipeline/evaluation_results", NQA=False, QA=False, SUMMARY=False, ground_truth_file="generated_gts.json"):
+def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER="pipeline/evaluation_results", NQA=False, QA=False, SUMMARY=False):
     """
     Run evaluation over all files in OUTPUT_DIR. For each flag that is True
     (NQA, QA, SUMMARY), extract the corresponding caption section from the
@@ -94,14 +95,6 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
 
     os.makedirs(RESULTS_FOLDER, exist_ok=True)
 
-    # load ground truth mapping once per evaluation run
-    try:
-        with open(ground_truth_file, 'r', encoding='utf-8') as gf:
-            ground_truths = json.load(gf)
-    except Exception as e:
-        print(f"Error loading ground truth file '{ground_truth_file}': {e}")
-        ground_truths = {}
-
     for filename in sorted(os.listdir(OUTPUT_DIR)):
         if not filename.lower().startswith("video"):
             continue
@@ -113,7 +106,7 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
         # Map video ID to ground truth, e.g., 'Video1_results.txt' -> 'video1'
         digits = re.findall(r"\d+", filename)
         video_key = f"video{digits[0]}" if digits else None
-        ground_truth = ground_truths.get(video_key)
+        ground_truth = copa_video_ground_truths.get(video_key)
 
         if not ground_truth:
             print(f"WARNING: No ground truth found for {filename}; skipping")
@@ -255,28 +248,13 @@ def calculate_score(factual_accuracy, completeness, visual_enrichment):
     }
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Evaluate captions in OUTPUT_DIR and save per-flag results.")
-    parser.add_argument("--nqa", dest="nqa", action="store_true", help="Evaluate NON-QA captions")
-    parser.add_argument("--qa", dest="qa", action="store_true", help="Evaluate QA captions")
-    parser.add_argument("--summary", dest="summary", action="store_true", help="Evaluate VLM summary captions")
-    parser.add_argument("--all", dest="all_flags", action="store_true", help="Evaluate all caption types")
-    parser.add_argument("--output-dir", dest="output_dir", default="pipeline/output_results_whisper", help="Directory containing pipeline output files")
-    parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
-    parser.add_argument("--gt-file", dest="gt_file", default="generated_gts.json", help="Path to ground truth JSON file")
+    # parser = argparse.ArgumentParser(description="Evaluate captions in OUTPUT_DIR and save per-flag results.")
+    # parser.add_argument("--nqa", dest="nqa", action="store_true", help="Evaluate NON-QA captions")
+    # parser.add_argument("--qa", dest="qa", action="store_true", help="Evaluate QA captions")
+    # parser.add_argument("--summary", dest="summary", action="store_true", help="Evaluate VLM summary captions")
+    # parser.add_argument("--all", dest="all_flags", action="store_true", help="Evaluate all caption types")
+    # parser.add_argument("--output-dir", dest="output_dir", default="pipeline/output_results_whisper", help="Directory containing pipeline output files")
+    # parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
 
-    args = parser.parse_args()
-
-    # if no specific captions flags were provided, evaluate all by default
-    if not (args.nqa or args.qa or args.summary or args.all_flags):
-        args.all_flags = True
-
-    run_evaluation(
-        OUTPUT_DIR=args.output_dir,
-        RESULTS_FOLDER=args.results_folder,
-        NQA=args.nqa or args.all_flags,
-        QA=args.qa or args.all_flags,
-        SUMMARY=args.summary or args.all_flags,
-        ground_truth_file=args.gt_file,
-    )
-
-
+    # args = parser.parse_args()
+    run_evaluation(OUTPUT_DIR="pipeline/baseline_captions", RESULTS_FOLDER="pipeline/evaluation_results_baseline", NQA=True, QA=True, SUMMARY=False)
