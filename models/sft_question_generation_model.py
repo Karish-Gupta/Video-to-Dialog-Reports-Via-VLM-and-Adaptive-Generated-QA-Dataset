@@ -2,10 +2,9 @@ import torch
 import re
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, StoppingCriteria, StoppingCriteriaList
 from peft import PeftModel
-from models.llm import *
 
 
-class QuestionGenerationModelSFT(llm):
+class QuestionGenerationModelSFT:
     def __init__(self, model_name, adapter_dir):
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
@@ -35,23 +34,24 @@ class QuestionGenerationModelSFT(llm):
     def generate_questions(self, vlm_summary: str, structured_details: str) -> str:
         """Generate exactly four numbered investigative questions from structured details."""
         stop_marker = "<END_OF_QUESTIONS>"
+
         prompt = f"""You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
 
-Your task: Based on the provided structured details, generate exactly 4 investigative questions.
+        Your task: Based on the provided structured details, generate exactly 4 investigative questions.
 
-Rules for your output:
-- Write exactly 4 numbered questions (1.-4.) formatted as a numbered list.
-- Do NOT repeat facts already stated.
-- Use clear, concise, professional language.
+        Rules for your output:
+        - Write exactly 4 numbered questions (1. - 4.) formatted as a numbered list.
+        - Do NOT repeat facts already stated.
+        - Use clear, concise, professional language.
 
-Structured information provided:
-{structured_details}
+        Structured information provided:
+        {structured_details}
 
-End the output by placing the following stop marker on its own line after question 4:
-{stop_marker}
+        End the output by placing the following stop marker on its own line after question 4:
+        {stop_marker}
 
-Generated questions:
-"""
+        Generated questions:
+        """
         inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048).to(self.model.device)
         num_input_tokens = inputs["input_ids"].shape[1]
 

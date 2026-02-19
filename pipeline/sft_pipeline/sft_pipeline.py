@@ -3,6 +3,7 @@ import argparse
 import os
 import re
 from pathlib import Path
+from models import gemini_model
 from models.gemini_model import *
 from models.sft_question_generation_model import QuestionGenerationModelSFT
 
