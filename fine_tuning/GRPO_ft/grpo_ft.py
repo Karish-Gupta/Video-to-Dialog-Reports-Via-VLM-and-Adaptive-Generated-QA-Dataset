@@ -1,14 +1,14 @@
 from unsloth import FastLanguageModel, PatchFastRL
 from datasets import load_dataset
 from trl import GRPOTrainer, GRPOConfig
-from fine_tuning.GDPO_ft.rewards import format_complexity_reward, gemini_judge_reward
-from fine_tuning.GDPO_ft.utils import apply_prompt_template
+from fine_tuning.GRPO_ft.rewards import format_complexity_reward, gemini_judge_reward
+from fine_tuning.GRPO_ft.utils import apply_prompt_template
 
 PatchFastRL("GRPO", FastLanguageModel) # Required to patch TRL for Unsloth
 
 # Configuration
 model_name = "Qwen/Qwen3-4B-Thinking-2507"
-dataset_name = "fine_tuning/GDPO_ft/rl_training_data.jsonl"
+dataset_name = "fine_tuning/GRPO_ft/rl_training_data.jsonl"
 max_seq_length = 4096 # Unsloth supports long context easily
 
 # Unsloth handles 4-bit loading internally

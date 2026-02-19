@@ -1,5 +1,5 @@
 # System prompt for generating questions
-system_prompt = """
+SYSTEM_PROMPT = """
 You are an AI assistant aiding law enforcement analysts reviewing body-worn camera footage.
 
 Your task:
@@ -35,7 +35,7 @@ Example Output:
 def apply_prompt_template(example, tokenizer):
    messages = [
          {
-            "role": "system", "content": system_prompt
+            "role": "system", "content": SYSTEM_PROMPT
          },
          {
             "role": "user", "content": f"Video Description:\n{example['structured_details']}"

@@ -2,7 +2,7 @@ import re
 import numpy as np
 import time
 import concurrent.futures
-from fine_tuning.GDPO_ft.utils import judge_prompt_template
+from fine_tuning.GRPO_ft.utils import judge_prompt_template
 from models.gemini_model import GeminiModel
 
 gemini = GeminiModel()
