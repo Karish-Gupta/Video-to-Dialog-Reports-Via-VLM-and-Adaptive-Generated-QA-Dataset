@@ -1,4 +1,3 @@
-from models.llm import *
 from models.gemini_model import *
 from pipeline.evaluation.eval_utils.ground_truths import copa_video_ground_truths
 import json
