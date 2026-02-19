@@ -1,22 +1,126 @@
 import torch
+import numpy as np
 from datasets import load_dataset
 from torch.utils.data import DataLoader
-from transformers import default_data_collator
+
+def collate_train(batch, pad_token_id):
+   """
+   Collate function for training that properly pads sequences to max length in batch.
+   """
+   input_ids_list = []
+   attention_mask_list = []
+   labels_list = []
+   
+   # First pass: convert all to lists and collect lengths
+   for b in batch:
+      # Robust conversion to list
+      input_ids = b["input_ids"]
+      if isinstance(input_ids, torch.Tensor):
+         input_ids = input_ids.tolist()
+      elif isinstance(input_ids, np.ndarray):
+         input_ids = input_ids.tolist()
+      elif not isinstance(input_ids, list):
+         input_ids = list(input_ids)
+      
+      attention_mask = b["attention_mask"]
+      if isinstance(attention_mask, torch.Tensor):
+         attention_mask = attention_mask.tolist()
+      elif isinstance(attention_mask, np.ndarray):
+         attention_mask = attention_mask.tolist()
+      elif not isinstance(attention_mask, list):
+         attention_mask = list(attention_mask)
+      
+      labels = b["labels"]
+      if isinstance(labels, torch.Tensor):
+         labels = labels.tolist()
+      elif isinstance(labels, np.ndarray):
+         labels = labels.tolist()
+      elif not isinstance(labels, list):
+         labels = list(labels)
+      
+      input_ids_list.append(input_ids)
+      attention_mask_list.append(attention_mask)
+      labels_list.append(labels)
+   
+   # Find max sequence length across input_ids, attention_mask, and labels
+   max_seq_len = 0
+   for inp, att, lab in zip(input_ids_list, attention_mask_list, labels_list):
+      max_seq_len = max(max_seq_len, len(inp), len(att), len(lab))
+   
+   # Pad all sequences to max length
+   padded_input_ids = []
+   padded_attention_mask = []
+   padded_labels = []
+   
+   for input_ids, attention_mask, labels in zip(input_ids_list, attention_mask_list, labels_list):
+      pad_len = max_seq_len - len(input_ids)
+
+      padded_input_ids.append(input_ids + [pad_token_id] * pad_len)
+      padded_attention_mask.append(attention_mask + [0] * pad_len)
+      # If labels are longer than input_ids, pad labels to max_seq_len as well
+      labels_pad_len = max_seq_len - len(labels)
+      if labels_pad_len >= 0:
+         padded_labels.append(labels + [-100] * labels_pad_len)
+      else:
+         # Truncate labels if they're longer than max_seq_len (should be rare)
+         padded_labels.append(labels[:max_seq_len])
+   
+   # Verify all sequences have same length before converting to tensor
+   assert all(len(seq) == max_seq_len for seq in padded_input_ids), \
+      f"Input IDs have mismatched lengths: {[len(seq) for seq in padded_input_ids]}"
+   assert all(len(seq) == max_seq_len for seq in padded_attention_mask), \
+      f"Attention masks have mismatched lengths: {[len(seq) for seq in padded_attention_mask]}"
+   assert all(len(seq) == max_seq_len for seq in padded_labels), \
+      f"Labels have mismatched lengths: {[len(seq) for seq in padded_labels]}"
+   
+   return {
+      "input_ids": torch.tensor(padded_input_ids, dtype=torch.long),
+      "attention_mask": torch.tensor(padded_attention_mask, dtype=torch.long),
+      "labels": torch.tensor(padded_labels, dtype=torch.long),
+   }
 
 def collate_eval(batch):
    """
    Collate function that keeps the target_text as a list for metric computation,
    while batching input_ids/attention_mask for the model.
    """
-   input_ids = torch.stack([torch.tensor(b["input_ids"]) for b in batch])
-   attention_mask = torch.stack([torch.tensor(b["attention_mask"]) for b in batch])
+   pad_token_id = 0  # Default padding token ID
    
-   # Keep target_text raw for pure text comparison (BLEU/ROUGE/BERTScore)
-   target_texts = [b["target_text"] for b in batch]
-
+   # Convert all sequences to lists (handle numpy arrays, tensors, etc.)
+   input_ids_list = []
+   attention_mask_list = []
+   target_texts = []
+   
+   for b in batch:
+      # Convert to list if necessary
+      input_ids = b["input_ids"]
+      if not isinstance(input_ids, list):
+         input_ids = input_ids.tolist() if hasattr(input_ids, 'tolist') else list(input_ids)
+      
+      attention_mask = b["attention_mask"]
+      if not isinstance(attention_mask, list):
+         attention_mask = attention_mask.tolist() if hasattr(attention_mask, 'tolist') else list(attention_mask)
+      
+      input_ids_list.append(input_ids)
+      attention_mask_list.append(attention_mask)
+      target_texts.append(b["target_text"])
+   
+   # Find max sequence length after conversion
+   max_seq_len = max(len(seq) for seq in input_ids_list)
+   
+   # Pad all sequences to max length
+   padded_input_ids = []
+   padded_attention_mask = []
+   
+   for i in range(len(input_ids_list)):
+      padding_len = max_seq_len - len(input_ids_list[i])
+      
+      padded_input_ids.append(input_ids_list[i] + [pad_token_id] * padding_len)
+      padded_attention_mask.append(attention_mask_list[i] + [0] * padding_len)
+   
    return {
-      "input_ids": input_ids,
-      "attention_mask": attention_mask,
+      "input_ids": torch.tensor(padded_input_ids),
+      "attention_mask": torch.tensor(padded_attention_mask),
       "target_text": target_texts,
    }
 
@@ -30,7 +134,8 @@ def preprocess_dataset(
    eval_batch_size,
 ):
    """
-   Preprocess dataset for Llama 3 instruction fine-tuning.
+   Preprocess dataset for instruction fine-tuning (Qwen3 / Llama 3 compatible).
+   Uses the model's native chat template via apply_chat_template().
    Returns train_loader, val_loader.
    """
    
@@ -60,10 +165,13 @@ def preprocess_dataset(
    - Use clear, concise, professional language.
    - Format the output as a numbered list.
    """
+   
+   # Note: apply_chat_template() is compatible with both Qwen3 and Llama 3
+   # as long as the tokenizer is loaded from the correct model
 
    # Tokenize Function for Training
    def tokenize_train(example):
-      # Construct the conversation for Llama 3
+      # Construct the conversation (Qwen3 and Llama 3 compatible)
       messages = [
          {"role": "system", "content": system_prompt},
          {"role": "user", "content": f"Structured information provided:\n {example['structured_details']}"}
@@ -162,7 +270,7 @@ def preprocess_dataset(
       train_dataset, 
       batch_size=train_batch_size, 
       shuffle=True, 
-      collate_fn=default_data_collator
+      collate_fn=lambda batch: collate_train(batch, tokenizer.pad_token_id)
    )
 
    val_loader = None
