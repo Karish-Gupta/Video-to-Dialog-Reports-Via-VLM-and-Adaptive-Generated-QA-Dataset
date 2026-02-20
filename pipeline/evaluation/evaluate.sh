@@ -2,11 +2,11 @@
 #SBATCH -N 1                          # allocate 1 compute node
 #SBATCH -n 1                          # total number of tasks
 #SBATCH --mem=128g                     # allocate 128 GB of memory
-#SBATCH -J "vqaEVAL"              # name of the job
-#SBATCH -o vqaEVAL%j.out         # name of the output file
-#SBATCH -e vqaEVAL%j.err         # name of the error file
+#SBATCH -J "vqaEVAL_deepseek"              # name of the job
+#SBATCH -o vqaEVAL_deepseek%j.out         # name of the output file
+#SBATCH -e vqaEVAL_deepseek%j.err         # name of the error file
 #SBATCH -p short                      # partition to submit to
-#SBATCH -t 1:00:00                   # time limit of 12 hours
+#SBATCH -t 10:00:00                   # time limit of 12 hours
 
 cd $SLURM_SUBMIT_DIR/../..
 
