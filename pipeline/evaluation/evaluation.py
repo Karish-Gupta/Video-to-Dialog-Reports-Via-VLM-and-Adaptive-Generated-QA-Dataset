@@ -13,24 +13,24 @@ from pipeline.evaluation.eval_utils.calculate_averages import calculate_averages
 gemini = GeminiModel()
 deeppseek = DeepSeekModel()
 
-# def _extract_json_from_text(text: str) -> Any:
-#     # Try to find outermost {...}
-#     start = text.find("{")
-#     end = text.rfind("}")
-#     if start != -1 and end != -1 and end > start:
-#         candidate = text[start:end+1]
-#         try:
-#             return json.loads(candidate)
-#         except json.JSONDecodeError:
-#             # fallback: try to clean curly quote issues
-#             candidate = candidate.replace("“", "\"").replace("”", "\"").replace("’", "'")
-#             try:
-#                 return json.loads(candidate)
-#             except json.JSONDecodeError:
-#                 return {"raw": text}
-#     else:
-#         # fallback: return raw output
-#         return {"raw": text}
+def _extract_json_from_text(text: str) -> Any:
+    # Try to find outermost {...}
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start:end+1]
+        try:
+            return json.loads(candidate)
+        except json.JSONDecodeError:
+            # fallback: try to clean curly quote issues
+            candidate = candidate.replace("“", "\"").replace("”", "\"").replace("’", "'")
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                return {"raw": text}
+    else:
+        # fallback: return raw output
+        return {"raw": text}
     
 
 def evaluate_caption(caption, ground_truth, model="DEEPSEEK"):
@@ -43,14 +43,15 @@ def evaluate_caption(caption, ground_truth, model="DEEPSEEK"):
     for metric_name, prompt in prompts.items():
         
         if model == "DEEPSEEK":
-            resp = deeppseek.eval(prompt=prompt, json_mode=True)
+            resp = deeppseek.invoke(prompt)
         
         if model == "GEMINI":
-            resp = gemini.eval(prompt)
+            resp = gemini.invoke(prompt)
         else:
             raise ValueError(f"Unknown model: {model}")
         
-        results[metric_name] = resp
+        parsed = _extract_json_from_text(resp)
+        results[metric_name] = parsed
 
     return results
 
