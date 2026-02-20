@@ -16,17 +16,13 @@ class GeminiModel:
         self.client = genai.Client(api_key=api_key)
         self.model_name = model_name   
 
-    def eval(self, caption_text, ground_truth, evaluation_prompt_template):
-        prompt = evaluation_prompt_template.format(
-            caption_text=caption_text,
-            ground_truth=ground_truth
-        )
-        
+    def eval(self,prompt):      
         response = self.client.models.generate_content(
             model=self.model_name,
-            contents=prompt
+            contents=prompt,
+            config={"response_mime_type": "application/json"}
         )
-        return response.text
+        return json.loads(response.text)
     
     def invoke(self, prompt):
         response = self.client.models.generate_content(

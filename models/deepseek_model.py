@@ -20,7 +20,7 @@ class DeepSeekModel:
         self.model_name = model_name
         self.max_tokens = 4096  # Adjust based on model limits
 
-    def invoke(self, prompt: str, system_message: Optional[str] = None, temperature: float = 0.1, json_mode: bool = False) -> str:
+    def invoke(self, prompt: str, system_message: Optional[str] = None, temperature: float = 0.1, json_mode: bool = False):
         messages = []
         
         if system_message:
@@ -39,15 +39,26 @@ class DeepSeekModel:
         
         return response.choices[0].message.content
 
-    def eval(self, caption_text: str, ground_truth: str, evaluation_prompt_template: str) -> str:
-        prompt = evaluation_prompt_template.format(
-            caption_text=caption_text,
-            ground_truth=ground_truth
+    def eval(self, prompt: str, system_message: Optional[str] = None, temperature: float = 0.1, json_mode: bool = False):
+        messages = []
+        
+        if system_message:
+            messages.append({"role": "system", "content": system_message})
+        
+        messages.append({"role": "user", "content": prompt})
+        
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=self.max_tokens,
+            response_format={"type": "json_object"} if json_mode else None
         )
         
-        return self.invoke(prompt)
+        return json.loads(response.choices[0].message.content)
 
-    def generate_structured_details(self, vlm_summary: str) -> Dict[str, Any]:
+
+    def generate_structured_details(self, vlm_summary: str):
         prompt = f"""
         You analyze police body-worn camera recordings or similar content.
         You will be given a visual summary of the content <summary>
@@ -112,7 +123,7 @@ class DeepSeekModel:
         except json.JSONDecodeError:
             return {}
 
-    def generate_questions(self, structured_output: Dict[str, Any]) -> str:
+    def generate_questions(self, structured_output: Dict[str, Any]):
         prompt = f"""
         You are an AI assistant aiding law enforcement analysts reviewing content.
 

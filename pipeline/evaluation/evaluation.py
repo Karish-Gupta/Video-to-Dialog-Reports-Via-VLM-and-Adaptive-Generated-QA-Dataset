@@ -1,38 +1,39 @@
-from models.gemini_model import *
+from models.gemini_model import GeminiModel
+from models.deepseek_model import DeepSeekModel
 from pipeline.evaluation.eval_utils.ground_truths import copa_video_ground_truths
 import json
 import re
 import os
-import argparse
 from typing import Any
 from models.open_ai import *
 from pipeline.evaluation.eval_utils.eval_prompt_templates import *
 from pipeline.evaluation.eval_utils.calculate_averages import calculate_averages
 
+# Initialize judges
 gemini = GeminiModel()
-# gpt = openai_model()
+deeppseek = DeepSeekModel()
 
-def _extract_json_from_text(text: str) -> Any:
-    # Try to find outermost {...}
-    start = text.find("{")
-    end = text.rfind("}")
-    if start != -1 and end != -1 and end > start:
-        candidate = text[start:end+1]
-        try:
-            return json.loads(candidate)
-        except json.JSONDecodeError:
-            # fallback: try to clean curly quote issues
-            candidate = candidate.replace("“", "\"").replace("”", "\"").replace("’", "'")
-            try:
-                return json.loads(candidate)
-            except json.JSONDecodeError:
-                return {"raw": text}
-    else:
-        # fallback: return raw output
-        return {"raw": text}
+# def _extract_json_from_text(text: str) -> Any:
+#     # Try to find outermost {...}
+#     start = text.find("{")
+#     end = text.rfind("}")
+#     if start != -1 and end != -1 and end > start:
+#         candidate = text[start:end+1]
+#         try:
+#             return json.loads(candidate)
+#         except json.JSONDecodeError:
+#             # fallback: try to clean curly quote issues
+#             candidate = candidate.replace("“", "\"").replace("”", "\"").replace("’", "'")
+#             try:
+#                 return json.loads(candidate)
+#             except json.JSONDecodeError:
+#                 return {"raw": text}
+#     else:
+#         # fallback: return raw output
+#         return {"raw": text}
     
 
-def evaluate_caption(caption, ground_truth, model="GEMINI"):
+def evaluate_caption(caption, ground_truth, model="DEEPSEEK"):
     prompts = {
         "Factual Accuracy": evaluation_prompt_template_factual(caption, ground_truth),
         "Completeness": evaluation_prompt_template_complete(caption, ground_truth),
@@ -41,27 +42,18 @@ def evaluate_caption(caption, ground_truth, model="GEMINI"):
     results = {}
     for metric_name, prompt in prompts.items():
         
-        # if model == "OPENAI":
-        #     resp = gpt.invoke(prompt)
-        #     raw_text = resp.output_text
+        if model == "DEEPSEEK":
+            resp = deeppseek.eval(prompt=prompt, json_mode=True)
         
         if model == "GEMINI":
-            resp = gemini.invoke(prompt)
+            resp = gemini.eval(prompt)
+        else:
+            raise ValueError(f"Unknown model: {model}")
         
-        parsed = _extract_json_from_text(resp)
-        results[metric_name] = parsed
+        results[metric_name] = resp
 
     return results
 
-
-def _extract_caption_from_output_file(output_text: str) -> str:
-    """
-    Return only the content under the '=== QA CAPTION ===' header.
-    """
-    match = re.search(r"===\s*VLM\s*SUMMARY\s*===\s*(.*?)(?=\n===|\Z)", output_text, re.DOTALL | re.IGNORECASE)
-    if match:
-        return match.group(1).strip()
-    return ""
 
 def _extract_caption_from_output_file_QA(output_text: str) -> str:
     """
@@ -82,16 +74,15 @@ def _extract_caption_from_output_file_NQA(output_text: str) -> str:
     return ""
 
 
-def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER="pipeline/evaluation_results", NQA=False, QA=False, SUMMARY=False):
+def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER="pipeline/evaluation_results", NQA=False, QA=False, judge_model="DEEPSEEK"):
     """
     Run evaluation over all files in OUTPUT_DIR. For each flag that is True
-    (NQA, QA, SUMMARY), extract the corresponding caption section from the
+    (NQA, QA), extract the corresponding caption section from the
     file, evaluate it, and save results to a separate JSON file under RESULTS_FOLDER.
     """
     # prepare output containers per-flag
     results_QA = {}
     results_NQA = {}
-    results_SUMMARY = {}
 
     os.makedirs(RESULTS_FOLDER, exist_ok=True)
 
@@ -116,7 +107,7 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
         def _evaluate_and_score(caption_text: str):
             if not caption_text:
                 return None
-            eval_results = evaluate_caption(caption_text, ground_truth)
+            eval_results = evaluate_caption(caption_text, ground_truth, judge_model)
 
             # Try to extract numeric values from parsed responses
             def _get_numeric(parsed, key_aliases):
@@ -172,13 +163,6 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
                 results_NQA[video_key] = res
                 print(f"Evaluated NQA {filename}: {res['score']}")
 
-        if SUMMARY:
-            caption_text_sum = _extract_caption_from_output_file(output_text)
-            res = _evaluate_and_score(caption_text_sum)
-            if res:
-                results_SUMMARY[video_key] = res
-                print(f"Evaluated SUMMARY {filename}: {res['score']}")
-
     # Save results separately for each requested flag
     if QA:
         out_file = os.path.join(RESULTS_FOLDER, "evaluation_QA_results.json")
@@ -214,24 +198,6 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
         except Exception as e:
             print(f"Could not compute NQA averages: {e}")
 
-    if SUMMARY:
-        out_file = os.path.join(RESULTS_FOLDER, "evaluation_SUMMARY_results.json")
-        with open(out_file, "w", encoding="utf-8") as rf:
-            json.dump(results_SUMMARY, rf, indent=2, ensure_ascii=False)
-        print(f"Saved SUMMARY evaluation results: {out_file}")
-        # Print averages for SUMMARY
-        try:
-            if results_SUMMARY:
-                averages = calculate_averages(results_SUMMARY)
-                print("\nAVERAGE SCORES (SUMMARY):")
-                for category, avg in averages.items():
-                    print(f"{category}: {avg:.2f}")
-            else:
-                print("No SUMMARY results to average.")
-        except Exception as e:
-            print(f"Could not compute SUMMARY averages: {e}")
-
-
 def calculate_score(factual_accuracy, completeness, visual_enrichment):
     """
     Calculate aggregate score from three metrics (each 0-5). Total possible = 15.
@@ -248,15 +214,11 @@ def calculate_score(factual_accuracy, completeness, visual_enrichment):
     }
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description="Evaluate captions in OUTPUT_DIR and save per-flag results.")
-    # parser.add_argument("--nqa", dest="nqa", action="store_true", help="Evaluate NON-QA captions")
-    # parser.add_argument("--qa", dest="qa", action="store_true", help="Evaluate QA captions")
-    # parser.add_argument("--summary", dest="summary", action="store_true", help="Evaluate VLM summary captions")
-    # parser.add_argument("--all", dest="all_flags", action="store_true", help="Evaluate all caption types")
-    # parser.add_argument("--output-dir", dest="output_dir", default="pipeline/output_results_whisper", help="Directory containing pipeline output files")
-    # parser.add_argument("--results-folder", dest="results_folder", default="pipeline/evaluation_results", help="Folder to write per-flag results")
-
-    # args = parser.parse_args()
-    run_evaluation(OUTPUT_DIR="pipeline/baseline_captions", RESULTS_FOLDER="pipeline/evaluation_results_baseline", NQA=True, QA=True, SUMMARY=False)
+        
+    output_dir = "pipeline/baseline_captions"
+    results_folder = "pipeline/evaluation_results_baseline"
+    judge_model = "DEEPSEEK"
+    
+    run_evaluation(OUTPUT_DIR=output_dir, RESULTS_FOLDER=results_folder, NQA=True, QA=True, judge_model=judge_model)
 
 

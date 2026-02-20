@@ -1,6 +1,3 @@
-from pipeline.evaluation.eval_utils.transcripts import transcripts 
-
-
 copa_video_ground_truths = {
   "video179": {
     "important_details": [
