@@ -31,5 +31,7 @@ pip install decord==0.6.0
 pip install google-genai
 pip install openai
 pip install python-dotenv
+pip install qwen-vl-utils
+
 
 python -m pipeline.evaluation.inference
