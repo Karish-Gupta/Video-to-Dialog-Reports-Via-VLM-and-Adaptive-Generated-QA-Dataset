@@ -165,7 +165,7 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
 
     # Save results separately for each requested flag
     if QA:
-        out_file = os.path.join(RESULTS_FOLDER, "evaluation_QA_results.json")
+        out_file = os.path.join(RESULTS_FOLDER, "evaluation_deepseek_QA_results.json")
         with open(out_file, "w", encoding="utf-8") as rf:
             json.dump(results_QA, rf, indent=2, ensure_ascii=False)
         print(f"Saved QA evaluation results: {out_file}")
@@ -182,7 +182,7 @@ def run_evaluation(OUTPUT_DIR="pipeline/output_results_whisper", RESULTS_FOLDER=
             print(f"Could not compute QA averages: {e}")
 
     if NQA:
-        out_file = os.path.join(RESULTS_FOLDER, "evaluation_NQA_results.json")
+        out_file = os.path.join(RESULTS_FOLDER, "evaluation_deepseek_NQA_results.json")
         with open(out_file, "w", encoding="utf-8") as rf:
             json.dump(results_NQA, rf, indent=2, ensure_ascii=False)
         print(f"Saved NQA evaluation results: {out_file}")
