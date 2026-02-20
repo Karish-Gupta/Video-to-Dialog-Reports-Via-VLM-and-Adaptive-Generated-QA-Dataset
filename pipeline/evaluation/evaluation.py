@@ -41,11 +41,12 @@ def evaluate_caption(caption, ground_truth, model="DEEPSEEK"):
     }
     results = {}
     for metric_name, prompt in prompts.items():
+        model = model.upper()
         
         if model == "DEEPSEEK":
             resp = deeppseek.invoke(prompt)
         
-        if model == "GEMINI":
+        elif model == "GEMINI":
             resp = gemini.invoke(prompt)
         else:
             raise ValueError(f"Unknown model: {model}")
